@@ -1,4 +1,4 @@
-![Cat Image](pics\Age-Estimation.png)
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Age-Estimation.png)
 
 # About This Project
 This repository provides an implementation of facial age estimation using PyTorch, a popular deep learning framework. The goal of this project is to accurately estimate the age of individuals based on their facial appearance.
