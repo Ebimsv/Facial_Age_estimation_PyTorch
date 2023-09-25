@@ -60,7 +60,7 @@ The ResNet-50 model combined with regression is a powerful approach for facial a
 
 # Step 4: Implementation of the selected method
 ## Dataset
-### EDA (Exploratory Data Analysis)
+### 1. EDA (Exploratory Data Analysis)
 
 This repository contains code for performing exploratory data analysis on the UTK dataset, which consists of images categorized by age, gender, and ethnicity.
 
@@ -98,7 +98,7 @@ You will find code and instructions for creating violin plots and box plots to v
 You will find code and instructions for creating violin plots and box plots to visualize the distribution of age, separated by ethnicity. These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.
 
 
-### Dataset Splitting
+### 2. Dataset Splitting
 
 This repository contains code for splitting datasets and analyzing the distributions of age in the training, validation, and test sets. Additionally, it provides instructions for saving these sets in separate CSV files.
 
@@ -116,7 +116,7 @@ You will find code and instructions for plotting histograms to visualize the dis
 You will find code and instructions for saving the training, validation, and test sets in separate CSV files. This step is crucial for further analysis or modeling tasks, as it allows you to access and manipulate each set individually.
 
 
-### Transformations
+### 3. Transformations
 
 This repository contains code for defining transformations to preprocess images. The defined transformations include resizing images, applying random flips and rotations, adjusting image color, converting images to tensors, and normalizing pixel values.
 
@@ -153,7 +153,7 @@ You will find code and instructions for converting the images to tensors. Conver
 
 You will find code and instructions for normalizing the pixel values of the images. Normalizing the pixel values ensures that they have a standard range and distribution, making the training process more stable. The provided mean and standard deviation values (mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) can be used for this normalization.
 
-### Custom Dataset and DataLoader
+### 4. Custom Dataset and DataLoader
 
 The custom dataset allows you to load and preprocess your own data, while the dataloader provides an efficient way to iterate over the dataset during training or evaluation.
 
@@ -170,28 +170,28 @@ You will find code and instructions for creating a custom dataset. The custom da
 
 You will find code and instructions for defining a dataloader. The dataloader is responsible for efficiently loading and batching the data from the custom dataset. It provides an iterator interface that allows you to easily access the data during model training or evaluation. You can customize the dataloader settings such as batch size, shuffling, and parallel data loading based on your specific needs.
 
-### Model with Custom Dataset
+## Model with Custom Dataset
 
 This repository contains code for training and using models with a custom dataset. The models used in this project are ResNet50 and EfficientNet B0, and they are trained on the custom dataset you provide.
 
-#### Contents
+### Contents
 
 1. [ResNet50 Model](#resnet50-model)
 2. [EfficientNet B0 Model](#efficientnet-b0-model)
 
-##### ResNet50 Model
+#### ResNet50 Model
 
 You will find code and instructions for using the ResNet50 model with your custom dataset. The ResNet50 architecture is a widely-used convolutional neural network that has shown impressive performance on various computer vision tasks. You will learn how to load the pre-trained ResNet50 model, fine-tune it on your custom dataset, and use it for inference.
 
-##### EfficientNet B0 Model
+#### EfficientNet B0 Model
 
 You will find code and instructions for using the EfficientNet B0 model with your custom dataset. EfficientNet is a family of convolutional neural networks that have achieved state-of-the-art performance on image classification tasks while being computationally efficient. You will learn how to load the pre-trained EfficientNet B0 model, adapt it to your custom dataset, and leverage its capabilities for classification or feature extraction.
 
-### Training Process
+## Training Process
 
 This repository contains code for the training process of a model, including finding hyperparameters, the training and evaluation loop, and plotting learning curves.
 
-#### Contents
+### Contents
 
 1. [Finding Hyperparameters](#finding-hyperparameters)
    1. [Step 1: Calculate the Loss for an Untrained Model](#step-1-calculate-the-loss-for-an-untrained-model-using-a-few-batches)
@@ -202,43 +202,43 @@ This repository contains code for the training process of a model, including fin
 2. [Training and Evaluation Loop](#train-and-evaluation-loop)
 3. [Plotting Learning Curves](#plot-learning-curves)
 
-##### Finding Hyperparameters
+#### Finding Hyperparameters
 
 You will find code and instructions for finding the optimal hyperparameters for your model. The process involves several steps, including calculating the loss for an untrained model, overfitting the model on a small subset of the dataset, training the model for a limited number of epochs with various learning rates, creating a small grid using weight decay and the best learning rate, and finally training the model for longer epochs using the best model from the previous step.
 
-###### Step 1: Calculate the Loss for an Untrained Model Using a Few Batches
+##### Step 1: Calculate the Loss for an Untrained Model Using a Few Batches
 
 You will learn how to calculate the loss for an untrained model using a few batches of your dataset. This step helps you understand the initial performance of the model before any training.
 
-###### Step 2: Train and Overfit the Model on a Small Subset of the Dataset
+##### Step 2: Train and Overfit the Model on a Small Subset of the Dataset
 
 You will learn how to train and overfit the model on a small subset of your dataset. Overfitting the model on a small subset helps you gauge the model's capacity to learn and memorize the training data.
 
-###### Step 3: Train the Model for a Limited Number of Epochs, Experimenting with Various Learning Rates
+##### Step 3: Train the Model for a Limited Number of Epochs, Experimenting with Various Learning Rates
 
 In this step, you will learn how to train the model for a limited number of epochs while experimenting with various learning rates. This step helps you identify the learning rate that leads to optimal training progress and convergence.
 
-###### Step 4: Create a Small Grid Using Weight Decay and the Best Learning Rate
+##### Step 4: Create a Small Grid Using Weight Decay and the Best Learning Rate
 
 You will learn how to create a small grid using weight decay and the best learning rate obtained from the previous step. This grid helps you explore the effect of weight decay regularization on the model's performance.
 
-###### Step 5: Train the Model for Longer Epochs Using the Best Model from Step 4
+##### Step 5: Train the Model for Longer Epochs Using the Best Model from Step 4
 
 You will learn how to train the model for longer epochs using the best model obtained from the previous step. This step allows you to maximize the model's learning potential and achieve improved performance.
 
-##### Train and Evaluation Loop
+#### Train and Evaluation Loop
 
 You will find code and instructions for the train and evaluation loop. The train loop handles the training process, including forward and backward passes, updating model parameters, and monitoring training metrics. The evaluation loop performs model evaluation on a separate validation or test dataset and computes relevant evaluation metrics.
 
-##### Plotting Learning Curves
+#### Plotting Learning Curves
 
 You will find code and instructions for plotting learning curves. Learning curves visualize the model's training and validation performance over epochs, providing insights into the model's learning progress, convergence, and potential issues such as overfitting or underfitting.
 
-### Todo
+## Todo
 
 This repository contains code for various tasks related to inference and experiments with the model.
 
-#### Contents
+### Contents
 
 1. [Inference](#inference)
 2. [Experiments](#experiments)
@@ -249,38 +249,38 @@ This repository contains code for various tasks related to inference and experim
    5. [Create a Heatmap for the Face Images](#create-a-heatmap-for-the-face-images)
 3. [Use the Model to Perform Age Estimation on a Webcam Image](#use-the-model-to-perform-age-estimation-on-a-webcam-image)
 
-##### Inference
+#### Inference
 
 - [ ] Implement code for performing inference using the trained model.
 - [ ] Provide instructions on how to use the inference code with sample input data.
 
-##### Experiments
+#### Experiments
 
-###### Train and Evaluate the Model Using Various Datasets
+##### Train and Evaluate the Model Using Various Datasets
 
 - [ ] Conduct experiments to train and evaluate the model using different datasets.
 - [ ] Document the datasets used, training process, and evaluation results.
 - [ ] Provide guidelines on how to adapt the code for using custom datasets.
 
-###### Train the Model Using One Dataset and Test it on a Different One
+##### Train the Model Using One Dataset and Test it on a Different One
 
 - [ ] Perform experiments to train the model on one dataset and evaluate its performance on a different dataset.
 - [ ] Describe the process of training and testing on different datasets.
 - [ ] Report the evaluation metrics and discuss the results.
 
-###### Analyze the Loss Value with Respect to Age, Gender, and Race
+##### Analyze the Loss Value with Respect to Age, Gender, and Race
 
 - [ ] Analyze the loss value of the model with respect to age, gender, and race.
 - [ ] Provide code or scripts to calculate and visualize the loss values for different demographic groups.
 - [ ] Discuss the insights and implications of the analysis.
 
-###### Analyze the Model's Sensitivity
+##### Analyze the Model's Sensitivity
 
 - [ ] Conduct sensitivity analysis to understand the model's response to variations in input data.
 - [ ] Outline the methodology and metrics used for sensitivity analysis.
 - [ ] Present the findings and interpretations of the sensitivity analysis.
 
-###### Create a Heatmap for the Face Images
+##### Create a Heatmap for the Face Images
 
 - [ ] Develop code to generate heatmaps for face images based on the model's predictions or activations.
 - [ ] Explain the process of creating heatmaps and their significance in understanding the model's behavior.
