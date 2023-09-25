@@ -57,3 +57,41 @@ Automated facial age estimation has diverse real-world applications in multimedi
 The ResNet-50 model combined with regression is a powerful approach for facial age estimation. ResNet-50 is a deep convolutional neural network architecture that has proven to be highly effective in various computer vision tasks. By utilizing its depth and skip connections, ResNet-50 can effectively capture intricate facial features and patterns essential for age estimation. The regression component of the model enables it to directly predict the numerical age value, making it suitable for continuous age estimation rather than discrete age classification. This combination allows the model to learn complex relationships between facial attributes and age, providing accurate and precise age predictions. Overall, the ResNet-50 model with regression offers a robust and reliable solution for facial age estimation tasks.
 ## This is the diagram of proposed model
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/method.png)
+
+# Step 4: Implementation of the selected method
+## EDA (Exploratory Data Analysis)
+
+This repository contains code for performing exploratory data analysis on the UTK dataset, which consists of images categorized by age, gender, and ethnicity.
+
+### Contents
+
+1. [Explore the Images in the UTK Dataset](#explore-the-images-in-the-utk-dataset)
+2. [Create a CSV File with Labels](#create-a-csv-file-with-labels)
+3. [Plot Histograms for Age, Gender, and Ethnicity](#plot-histograms-for-age-gender-and-ethnicity)
+4. [Calculate Cross-Tabulation of Gender and Ethnicity](#calculate-cross-tabulation-of-gender-and-ethnicity)
+5. [Create Violin Plots and Box Plots for Age (Separated by Gender)](#create-violin-plots-and-box-plots-for-age-separated-by-gender)
+6. [Create Violin Plots and Box Plots for Age (Separated by Ethnicity)](#create-violin-plots-and-box-plots-for-age-separated-by-ethnicity)
+
+#### Explore the Images in the UTK Dataset
+
+In this section, you will find code and instructions for exploring the images in the UTK dataset. This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.
+
+#### Create a CSV File with Labels
+
+In this section, you will find code and instructions for creating a CSV file that contains labels for the UTK dataset. The labels may include information such as age, gender, and ethnicity for each image in the dataset.
+
+#### Plot Histograms for Age, Gender, and Ethnicity
+
+In this section, you will find code and instructions for plotting histograms to visualize the distribution of age, gender, and ethnicity in the UTK dataset. These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns.
+
+#### Calculate Cross-Tabulation of Gender and Ethnicity
+
+In this section, you will find code and instructions for calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.
+
+#### Create Violin Plots and Box Plots for Age (Separated by Gender)
+
+In this section, you will find code and instructions for creating violin plots and box plots to visualize the distribution of age, separated by gender. These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.
+
+#### Create Violin Plots and Box Plots for Age (Separated by Ethnicity)
+
+In this section, you will find code and instructions for creating violin plots and box plots to visualize the distribution of age, separated by ethnicity. These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.
