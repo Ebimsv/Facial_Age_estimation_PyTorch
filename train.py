@@ -3,6 +3,7 @@ from torch import nn, optim
 import config
 from model import AgeEstimationModel
 import matplotlib.pyplot as plt
+from torch.utils.tensorboard import SummaryWriter
 
 from functions import train_one_epoch, validation
 from dataset_dataloader import train_loader, valid_loader
@@ -16,16 +17,17 @@ loss_fn = nn.L1Loss()
 optimizer = optim.SGD(model.parameters(), lr=config.lr, momentum=0.9, weight_decay=config.wd)
 
 # Write code to train the model for num_epochs epochs.
-best_model = torch.inf
+best_loss = torch.inf
 loss_train_hist = []
 loss_valid_hist = []
 
 acc_train_hist = []
 acc_valid_hist = []
 
-num_epochs = 10
+writer = SummaryWriter()
 
-for epoch in range(num_epochs):
+
+for epoch in range(config.num_epochs):
     # Train
     model, loss_train = train_one_epoch(model,
                                         train_loader,
@@ -40,11 +42,25 @@ for epoch in range(num_epochs):
     loss_train_hist.append(loss_train)
     loss_valid_hist.append(loss_valid)
 
-    if epoch % 10 == 0:
+    if loss_valid < best_loss:
+        best_loss = loss_valid
+
+    # Save the model
+    before_model_path = f'epoch:{epoch}-loss_valid:{loss_valid}.pt'
+    torch.save(model.state_dict(), before_model_path)
+    print(f'Model saved in epoch: {epoch}')
+
+    writer.add_scalar('Loss/train', loss_train, epoch)
+    writer.add_scalar('Loss/test', loss_valid, epoch)
+ 
+    
+    if epoch % 5 == 0:
         print()
         print(f'Train: loss={loss_train:.3}')
         print(f'Valid: loss={loss_valid:.3}')
 
+
+writer.close()
 
 # Plots: Plot learning curves
 plt.plot(range(num_epochs), loss_train_hist, 'r-', label='Train')
@@ -54,6 +70,7 @@ plt.xlabel('Epoch')
 plt.ylabel('loss')
 plt.grid(True)
 plt.legend()
+
 
 # Test: Test your model using data from the test set and images that are not present in the dataset.
 model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)
