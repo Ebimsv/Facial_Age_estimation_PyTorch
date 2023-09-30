@@ -8,6 +8,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from PIL import Image
 
+import config
+
 
 # Create a csv file which contains labels
 def create_csv(dataset_folder):
@@ -99,9 +101,9 @@ train_set = UTKDataset(root_dir, csv_file_train, transform_train)
 valid_set = UTKDataset(root_dir, csv_file_valid, transform_test)
 test_set = UTKDataset(root_dir, csv_file_test, transform_test)
 
-train_loader = DataLoader(train_set, batch_size=256, shuffle=True)
-valid_loader = DataLoader(valid_set, batch_size=256)
-test_loader = DataLoader(test_set, batch_size=512)
+train_loader = DataLoader(train_set, batch_size=config.train_batch_size, shuffle=True)
+valid_loader = DataLoader(valid_set, batch_size=config.valid_batch_size)
+test_loader = DataLoader(test_set, batch_size=config.valid_batch_size)
 
 # Test the dataloaders using next(iter())
 batch_train = next(iter(train_loader))
