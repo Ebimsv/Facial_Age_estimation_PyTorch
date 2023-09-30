@@ -5,6 +5,7 @@ from model import model, device
 from dataset_dataloader import train_set, train_loader
 from functions import train_one_epoch
 from model import AgeEstimationModel
+import csv
 from prettytable import PrettyTable
 
 model = model.model
@@ -29,14 +30,14 @@ num_epochs = 5
 print('')
 
 # Step 3: Train the model for a limited number of epochs for all data, experimenting with various learning rates.
-for lr in [0.001, 0.0001, 0.0005]:
-    print(f'lr is: {lr}')
-    model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)
-    loss_fn = nn.L1Loss()
-    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9)
-    for epoch in range(num_epochs):
-        model, loss_train = train_one_epoch(model, train_loader, loss_fn, optimizer, metric='mae', epoch=epoch)
-    print('')
+# for lr in [0.001, 0.0001, 0.0005]:
+#     print(f'lr is: {lr}')
+#     model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)
+#     loss_fn = nn.L1Loss()
+#     optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9)
+#     for epoch in range(num_epochs):
+#         model, loss_train = train_one_epoch(model, train_loader, loss_fn, optimizer, metric='mae', epoch=epoch)
+#     print('')
 
 # Step 4: Create a small grid using the weight decay and the best learning rate.
 small_grid_list = []
@@ -45,16 +46,27 @@ for lr in [0.001, 0.0001, 0.0005]:
         print(f'LR={lr}, WD={wd}')
         model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)
         loss_fn = nn.L1Loss()
-        optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9)
+        optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wd)
         for epoch in range(num_epochs):
             model, loss_train = train_one_epoch(model, train_loader, loss_fn, optimizer, metric='mae', epoch=epoch)
-
         small_grid_list.append([lr, wd, loss_train])
 
+# Define the table headers and create the PrettyTable object
+headers = ['LR', 'WD', 'Loss', 'Accuracy']
+table = PrettyTable(headers)
 
-table = PrettyTable(['LR', 'WD', 'Loss', 'Accuracy'])
-
+# Add rows to the table
 for rec in small_grid_list:
     table.add_row(rec)
-
 print(table)
+
+# Write the table data to a CSV file
+with open('H-parameters.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(headers)
+
+    # Write the table data row by row
+    for row in table.get_string().split('\n'):
+        writer.writerow(row.split())
+
+print("Data has been written to 'table_data.csv' file.")
