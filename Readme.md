@@ -75,27 +75,27 @@ This repository contains code for performing exploratory data analysis on the UT
 
 ##### Explore the Images in the UTK Dataset
 
-This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.
+- This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.
 
 ##### Create a CSV File with Labels
 
-The labels may include information such as age, gender, and ethnicity for each image in the dataset.
+- The labels may include information such as age, gender, and ethnicity for each image in the dataset.
 
 ##### Plot Histograms for Age, Gender, and Ethnicity
 
-These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns.
+- These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns.
 
 ##### Calculate Cross-Tabulation of Gender and Ethnicity
 
-Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.
+- Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.
 
 ##### Create Violin Plots and Box Plots for Age (Separated by Gender)
 
-These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.
+- These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.
 
 ##### Create Violin Plots and Box Plots for Age (Separated by Ethnicity)
 
-These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.
+- These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.
 
 
 ### 2. Dataset Splitting
