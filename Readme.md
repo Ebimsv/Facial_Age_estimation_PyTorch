@@ -75,27 +75,27 @@ This repository contains code for performing exploratory data analysis on the UT
 
 ##### Explore the Images in the UTK Dataset
 
-You will find code and instructions for exploring the images in the UTK dataset. This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.
+This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.
 
 ##### Create a CSV File with Labels
 
-You will find code and instructions for creating a CSV file that contains labels for the UTK dataset. The labels may include information such as age, gender, and ethnicity for each image in the dataset.
+The labels may include information such as age, gender, and ethnicity for each image in the dataset.
 
 ##### Plot Histograms for Age, Gender, and Ethnicity
 
-You will find code and instructions for plotting histograms to visualize the distribution of age, gender, and ethnicity in the UTK dataset. These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns.
+These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns.
 
 ##### Calculate Cross-Tabulation of Gender and Ethnicity
 
-You will find code and instructions for calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.
+Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.
 
 ##### Create Violin Plots and Box Plots for Age (Separated by Gender)
 
-You will find code and instructions for creating violin plots and box plots to visualize the distribution of age, separated by gender. These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.
+These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.
 
 ##### Create Violin Plots and Box Plots for Age (Separated by Ethnicity)
 
-You will find code and instructions for creating violin plots and box plots to visualize the distribution of age, separated by ethnicity. These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.
+These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.
 
 
 ### 2. Dataset Splitting
@@ -113,12 +113,12 @@ You will find code and instructions for plotting histograms to visualize the dis
 
 ##### Save the Training, Validation, and Test Sets in Separate CSV Files
 
-You will find code and instructions for saving the training, validation, and test sets in separate CSV files. This step is crucial for further analysis or modeling tasks, as it allows you to access and manipulate each set individually.
+This step is crucial for further analysis or modeling tasks, as it allows you to access and manipulate each set individually.
 
 
 ### 3. Transformations
 
-This repository contains code for defining transformations to preprocess images. The defined transformations include resizing images, applying random flips and rotations, adjusting image color, converting images to tensors, and normalizing pixel values.
+The defined transformations include resizing images, applying random flips and rotations, adjusting image color, converting images to tensors, and normalizing pixel values.
 
 #### Contents
 
@@ -131,27 +131,27 @@ This repository contains code for defining transformations to preprocess images.
 
 ##### Resizing Images
 
-You will find code and instructions for resizing images to a resolution of 128x128 pixels. Resizing the images ensures consistent dimensions and prepares them for further processing or analysis.
+- Resizing images to a resolution of 128x128 pixels. Resizing the images ensures consistent dimensions and prepares them for further processing or analysis.
 
 ##### Applying Random Horizontal Flips
 
-You will find code and instructions for applying random horizontal flips to the images. Random flips can introduce diversity and prevent model bias towards specific orientations.
+- Random flips can introduce diversity and prevent model bias towards specific orientations.
 
 ##### Introducing Random Rotations
 
-You will find code and instructions for introducing random rotations of 15 degrees to the images. Random rotations can simulate variation and improve model robustness to different orientations.
+- Random rotations can simulate variation and improve model robustness to different orientations.
 
 ##### Adjusting Image Color using ColorJitter
 
-You will find code and instructions for adjusting image color using the ColorJitter transformation. ColorJitter allows you to modify the brightness, contrast, saturation, and hue of the images, enhancing their visual appearance and potentially improving model performance.
+- ColorJitter allows you to modify the brightness, contrast, saturation, and hue of the images, enhancing their visual appearance and potentially improving model performance.
 
 ##### Converting Images to Tensors
 
-You will find code and instructions for converting the images to tensors. Converting images to tensors is a required step for many deep learning frameworks and enables efficient computation on GPUs.
+- Converting images to tensors is a required step for many deep learning frameworks and enables efficient computation on GPUs.
 
 ##### Normalizing Pixel Values
 
-You will find code and instructions for normalizing the pixel values of the images. Normalizing the pixel values ensures that they have a standard range and distribution, making the training process more stable. The provided mean and standard deviation values (mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) can be used for this normalization.
+- Normalizing the pixel values ensures that they have a standard range and distribution, making the training process more stable. The provided mean and standard deviation values (**mean**=[0.485, 0.456, 0.406], **std**=[0.229, 0.224, 0.225]) can be used for this normalization.
 
 ### 4. Custom Dataset and DataLoader
 
@@ -164,11 +164,11 @@ The custom dataset allows you to load and preprocess your own data, while the da
 
 ##### Custom Dataset
 
-You will find code and instructions for creating a custom dataset. The custom dataset is designed to handle your specific data format and apply any necessary preprocessing steps. You can modify the dataset class according to your data structure, file paths, and preprocessing requirements.
+- The custom dataset is designed to handle your specific data format and apply any necessary preprocessing steps. You can modify the dataset class according to your data structure, file paths, and preprocessing requirements.
 
 ##### Define DataLoader
 
-You will find code and instructions for defining a dataloader. The dataloader is responsible for efficiently loading and batching the data from the custom dataset. It provides an iterator interface that allows you to easily access the data during model training or evaluation. You can customize the dataloader settings such as batch size, shuffling, and parallel data loading based on your specific needs.
+- The dataloader is responsible for efficiently loading and batching the data from the custom dataset. It provides an iterator interface that allows you to easily access the data during model training or evaluation. You can customize the dataloader settings such as batch size, shuffling, and parallel data loading based on your specific needs.
 
 ## Model with Custom Dataset
 
@@ -181,11 +181,11 @@ This repository contains code for training and using models with a custom datase
 
 #### ResNet50 Model
 
-You will find code and instructions for using the ResNet50 model with your custom dataset. The ResNet50 architecture is a widely-used convolutional neural network that has shown impressive performance on various computer vision tasks. You will learn how to load the pre-trained ResNet50 model, fine-tune it on your custom dataset, and use it for inference.
+- The ResNet50 architecture is a widely-used convolutional neural network that has shown impressive performance on various computer vision tasks. You will learn how to load the pre-trained ResNet50 model, fine-tune it on your custom dataset, and use it for inference.
 
 #### EfficientNet B0 Model
 
-You will find code and instructions for using the EfficientNet B0 model with your custom dataset. EfficientNet is a family of convolutional neural networks that have achieved state-of-the-art performance on image classification tasks while being computationally efficient. You will learn how to load the pre-trained EfficientNet B0 model, adapt it to your custom dataset, and leverage its capabilities for classification or feature extraction.
+- EfficientNet is a family of convolutional neural networks that have achieved state-of-the-art performance on image classification tasks while being computationally efficient. You will learn how to load the pre-trained EfficientNet B0 model, adapt it to your custom dataset, and leverage its capabilities for classification or feature extraction.
 
 ## Training Process
 
@@ -208,27 +208,27 @@ You will find code and instructions for finding the optimal hyperparameters for 
 
 ##### Step 1: Calculate the Loss for an Untrained Model Using a Few Batches
 
-You will learn how to calculate the loss for an untrained model using a few batches of your dataset. This step helps you understand the initial performance of the model before any training.
+- You will learn how to calculate the loss for an untrained model using a few batches of your dataset. This step helps you understand the initial performance of the model before any training.
 
 ##### Step 2: Train and Overfit the Model on a Small Subset of the Dataset
 
-You will learn how to train and overfit the model on a small subset of your dataset. Overfitting the model on a small subset helps you gauge the model's capacity to learn and memorize the training data.
+- You will learn how to train and overfit the model on a small subset of your dataset. Overfitting the model on a small subset helps you gauge the model's capacity to learn and memorize the training data.
 
 ##### Step 3: Train the Model for a Limited Number of Epochs, Experimenting with Various Learning Rates
 
-In this step, you will learn how to train the model for a limited number of epochs while experimenting with various learning rates. This step helps you identify the learning rate that leads to optimal training progress and convergence.
+- In this step, you will learn how to train the model for a limited number of epochs while experimenting with various learning rates. This step helps you identify the learning rate that leads to optimal training progress and convergence.
 
 ##### Step 4: Create a Small Grid Using Weight Decay and the Best Learning Rate
 
-You will learn how to create a small grid using weight decay and the best learning rate obtained from the previous step. This grid helps you explore the effect of weight decay regularization on the model's performance.
+- You will learn how to create a small grid using weight decay and the best learning rate obtained from the previous step. This grid helps you explore the effect of weight decay regularization on the model's performance.
 
 ##### Step 5: Train the Model for Longer Epochs Using the Best Model from Step 4
 
-You will learn how to train the model for longer epochs using the best model obtained from the previous step. This step allows you to maximize the model's learning potential and achieve improved performance.
+- You will learn how to train the model for longer epochs using the best model obtained from the previous step. This step allows you to maximize the model's learning potential and achieve improved performance.
 
 #### Train and Evaluation Loop
 
-You will find code and instructions for the train and evaluation loop. The train loop handles the training process, including forward and backward passes, updating model parameters, and monitoring training metrics. The evaluation loop performs model evaluation on a separate validation or test dataset and computes relevant evaluation metrics.
+The train loop handles the training process, including forward and backward passes, updating model parameters, and monitoring training metrics. The evaluation loop performs model evaluation on a separate validation or test dataset and computes relevant evaluation metrics.
 
 #### Plotting Learning Curves
 
