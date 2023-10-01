@@ -5,10 +5,17 @@ from model import AgeEstimationModel
 import matplotlib.pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
 
+import os
 from functions import train_one_epoch, validation
 from dataset_dataloader import train_loader, valid_loader
 from config import *
-from utils import AverageMeter
+
+# create a folder to save checkpoints
+path = 'checkpoints'
+try:
+    os.mkdir(path)
+except OSError as error:
+    print(error)
 
 # Step 5: Train model for longer epochs using the best model from step 4 in hyperparameters_tuning.
 # Define model, define optimizer and Set learning rate and weight decay.
@@ -18,6 +25,8 @@ optimizer = optim.SGD(model.parameters(), lr=config.lr, momentum=0.9, weight_dec
 
 # Write code to train the model for num_epochs epochs.
 best_loss = torch.inf
+before_model_path = None
+
 loss_train_hist = []
 loss_valid_hist = []
 
@@ -44,15 +53,14 @@ for epoch in range(config.num_epochs):
 
     if loss_valid < best_loss:
         best_loss = loss_valid
-
-    # Save the model
-    before_model_path = f'epoch:{epoch}-loss_valid:{loss_valid}.pt'
-    torch.save(model.state_dict(), before_model_path)
-    print(f'Model saved in epoch: {epoch}')
+        if before_model_path is not None:
+            os.remove(before_model_path)
+        before_model_path = f'checkpoints/epoch:{epoch}-loss_valid:{best_loss:.3}.pt'
+        torch.save(model.state_dict(), before_model_path)
+        print(f'\nModel saved in epoch: {epoch}')
 
     writer.add_scalar('Loss/train', loss_train, epoch)
     writer.add_scalar('Loss/test', loss_valid, epoch)
- 
     
     if epoch % 5 == 0:
         print()
@@ -73,7 +81,7 @@ plt.legend()
 
 
 # Test: Test your model using data from the test set and images that are not present in the dataset.
-model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)
-model.eval()
-loss_fn = nn.L1Loss()
-loss_test = AverageMeter()
+# model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)
+# model.eval()
+# loss_fn = nn.L1Loss()
+# loss_test = AverageMeter()
