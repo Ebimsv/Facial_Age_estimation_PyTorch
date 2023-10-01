@@ -67,29 +67,41 @@ This repository contains code for performing exploratory data analysis on the UT
 
 ##### Explore the Images in the UTK Dataset
 
-- This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.
+- This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.\
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/show_rand_samples.png) 
 
 ##### Create a CSV File with Labels
 
-- The labels may include information such as age, gender, and ethnicity for each image in the dataset.
+- The labels may include information such as age, gender, and ethnicity for each image in the dataset.\
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/csv_file.png)  
 
 ##### Plot Histograms for Age, Gender, and Ethnicity
 
-- These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns.
+- These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns.\
+   - Histogram for Age:
+      ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/age_histogram.png) \
+
+   - Histogram for Gender:
+      ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/gender_histogram.png) \
+
+   - Histogram for Ethnicity:
+      ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/ethnicity_histogram.png)
+
 
 ##### Calculate Cross-Tabulation of Gender and Ethnicity
 
-- Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.
+- Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights. \ 
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/cross-tabulation.png)
 
 ##### Create Violin Plots and Box Plots for Age (Separated by Gender)
 
-- These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.
+- These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.\
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_age_men_women.png)
 
 ##### Create Violin Plots and Box Plots for Age (Separated by Ethnicity)
 
-- These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.
-
+- These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.\
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_Separated_by_Ethnicity.png)
 
 ### 2. Dataset Splitting
 
@@ -174,11 +186,13 @@ This repository contains code for training and using models with a custom datase
 
 #### ResNet50 Model
 
-- The ResNet50 architecture is a widely-used convolutional neural network that has shown impressive performance on various computer vision tasks. You will learn how to load the pre-trained ResNet50 model, fine-tune it on your custom dataset, and use it for inference.
+- The ResNet50 architecture is a widely-used convolutional neural network that has shown impressive performance on various computer vision tasks. You will learn how to load the pre-trained ResNet50 model, fine-tune it on your custom dataset, and use it for inference. \
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Resnet50.png)
 
 #### EfficientNet B0 Model
 
 - EfficientNet is a family of convolutional neural networks that have achieved state-of-the-art performance on image classification tasks while being computationally efficient. You will learn how to load the pre-trained EfficientNet B0 model, adapt it to your custom dataset, and leverage its capabilities for classification or feature extraction.
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/EfficientNet.png)
 
 ## Training Process
 
