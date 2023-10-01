@@ -5,10 +5,10 @@ from sklearn.model_selection import train_test_split
 df = pd.read_csv('csv_dataset/utkface_dataset.csv')
 print(df.head())
 
-# Plot histogram for age
+# 1. Plot histogram for age
 print(df.hist())
 
-# 1. Plot histogram for gender
+# 2. Plot histogram for gender
 category_counts = df['gender'].value_counts()
 plt.bar(range(len(category_counts)), category_counts.values)
 plt.ylabel('Counts')
@@ -16,7 +16,7 @@ plt.title('Histogram for gender')
 plt.xticks(range(len(category_counts)), category_counts.index, rotation=90)
 plt.show()
 
-# 2. Plot histogram for ethnicity
+# 3. Plot histogram for ethnicity
 category_counts = df['ethnicity'].value_counts()
 plt.bar(range(len(category_counts)), category_counts.values)
 plt.ylabel('Counts')
@@ -24,11 +24,11 @@ plt.title('Histogram for ethnicity')
 plt.xticks(range(len(category_counts)), category_counts.index, rotation=90)
 plt.show()
 
-# 3. Calculate the cross-tabulation of gender and ethnicity using the pandas.crosstab() function.
+# 4. Calculate the cross-tabulation of gender and ethnicity using the pandas.crosstab() function.
 cross_tab = pd.crosstab(df['gender'], df['ethnicity'])
 print(cross_tab)
 
-# 4. Create violin plots and box plots for age, separately for men and women.
+# 5. Create violin plots and box plots for age, separately for men and women.
 men_df = df[df['gender'] == 'Male']
 women_df = df[df['gender'] == 'Female']
 
@@ -46,7 +46,7 @@ plt.boxplot(women_df['age'], vert=False)
 plt.xlabel('Age')
 plt.title('Violin Plot - Women')
 
-# 5. Create violin plots and box plots for age, separately for each ethnicity.
+# 6. Create violin plots and box plots for age, separately for each ethnicity.
 Asian_df = df[df['ethnicity'] == 'Asian']
 Black_df = df[df['ethnicity'] == 'Black']
 Indian_df = df[df['ethnicity'] == 'Indian']
