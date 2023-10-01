@@ -48,11 +48,11 @@ for lr in [0.001, 0.0001, 0.0005]:
         loss_fn = nn.L1Loss()
         optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wd)
         for epoch in range(num_epochs):
-            model, loss_train = train_one_epoch(model, train_loader, loss_fn, optimizer, metric='mae', epoch=epoch)
+            model, loss_train = train_one_epoch(model, mini_train_loader, loss_fn, optimizer, metric='mae', epoch=epoch)
         small_grid_list.append([lr, wd, loss_train])
 
 # Define the table headers and create the PrettyTable object
-headers = ['LR', 'WD', 'Loss', 'Accuracy']
+headers = ['LR', 'WD', 'Loss']
 table = PrettyTable(headers)
 
 # Add rows to the table
