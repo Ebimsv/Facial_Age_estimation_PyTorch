@@ -1,7 +1,7 @@
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Age-Estimation.png)
 
 # About This Project
-This repository provides an implementation of facial age estimation using PyTorch, a popular deep learning framework. The goal of this project is to accurately estimate the age of individuals based on their facial appearance.
+This repository provides a detailed, step-by-step implementation guide for facial age estimation using PyTorch, a popular deep learning framework. The goal of this project is to accurately estimate the age of individuals based on their facial appearance.
 
 # Step 1: Accurate and concise definition of the problem
 Age estimation refers to the process of estimating a person's age based on various observable characteristics or features. It is often performed using computer vision techniques that analyze facial attributes such as wrinkles, skin texture, and hair color. By comparing these characteristics with a database of known age examples, algorithms can make an educated guess about a person's age. However, it's important to note that age estimation is not always accurate and can be influenced by factors such as lighting conditions, facial expressions, and individual variations. It is primarily used in applications like biometrics, demographic analysis, or age-restricted access control systems.
@@ -27,31 +27,23 @@ By striving to achieve these goals, researchers and developers aim to advance th
 
 # Step 2: Literature Review
 ## 1. SwinFace: A Multi-task Transformer for Face Recognition, Expression Recognition, Age Estimation and Attribute Estimation
-The paper introduces SwinFace, a multi-task algorithm for face recognition, facial expression recognition, age estimation, and face attribute estimation. It utilizes a single Swin Transformer with task-specific subnets and a Multi-Level Channel Attention module to address conflicts and adaptively select optimal features. Experimental results demonstrate superior performance, achieving state-of-the-art accuracy of 90.97% on facial expression recognition (RAF-DB) and 0.22 error on age estimation (CLAP2015). The code and models are publicly available at [https://github.com/lxq1000/SwinFace. ↗](https://github.com/lxq1000/SwinFace.)
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/SwinFace.JPG)
-An overview of the SwinFace architecture is presented in above figure. In this paper, they adopt a single Swin Transformer to extract shared feature maps at different levels. Based on shared feature maps, we further perform multi-task learning
-with a face recognition subnet and 11 face analysis subnets.
-    1) Shared Backbone: The shared Swin Transformer backbone can produce a hierarchical representation. The cropped112 × 112 × 3 face image is first split into non-overlapping patches by a patch partition module. In our implementation, we use a patch size of 2 × 2 and thus the number of tokens for the subsequent module is 56 × 56 with a dimension of 48.
-    2) Face Recognition Subnet: Face recognition requires robust representations that are not affected by local variations. Therefore, we only provide the feature map extracted from the top layer, namely FM4, to the face recognition subnet. Similar to ArcFace, we introduced the structure that includes BN to get the final 512-D embedding feature.
-    3) Face Analysis Subnets: The proposed model is able to perform 42 analysis tasks, which are divided into 11 groups according to the relevance of the tasks, 
+The paper introduces SwinFace, a multi-task algorithm for face recognition, facial expression recognition, age estimation, and face attribute estimation. It utilizes a single Swin Transformer with task-specific subnets and a Multi-Level Channel Attention module to address conflicts and adaptively select optimal features. Experimental results demonstrate superior performance, achieving state-of-the-art accuracy of 90.97% on facial expression recognition (RAF-DB) and 0.22 error on age estimation (CLAP2015). The code and models are publicly available at [https://github.com/lxq1000/SwinFace. ↗](https://github.com/lxq1000/SwinFace.)\
 
 ## 2. Unraveling the Age Estimation Puzzle: Comparative Analysis of Deep Learning Approaches for Facial Age Estimation
 The paper addresses the challenge of comparing different age estimation methods due to inconsistencies in benchmarking processes. It challenges the notion that specialized methods are necessary for age estimation tasks and argues that the standard approach of utilizing cross-entropy loss is sufficient. Through a systematic analysis of various factors, including facial alignment, coverage, image resolution, representation, model architecture, and data amount, the paper finds that these factors often have a greater impact on age estimation results than the choice of the specific method. The study emphasizes the importance of consistent data preprocessing and standardized benchmarks for reliable and meaningful comparisons. The source code is available at Facial-Age-Benchmark.
 
 ## 3. MiVOLO: Multi-input Transformer for Age and Gender Estimation
 The paper introduces MiVOLO, a method for age and gender estimation that utilizes a vision transformer and integrates both tasks into a unified dual input/output model. By incorporating person image data in addition to facial information, the model demonstrates improved generalization and the ability to estimate age and gender even when the face is occluded. Experimental results on multiple benchmarks show state-of-the-art performance and real-time processing capabilities. The model's age recognition performance surpasses human-level accuracy across various age ranges. The code, models, and additional dataset annotations are publicly available for validation and inference.
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/MiVOLO.JPG)
 
 ## 4. Rank consistent ordinal regression for neural networks with application to age estimation
 The paper addresses the issue of capturing relative ordering information in class labels for tasks like age estimation. It introduces the COnsistent RAnk Logits (CORAL) framework, which transforms ordinal targets into binary classification subtasks to resolve inconsistencies among binary classifiers. The proposed method, applicable to various deep neural network architectures, demonstrates strong theoretical guarantees for rank-monotonicity and consistent confidence scores. Empirical evaluation on face-image datasets for age prediction shows a significant reduction in prediction error compared to reference ordinal regression networks.
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/CORAL.JPG)
 
 ## 5. Deep Regression Forests for Age Estimation
 The paper introduces Deep Regression Forests (DRFs) as an end-to-end model for age estimation from facial images. DRFs address the challenge of heterogeneous facial feature space by jointly learning input-dependent data partitions and data abstractions. The proposed method achieves state-of-the-art results on three standard age estimation benchmarks, demonstrating its effectiveness in capturing the nonlinearity and variation in facial appearance across different ages.
 
 ## 6. Adaptive Mean-Residue Loss for Robust Facial Age Estimation
 Automated facial age estimation has diverse real-world applications in multimedia analysis, e.g., video surveillance, and human-computer interaction. However, due to the randomness and ambiguity of the aging process, age assessment is challenging. Most research work over the topic regards the task as one of age regression, classification, and ranking problems, and cannot well leverage age distribution in representing labels with age ambiguity. In this work, we propose a simple yet effective loss function for robust facial age estimation via distribution learning, i.e., adaptive mean-residue loss, in which, the mean loss penalizes the difference between the estimated age distribution's mean and the ground-truth age, whereas the residue loss penalizes the entropy of age probability out of dynamic top-K in the distribution. Experimental results in the datasets FG-NET and CLAP2016 have validated the effectiveness of the proposed loss. Our code is available at https://github.com/jacobzhaoziyuan/AMR-Loss.
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Adaptive-Mean-Residual-Loss.JPG)
+
 
 # Step 3: Choose the appropriate method
 The ResNet-50 model combined with regression is a powerful approach for facial age estimation. ResNet-50 is a deep convolutional neural network architecture that has proven to be highly effective in various computer vision tasks. By utilizing its depth and skip connections, ResNet-50 can effectively capture intricate facial features and patterns essential for age estimation. The regression component of the model enables it to directly predict the numerical age value, making it suitable for continuous age estimation rather than discrete age classification. This combination allows the model to learn complex relationships between facial attributes and age, providing accurate and precise age predictions. Overall, the ResNet-50 model with regression offers a robust and reliable solution for facial age estimation tasks.
@@ -76,6 +68,7 @@ This repository contains code for performing exploratory data analysis on the UT
 ##### Explore the Images in the UTK Dataset
 
 - This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/show_rand_samples.png) 
 
 ##### Create a CSV File with Labels
 
@@ -197,10 +190,11 @@ This repository contains code for the training process of a model, including fin
    1. [Step 1: Calculate the Loss for an Untrained Model](#step-1-calculate-the-loss-for-an-untrained-model-using-a-few-batches)
    2. [Step 2: Train and Overfit the Model on a Small Subset of the Dataset](#step-2-try-to-train-and-overfit-the-model-on-a-small-subset-of-the-dataset)
    3. [Step 3: Train the Model for a Limited Number of Epochs](#step-3-train-the-model-for-a-limited-number-of-epochs-experimenting-with-various-learning-rates)
-   4. [Step 4: Create a Small Grid Using Weight Decay and the Best Learning Rate](#step-4-create-a-small-grid-using-the-weight-decay-and-the-best-learning-rate)
+   4. [Step 4: Create a Small Grid Using Weight Decay and the Best Learning Rate and save it to a CSV file](#step-4-create-a-small-grid-using-the-weight-decay-and-the-best-learning-rate-and-save-it-to-a-CSV-file)
    5. [Step 5: Train the Model for Longer Epochs Using the Best Model from Step 4](#step-5-train-model-for-longer-epochs-using-the-best-model-from-step-4)
 2. [Training and Evaluation Loop](#train-and-evaluation-loop)
-3. [Plotting Learning Curves](#plot-learning-curves)
+3. [Plotting Learning Curves with Matplotlib and TensorBoard](#plot-learning-curves)
+4. [Save the best model from .pt to .jit](#Save-the-best-model-from-.pt-to-.jit)
 
 #### Finding Hyperparameters
 
@@ -218,7 +212,7 @@ You will find code and instructions for finding the optimal hyperparameters for 
 
 - In this step, you will learn how to train the model for a limited number of epochs while experimenting with various learning rates. This step helps you identify the learning rate that leads to optimal training progress and convergence.
 
-##### Step 4: Create a Small Grid Using Weight Decay and the Best Learning Rate
+##### Step 4: Create a Small Grid Using Weight Decay and the Best Learning Rate and save it to a CSV file
 
 - You will learn how to create a small grid using weight decay and the best learning rate obtained from the previous step. This grid helps you explore the effect of weight decay regularization on the model's performance.
 
@@ -226,13 +220,18 @@ You will find code and instructions for finding the optimal hyperparameters for 
 
 - You will learn how to train the model for longer epochs using the best model obtained from the previous step. This step allows you to maximize the model's learning potential and achieve improved performance.
 
+##### Step 6: Save the best model from .pt to .jit
+- The primary reason for this conversion is to optimize and improve the model's performance during deployment.
+
 #### Train and Evaluation Loop
 
 The train loop handles the training process, including forward and backward passes, updating model parameters, and monitoring training metrics. The evaluation loop performs model evaluation on a separate validation or test dataset and computes relevant evaluation metrics.
 
-#### Plotting Learning Curves
+#### Plotting Learning Curves with Matplotlib and TensorBoard
 
-You will find code and instructions for plotting learning curves. Learning curves visualize the model's training and validation performance over epochs, providing insights into the model's learning progress, convergence, and potential issues such as overfitting or underfitting.
+Learning curves visualize the model's training and validation performance over epochs, providing insights into the model's learning progress, convergence, and potential issues such as overfitting or underfitting.\
+TensorBoard is a tool for providing the measurements and visualizations needed during the machine learning workflow. It enables tracking experiment metrics like loss and accuracy, visualizing the model graph, projecting embeddings to a lower dimensional space, and much more.
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/loss-tensorboard.png)  
 
 ## Todo
 
