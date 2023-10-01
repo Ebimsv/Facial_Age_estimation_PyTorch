@@ -70,7 +70,7 @@ This repository contains code for performing exploratory data analysis on the UT
 
 - This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.  
 
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/show_rand_samples.png) 
+   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/show_rand_samples.png) 
 
 ##### Create a CSV File with Labels
 
