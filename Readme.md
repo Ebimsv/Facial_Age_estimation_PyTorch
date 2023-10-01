@@ -77,7 +77,8 @@ This repository contains code for performing exploratory data analysis on the UT
 
 ##### Plot Histograms for Age, Gender, and Ethnicity
 
-- These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns.\
+- These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns. \
+
    - Histogram for Age:
       ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/age_histogram.png) \
 
