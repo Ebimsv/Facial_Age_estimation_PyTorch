@@ -76,7 +76,7 @@ This repository contains code for performing exploratory data analysis on the UT
 
 - The labels may include information such as age, gender, and ethnicity for each image in the dataset.  
 
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/csv_file.png)  
+   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/csv_file.png)  
 
 ##### Plot Histograms for Age, Gender, and Ethnicity
 
@@ -86,9 +86,11 @@ This repository contains code for performing exploratory data analysis on the UT
 
       ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/age_histogram.png)  
 
+
    - Histogram for Gender:  
 
       ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/gender_histogram.png)  
+
 
    - Histogram for Ethnicity:  
 
@@ -99,7 +101,7 @@ This repository contains code for performing exploratory data analysis on the UT
 
 - Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.  
 
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/cross-tabulation.png)
+      ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/cross-tabulation.png)
 
 ##### Create Violin Plots and Box Plots for Age (Separated by Gender)
 
@@ -198,13 +200,13 @@ This repository contains code for training and using models with a custom datase
 
 - The ResNet50 architecture is a widely-used convolutional neural network that has shown impressive performance on various computer vision tasks. You will learn how to load the pre-trained ResNet50 model, fine-tune it on your custom dataset, and use it for inference.  
 
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Resnet50.png)
+   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Resnet50.png)
 
 #### EfficientNet B0 Model
 
 - EfficientNet is a family of convolutional neural networks that have achieved state-of-the-art performance on image classification tasks while being computationally efficient. You will learn how to load the pre-trained EfficientNet B0 model, adapt it to your custom dataset, and leverage its capabilities for classification or feature extraction.  
 
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/EfficientNet.png)
+   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/EfficientNet.png)
 
 ## Training Process
 
