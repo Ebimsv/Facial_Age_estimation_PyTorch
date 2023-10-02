@@ -126,7 +126,9 @@ This repository contains code for splitting datasets and analyzing the distribut
 
 ##### Plot Histograms for Age in the Training, Validation, and Test Sets
 
-You will find code and instructions for plotting histograms to visualize the distribution of age in the training, validation, and test sets. The histograms will help ensure that the distributions of age in these sets are similar, indicating a balanced and representative dataset split.
+This histograms will help ensure that the distributions of age in these sets are similar, indicating a balanced and representative dataset split.  
+
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/histogram_train_valid_test.png)
 
 ##### Save the Training, Validation, and Test Sets in Separate CSV Files
 
@@ -189,7 +191,7 @@ The custom dataset allows you to load and preprocess your own data, while the da
 
 ## Model with Custom Dataset
 
-This repository contains code for training and using models with a custom dataset. The models used in this project are ResNet50 and EfficientNet B0, and they are trained on the custom dataset you provide.
+The models used in this project are ResNet50 and EfficientNet B0, and they are trained on the custom dataset you provide.
 
 ### Contents
 
@@ -226,27 +228,27 @@ This repository contains code for the training process of a model, including fin
 
 #### Finding Hyperparameters
 
-You will find code and instructions for finding the optimal hyperparameters for your model. The process involves several steps, including calculating the loss for an untrained model, overfitting the model on a small subset of the dataset, training the model for a limited number of epochs with various learning rates, creating a small grid using weight decay and the best learning rate, and finally training the model for longer epochs using the best model from the previous step.
+The process involves several steps, including calculating the loss for an untrained model, overfitting the model on a small subset of the dataset, training the model for a limited number of epochs with various learning rates, creating a small grid using weight decay and the best learning rate, and finally training the model for longer epochs using the best model from the previous step.
 
 ##### Step 1: Calculate the Loss for an Untrained Model Using a Few Batches
 
-- You will learn how to calculate the loss for an untrained model using a few batches of your dataset. This step helps you understand the initial performance of the model before any training.
+- This step helps you understand the initial performance of the model before any training.
 
 ##### Step 2: Train and Overfit the Model on a Small Subset of the Dataset
 
-- You will learn how to train and overfit the model on a small subset of your dataset. Overfitting the model on a small subset helps you gauge the model's capacity to learn and memorize the training data.
+- Overfitting the model on a small subset helps you gauge the model's capacity to learn and memorize the training data.
 
 ##### Step 3: Train the Model for a Limited Number of Epochs, Experimenting with Various Learning Rates
 
-- In this step, you will learn how to train the model for a limited number of epochs while experimenting with various learning rates. This step helps you identify the learning rate that leads to optimal training progress and convergence.
+- This step helps you identify the learning rate that leads to optimal training progress and convergence.
 
 ##### Step 4: Create a Small Grid Using Weight Decay and the Best Learning Rate and save it to a CSV file
 
-- You will learn how to create a small grid using weight decay and the best learning rate obtained from the previous step. This grid helps you explore the effect of weight decay regularization on the model's performance.
+- This grid helps you explore the effect of weight decay regularization on the model's performance.
 
 ##### Step 5: Train the Model for Longer Epochs Using the Best Model from Step 4
 
-- You will learn how to train the model for longer epochs using the best model obtained from the previous step. This step allows you to maximize the model's learning potential and achieve improved performance.
+- This step allows you to maximize the model's learning potential and achieve improved performance.
 
 ##### Step 6: Save the best model from .pt to .jit
 - The primary reason for this conversion is to optimize and improve the model's performance during deployment.
@@ -258,12 +260,13 @@ The train loop handles the training process, including forward and backward pass
 #### Plotting Learning Curves with Matplotlib and TensorBoard
 
 Learning curves visualize the model's training and validation performance over epochs, providing insights into the model's learning progress, convergence, and potential issues such as overfitting or underfitting.\
-TensorBoard is a tool for providing the measurements and visualizations needed during the machine learning workflow. It enables tracking experiment metrics like loss and accuracy, visualizing the model graph, projecting embeddings to a lower dimensional space, and much more.
+TensorBoard is a tool for providing the measurements and visualizations needed during the machine learning workflow. It enables tracking experiment metrics like loss and accuracy, visualizing the model graph, projecting embeddings to a lower dimensional space, and much more.  
+
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/loss-tensorboard.png)  
 
 ## Todo
 
-This repository contains code for various tasks related to inference and experiments with the model.
+...
 
 ### Contents
 
