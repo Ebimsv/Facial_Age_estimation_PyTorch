@@ -26,7 +26,7 @@ Facial age estimation algorithms should be robust and reliable under various con
 
 <details>
 <summary><b>4. Generalization</b></summary><br/>
-4. ****: Age estimation algorithms should have good generalization capabilities. They should be trained on diverse datasets representing different populations, age groups, and ethnicities. The goal is to develop models that can accurately estimate age for individuals from various demographics and cultural backgrounds, rather than being limited to a specific subset of the population.
+Age estimation algorithms should have good generalization capabilities. They should be trained on diverse datasets representing different populations, age groups, and ethnicities. The goal is to develop models that can accurately estimate age for individuals from various demographics and cultural backgrounds, rather than being limited to a specific subset of the population.
 </details>
 
 <details>
@@ -41,7 +41,7 @@ Facial age estimation algorithms should be adaptable to different domains and ap
 
 <details>
 <summary><b>7. Privacy and Ethical Considerations</b></summary><br/>
-: It is important to address privacy concerns and ethical considerations associated with facial age estimation. The development of age estimation algorithms should take into account data protection, consent, and potential misuse. Ensuring that privacy is respected and ethical guidelines are followed is a crucial goal in this field.
+It is important to address privacy concerns and ethical considerations associated with facial age estimation. The development of age estimation algorithms should take into account data protection, consent, and potential misuse. Ensuring that privacy is respected and ethical guidelines are followed is a crucial goal in this field.
 </details>
 
 By striving to achieve these goals, researchers and developers aim to advance the field of facial age estimation and create algorithms that can have practical applications in areas such as biometrics, demographics analysis, age-specific marketing, and personalized user experiences.
@@ -89,7 +89,7 @@ This repository contains code for performing exploratory data analysis on the UT
 
 <details>
   <summary><b>Explore the Images in the UTK Dataset</b></summary><br/>
-- This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.  
+This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.  
 
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/show_rand_samples.png) 
 
@@ -97,8 +97,7 @@ This repository contains code for performing exploratory data analysis on the UT
 
 <details>
   <summary><b>Create a CSV File with Labels</b></summary><br/>
-
-- The labels may include information such as age, gender, and ethnicity for each image in the dataset.  
+The labels may include information such as age, gender, and ethnicity for each image in the dataset.  
 
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/csv_file.png)  
 
@@ -106,29 +105,24 @@ This repository contains code for performing exploratory data analysis on the UT
 
 <details>
 <summary><b>Plot Histograms for Age, Gender, and Ethnicity</b></summary><br/>
-
-- These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns. 
+These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns. 
 
    - Histogram for Age:  
-
       ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/age_histogram.png)  
 
 
    - Histogram for Gender:  
-
       ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/gender_histogram.png)  
 
 
    - Histogram for Ethnicity:  
-
       ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/ethnicity_histogram.png)
 
 </details>
 
 <details>
 <summary><b>Calculate Cross-Tabulation of Gender and Ethnicity</b></summary><br/>
-
-- Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.  
+Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.  
 
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/cross-tabulation.png)
 
@@ -136,8 +130,7 @@ This repository contains code for performing exploratory data analysis on the UT
 
 <details>
 <summary><b>Create Violin Plots and Box Plots for Age (Separated by Gender)</b></summary><br/>
-
-- These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.  
+These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.  
 
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_age_men_women.png)
 
@@ -145,8 +138,7 @@ This repository contains code for performing exploratory data analysis on the UT
 
 <details>
 <summary><b>Create Violin Plots and Box Plots for Age (Separated by Ethnicity)</b></summary><br/>
-
-- These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.  
+These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.  
 
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_Separated_by_Ethnicity.png)
 
@@ -163,8 +155,7 @@ This repository contains code for splitting datasets and analyzing the distribut
 
 <details>
   <summary><b>Plot Histograms for Age in the Training, Validation, and Test Sets</b></summary><br/>
-
-   This histograms will help ensure that the distributions of age in these sets are similar, indicating a balanced and representative dataset split.  
+This histograms will help ensure that the distributions of age in these sets are similar, indicating a balanced and representative dataset split.  
 
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/histogram_train_valid_test.png)
 
@@ -172,7 +163,6 @@ This repository contains code for splitting datasets and analyzing the distribut
 
 <details>
   <summary><b>Save the Training, Validation, and Test Sets in Separate CSV Files</b></summary><br/>
-
 This step is crucial for further analysis or modeling tasks, as it allows you to access and manipulate each set individually.
 </details>
 
@@ -192,37 +182,32 @@ The defined transformations include resizing images, applying random flips and r
 
 <details>
   <summary><b>Resizing Images</b></summary><br/>
-- Resizing images to a resolution of 128x128 pixels. Resizing the images ensures consistent dimensions and prepares them for further processing or analysis.
+Resizing images to a resolution of 128x128 pixels. Resizing the images ensures consistent dimensions and prepares them for further processing or analysis.
 </details>
 
 <details>
   <summary><b>Applying Random Horizontal Flips</b></summary><br/>
-
-- Random flips can introduce diversity and prevent model bias towards specific orientations.
+Random flips can introduce diversity and prevent model bias towards specific orientations.
 </details>
 
 <details>
   <summary><b>Random Rotations</b></summary><br/>
-
-- Random rotations can simulate variation and improve model robustness to different orientations.
+Random rotations can simulate variation and improve model robustness to different orientations.
 </details>
 
 <details>
   <summary><b>Adjusting Image Color using ColorJitter</b></summary><br/>
-
-- ColorJitter allows you to modify the brightness, contrast, saturation, and hue of the images, enhancing their visual appearance and potentially improving model performance.
+ColorJitter allows you to modify the brightness, contrast, saturation, and hue of the images, enhancing their visual appearance and potentially improving model performance.
 </details>
 
 <details>
   <summary><b>Converting Images to Tensors</b></summary><br/>
-
-- Converting images to tensors is a required step for many deep learning frameworks and enables efficient computation on GPUs.
+Converting images to tensors is a required step for many deep learning frameworks and enables efficient computation on GPUs.
 </details>
 
 <details>
   <summary><b>Normalizing Pixel Values</b></summary><br/>
-
-- Normalizing the pixel values ensures that they have a standard range and distribution, making the training process more stable. The provided mean and standard deviation values (**mean**=[0.485, 0.456, 0.406], **std**=[0.229, 0.224, 0.225]) can be used for this normalization.
+Normalizing the pixel values ensures that they have a standard range and distribution, making the training process more stable. The provided mean and standard deviation values (**mean**=[0.485, 0.456, 0.406], **std**=[0.229, 0.224, 0.225]) can be used for this normalization.
 </details>
 
 ### 4. Custom Dataset and DataLoader
@@ -236,12 +221,12 @@ The custom dataset allows you to load and preprocess your own data, while the da
 
 <details>
   <summary><b>Custom Dataset</b></summary><br/>
-- The custom dataset is designed to handle your specific data format and apply any necessary preprocessing steps. You can modify the dataset class according to your data structure, file paths, and preprocessing requirements.
+The custom dataset is designed to handle your specific data format and apply any necessary preprocessing steps. You can modify the dataset class according to your data structure, file paths, and preprocessing requirements.
 </details>
 
 <details>
-  <summary><b>Define DataLoader</b></summary><br/>
-- The dataloader is responsible for efficiently loading and batching the data from the custom dataset. It provides an iterator interface that allows you to easily access the data during model training or evaluation. You can customize the dataloader settings such as batch size, shuffling, and parallel data loading based on your specific needs.
+  <summary><b>DataLoader</b></summary><br/>
+The dataloader is responsible for efficiently loading and batching the data from the custom dataset. It provides an iterator interface that allows you to easily access the data during model training or evaluation. You can customize the dataloader settings such as batch size, shuffling, and parallel data loading based on your specific needs.
 </details>
 
 ## 5. Model with Custom Dataset
@@ -255,15 +240,14 @@ The models used in this project are ResNet50 and EfficientNet B0, and they are t
 
 <details>
   <summary><b>ResNet50 Model</b></summary><br/>
-- The ResNet50 architecture is a widely-used convolutional neural network that has shown impressive performance on various computer vision tasks. You will learn how to load the pre-trained ResNet50 model, fine-tune it on your custom dataset, and use it for inference.  
+The ResNet50 architecture is a widely-used convolutional neural network that has shown impressive performance on various computer vision tasks. You will learn how to load the pre-trained ResNet50 model, fine-tune it on your custom dataset, and use it for inference.  
 
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Resnet50.png)
 </details>
 
 <details>
   <summary><b>EfficientNet B0 Model</b></summary><br/>
-
-- EfficientNet is a family of convolutional neural networks that have achieved state-of-the-art performance on image classification tasks while being computationally efficient. You will learn how to load the pre-trained EfficientNet B0 model, adapt it to your custom dataset, and leverage its capabilities for classification or feature extraction.  
+EfficientNet is a family of convolutional neural networks that have achieved state-of-the-art performance on image classification tasks while being computationally efficient. You will learn how to load the pre-trained EfficientNet B0 model, adapt it to your custom dataset, and leverage its capabilities for classification or feature extraction.  
 
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/EfficientNet.png)
 </details>
@@ -290,37 +274,31 @@ The process involves several steps, including calculating the loss for an untrai
 
 <details>
   <summary><b>Step 1: Calculate the Loss for an Untrained Model Using a Few Batches</b></summary><br/>
-
 - This step helps you understand the initial performance of the model before any training.
 </details>
 
 <details>
   <summary><b>Step 2: Train and Overfit the Model on a Small Subset of the Dataset</b></summary><br/>
-
 - Overfitting the model on a small subset helps you gauge the model's capacity to learn and memorize the training data.
 </details>
 
 <details>
   <summary><b>Step 3: Train the Model for a Limited Number of Epochs, Experimenting with Various Learning Rates</b></summary><br/>
-
 - This step helps you identify the learning rate that leads to optimal training progress and convergence.
 </details>
 
 <details>
   <summary><b>Step 4: Create a Small Grid Using Weight Decay and the Best Learning Rate and save it to a CSV file</b></summary><br/>
-
 - This grid helps you explore the effect of weight decay regularization on the model's performance.
 </details>
 
 <details>
   <summary><b>Step 5: Train the Model for Longer Epochs Using the Best Model from Step 4</b></summary><br/>
-
 - This step allows you to maximize the model's learning potential and achieve improved performance.
 </details>
 
 <details>
   <summary><b>Step 6: Save the best model from .pt to .jit</b></summary><br/>
-
 - The primary reason for this conversion is to optimize and improve the model's performance during deployment.
 </details>
 
@@ -330,7 +308,6 @@ The train loop handles the training process, including forward and backward pass
 
 <details>
   <summary><b>Plotting Learning Curves with Matplotlib and TensorBoard</b></summary><br/>
-
 Learning curves visualize the model's training and validation performance over epochs, providing insights into the model's learning progress, convergence, and potential issues such as overfitting or underfitting.\
 TensorBoard is a tool for providing the measurements and visualizations needed during the machine learning workflow. It enables tracking experiment metrics like loss and accuracy, visualizing the model graph, projecting embeddings to a lower dimensional space, and much more.  
 
