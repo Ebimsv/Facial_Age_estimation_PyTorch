@@ -207,7 +207,7 @@ Converting images to tensors is a required step for many deep learning framework
 
 <details>
   <summary><b>Normalizing Pixel Values</b></summary><br/>
-Normalizing the pixel values ensures that they have a standard range and distribution, making the training process more stable. The provided mean and standard deviation values (**mean**=[0.485, 0.456, 0.406], **std**=[0.229, 0.224, 0.225]) can be used for this normalization.
+Normalizing the pixel values ensures that they have a standard range and distribution, making the training process more stable. The provided mean and standard deviation values (mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) can be used for this normalization.
 </details>
 
 ### 4. Custom Dataset and DataLoader
@@ -273,33 +273,33 @@ This repository contains code for the training process of a model, including fin
 The process involves several steps, including calculating the loss for an untrained model, overfitting the model on a small subset of the dataset, training the model for a limited number of epochs with various learning rates, creating a small grid using weight decay and the best learning rate, and finally training the model for longer epochs using the best model from the previous step.
 
 <details>
-  <summary><b>Step 1: Calculate the Loss for an Untrained Model Using a Few Batches</b></summary><br/>
-- This step helps you understand the initial performance of the model before any training.
+  <summary><b>Step 1: Calculate the Loss for an Untrained Model Using one Batch</b></summary><br/>
+This step helps us to understand that the forward pass of the model is working. The forward pass of a neural network model refers to the process of propagating input data through the model's layers to obtain predictions or output values.
 </details>
 
 <details>
   <summary><b>Step 2: Train and Overfit the Model on a Small Subset of the Dataset</b></summary><br/>
-- Overfitting the model on a small subset helps you gauge the model's capacity to learn and memorize the training data.
+The goal of Step 2 is to train the model on a small subset of the dataset to assess its ability to learn and memorize the training data.
 </details>
 
 <details>
   <summary><b>Step 3: Train the Model for a Limited Number of Epochs, Experimenting with Various Learning Rates</b></summary><br/>
-- This step helps you identify the learning rate that leads to optimal training progress and convergence.
+This step helps us to identify the learning rate that leads to optimal training progress and convergence.
 </details>
 
 <details>
   <summary><b>Step 4: Create a Small Grid Using Weight Decay and the Best Learning Rate and save it to a CSV file</b></summary><br/>
-- This grid helps you explore the effect of weight decay regularization on the model's performance.
+The goal of Step 4 is to create a small grid using weight decay and the best learning rate, and save it to a CSV file. This grid allows us to examine how weight decay regularization impacts the performance of the model.
 </details>
 
 <details>
   <summary><b>Step 5: Train the Model for Longer Epochs Using the Best Model from Step 4</b></summary><br/>
-- This step allows you to maximize the model's learning potential and achieve improved performance.
+The goal of Step 5 is to train the model for longer epochs using the best model obtained from Step 4. This step aims to maximize the model's learning potential and achieve improved performance by allowing it to learn from the data for an extended period.
 </details>
 
 <details>
   <summary><b>Step 6: Save the best model from .pt to .jit</b></summary><br/>
-- The primary reason for this conversion is to optimize and improve the model's performance during deployment.
+The goal of this step is to convert the best model from .pt to .jit format. This conversion is primarily done to optimize and enhance the model's performance during deployment.
 </details>
 
 #### Train and Evaluation Loop
