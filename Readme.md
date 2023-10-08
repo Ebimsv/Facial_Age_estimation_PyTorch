@@ -98,6 +98,9 @@ UTKFace dataset is a large-scale face dataset with long age span (range from 0 t
 - provides the correspondingly aligned and cropped faces
 - provides the corresponding landmarks (68 points)
 - images are labelled by age, gender, and ethnicity
+
+For more information and download, please refer to the [UTKFace](https://susanqq.github.io/UTKFace/).
+
 ### 1. EDA (Exploratory Data Analysis)
 
 This repository contains code for performing exploratory data analysis on the UTK dataset, which consists of images categorized by age, gender, and ethnicity.
