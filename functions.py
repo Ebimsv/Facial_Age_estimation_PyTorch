@@ -5,7 +5,7 @@ from tqdm import tqdm
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
-def train_one_epoch(model, train_loader, loss_fn, optimizer, metric='mse', epoch=None):
+def train_one_epoch(model, train_loader, loss_fn, optimizer, metric='mse', epoch=1):
     model.train()
     loss_train = AverageMeter()
     with tqdm(train_loader, unit="batch") as tepoch:
