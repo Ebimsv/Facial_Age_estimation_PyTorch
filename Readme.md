@@ -93,7 +93,15 @@ Automated facial age estimation has diverse real-world applications in multimedi
 
 </details>
 
-7. A Summary table for the above methods</b></summary
+<details>
+<summary><b>7. FaceXFormer: A Unified Transformer for Facial Analysis</b></summary><br/>
+It employs an encoder-decoder architecture, extracting multi-scale features from the input face image I, and fusing them into a unified representation F via MLP-Fusion. Task tokens T are processed alongside face representation F in the decoder, resulting in refined task-specific tokens T^. These refined tokens are then used for task-specific predictions by passing through the unified head.
+
+
+</details>
+
+
+**A Summary table for the above methods** 
 
 | **Method**                                                                                | **Summary**                                                                                                                                                                        | **Code**                                                    | **Key Features**                          |
 |-------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------|
@@ -103,6 +111,7 @@ Automated facial age estimation has diverse real-world applications in multimedi
 | Rank consistent ordinal regression for neural networks with application to age estimation | introduces the COnsistent RAnk Logits (CORAL) framework, which transforms ordinal targets into binary classification subtasks to resolve inconsistencies among binary classifiers. | https://github.com/Raschka-research-group/coral-cnn         | Significant reduction in prediction error |
 | Deep Regression Forests for Age Estimation                                                | Capturing the nonlinearity and variation in facial appearance across different ages                                                                                                | https://github.com/Sumching/Deep_Regression_Forests         |                                           |
 | Adaptive Mean-Residue Loss for Robust Facial Age Estimation                               | Effective loss function for robust facial age estimation                                                                                                                           | https://github.com/jacobzhaoziyuan/AMR-Loss                 | Adaptive loss fn                          |
+| FaceXFormer                                                |  FaceXformer, an end-to-end unified transformer model for a comprehensive range of facial analysis tasks such as face parsing, landmark detection, head pose estimation, attributes recognition, and estimation of age, gender, race, and landmarks visibility.               | https://github.com/Kartik-3004/facexformer | For almost all tasks in face
 
 Note: I prepared this table with this amazing website: https://www.tablesgenerator.com/markdown_tables
 </details>
