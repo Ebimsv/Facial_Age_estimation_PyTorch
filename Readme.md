@@ -121,12 +121,38 @@ Note: I prepared this table with this amazing website: https://www.tablesgenerat
 
 # Step 3: Choose the appropriate method
 The ResNet-50 model combined with regression is a powerful approach for facial age estimation. ResNet-50 is a deep convolutional neural network architecture that has proven to be highly effective in various computer vision tasks. By utilizing its depth and skip connections, ResNet-50 can effectively capture intricate facial features and patterns essential for age estimation. The regression component of the model enables it to directly predict the numerical age value, making it suitable for continuous age estimation rather than discrete age classification. This combination allows the model to learn complex relationships between facial attributes and age, providing accurate and precise age predictions. Overall, the ResNet-50 model with regression offers a robust and reliable solution for facial age estimation tasks.
+
 ## This is the diagram of proposed model  
 
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/method.png)  
 
 # Step 4: Implementation of the selected method
 ## Dataset
+
+In this sub-section we see some important datasets in the field of Facial age estimation:
+
+<details>
+<summary><b>1. MORPH</b></summary><br/>
+MORPH is a facial age estimation dataset, which contains 55,134 facial images of 13,617 subjects ranging from 16 to 77 years old.
+</details>
+
+<details>
+<summary><b>2. Adience</b></summary><br/>
+The Adience dataset, published in 2014, contains 26,580 photos across 2,284 subjects with a binary gender label and one label from eight different age groups, partitioned into five splits. The key principle of the data set is to capture the images as close to real world conditions as possible, including all variations in appearance, pose, lighting condition and image quality, to name a few. For more information and download the dataset, please go to [Adience](https://talhassner.github.io/home/projects/Adience/Adience-data.html)
+</details>
+
+<details>
+<summary><b>3. CACD (Cross-Age Celebrity Dataset)</b></summary><br/>
+The Cross-Age Celebrity Dataset (CACD) contains 163,446 images from 2,000 celebrities collected from the Internet. The images are collected from search engines using celebrity name and year (2004-2013) as keywords. Therefore, it is possible to estimate the ages of the celebrities on the images by simply subtract the birth year from the year of which the photo was taken. For more information, please go to [CACD](https://bcsiriuschen.github.io/CARC/)
+</details>
+
+<details>
+<summary><b>4. FG-NET</b></summary><br/>
+FGNet is a dataset for age estimation and face recognition across ages. It is composed of a total of 1,002 images of 82 people with age range from 0 to 69 and an age gap up to 45 years.
+</details>
+
+<details>
+<summary><b>5. UTKFace</b></summary><br/>
 UTKFace dataset is a large-scale face dataset with long age span (range from 0 to 116 years old). The dataset consists of over 20,000 face images with annotations of age, gender, and ethnicity. The images cover large variation in pose, facial expression, illumination, occlusion, resolution, etc. This dataset could be used on a variety of tasks, e.g., face detection, age estimation, age progression/regression, landmark localization, etc.
 - consists of 20k+ face images in the wild (only single face in one image)
 - provides the correspondingly aligned and cropped faces
@@ -134,6 +160,9 @@ UTKFace dataset is a large-scale face dataset with long age span (range from 0 t
 - images are labelled by age, gender, and ethnicity
 
 For more information and download, please refer to the [UTKFace](https://susanqq.github.io/UTKFace/).
+</details>
+
+**Note**: In this project, we use UTKFace
 
 ### 1. EDA (Exploratory Data Analysis)
 
