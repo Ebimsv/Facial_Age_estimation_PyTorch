@@ -83,6 +83,21 @@ Automated facial age estimation has diverse real-world applications in multimedi
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/ADAPTIVE_MEAN_paper.png)  
 </details>
 
+<details>
+<summary><b>7. A table for the above methods</b></summary><br/>
+
+| **Method**                                                                                | **Summary**                                                                                                                                                                        | **Code**                                                    | **Key Features**                          |
+|-------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------|
+| SwinFace                                                                                  | Swin Transformer and a Multi-Level  Channel Attention module to address  conflicts and select optimal features                                                                     | https://github.com/lxq1000/SwinFace                         | Transformers                              |
+| Unraveling the Age Estimation Puzzle                                                      | A Benchmark for Age estimation                                                                                                                                                     | https://github.com/paplhjak/facial-age-estimation-benchmark | Benchmark                                 |
+| MiVOLO                                                                                    | Estimate age and gender even when the face is occluded                                                                                                                             | https://github.com/WildChlamydia/MiVOLO                     | Age and Gender Estimation                 |
+| Rank consistent ordinal regression for neural networks with application to age estimation | introduces the COnsistent RAnk Logits (CORAL) framework, which transforms ordinal targets into binary classification subtasks to resolve inconsistencies among binary classifiers. | https://github.com/Raschka-research-group/coral-cnn         | significant reduction in prediction error |
+| Deep Regression Forests for Age Estimation                                                | Capturing the nonlinearity and variation in facial appearance across different ages                                                                                                | https://github.com/Sumching/Deep_Regression_Forests         |                                           |
+| Adaptive Mean-Residue Loss for Robust Facial Age Estimation                               | Effective loss function for robust facial age estimation                                                                                                                           | https://github.com/jacobzhaoziyuan/AMR-Loss                 | Adaptive loss fn                          |
+
+Note: I prepared this table with this amazing website: https://www.tablesgenerator.com/markdown_tables
+</details>
+
 # Step 3: Choose the appropriate method
 The ResNet-50 model combined with regression is a powerful approach for facial age estimation. ResNet-50 is a deep convolutional neural network architecture that has proven to be highly effective in various computer vision tasks. By utilizing its depth and skip connections, ResNet-50 can effectively capture intricate facial features and patterns essential for age estimation. The regression component of the model enables it to directly predict the numerical age value, making it suitable for continuous age estimation rather than discrete age classification. This combination allows the model to learn complex relationships between facial attributes and age, providing accurate and precise age predictions. Overall, the ResNet-50 model with regression offers a robust and reliable solution for facial age estimation tasks.
 ## This is the diagram of proposed model  
