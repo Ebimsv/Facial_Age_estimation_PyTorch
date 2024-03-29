@@ -44,23 +44,30 @@ A comprehensive review of existing literature helps establish a solid foundation
   
 **Title**: SwinFace: A Multi-task Transformer for Face Recognition, Expression Recognition, Age Estimation and Attribute Estimation
 
-The paper introduces SwinFace, a multi-task algorithm for face recognition, facial expression recognition, age estimation, and face attribute estimation. It utilizes a single Swin Transformer with task-specific subnets and a Multi-Level Channel Attention module to address conflicts and adaptively select optimal features. Experimental results demonstrate superior performance, achieving state-of-the-art accuracy of 90.97% on facial expression recognition (RAF-DB) and 0.22 error on age estimation (CLAP2015). The code and models are publicly available at [https://github.com/lxq1000/SwinFace. ↗](https://github.com/lxq1000/SwinFace.) 
+The paper introduces SwinFace, a multi-task algorithm for face recognition, facial expression recognition, age estimation, and face attribute estimation. It utilizes a single Swin Transformer with task-specific subnets and a Multi-Level Channel Attention module to address conflicts and adaptively select optimal features. Experimental results demonstrate superior performance, achieving state-of-the-art accuracy of 90.97% on facial expression recognition (RAF-DB) and 0.22 error on age estimation (CLAP2015). The code and models are publicly available at [https://github.com/lxq1000/SwinFace]
 
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/SwinFace_paper.png)  
+<p align="center">
+  <img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/SwinFace_paper.png" alt="Image" />
+</p>
+
 </details>
 
 <details>
 <summary><b>2. Unraveling the Age Estimation Puzzle</b></summary><br/>
-Unraveling the Age Estimation Puzzle: Comparative Analysis of Deep Learning Approaches for Facial Age Estimation
+Comparative Analysis of Deep Learning Approaches for Facial Age Estimation
 The paper addresses the challenge of comparing different age estimation methods due to inconsistencies in benchmarking processes. It challenges the notion that specialized methods are necessary for age estimation tasks and argues that the standard approach of utilizing cross-entropy loss is sufficient. Through a systematic analysis of various factors, including facial alignment, coverage, image resolution, representation, model architecture, and data amount, the paper finds that these factors often have a greater impact on age estimation results than the choice of the specific method. The study emphasizes the importance of consistent data preprocessing and standardized benchmarks for reliable and meaningful comparisons.
 </details>
 
 <details>
 <summary><b>3. MiVOLO</b></summary><br/>
-MiVOLO: Multi-input Transformer for Age and Gender Estimation
-The paper introduces MiVOLO, a method for age and gender estimation that utilizes a vision transformer and integrates both tasks into a unified dual input/output model. By incorporating person image data in addition to facial information, the model demonstrates improved generalization and the ability to estimate age and gender even when the face is occluded. Experimental results on multiple benchmarks show state-of-the-art performance and real-time processing capabilities. The model's age recognition performance surpasses human-level accuracy across various age ranges. The code, models, and additional dataset annotations are publicly available for validation and inference.  
+MiVOLO: Multi-input Transformer for Age and Gender Estimation  
 
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/MiVOLO_paper.png)
+This paper introduces MiVOLO, a method for age and gender estimation that utilizes a vision transformer and integrates both tasks into a unified dual input/output model. By incorporating person image data in addition to facial information, the model demonstrates improved generalization and the ability to estimate age and gender even when the face is occluded. Experimental results on multiple benchmarks show state-of-the-art performance and real-time processing capabilities. The model's age recognition performance surpasses human-level accuracy across various age ranges. The code, models, and additional dataset annotations are publicly available for validation and inference.  
+
+<p align="center">
+  <img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/MiVOLO_paper.png" alt="Image" />
+</p>
+
 </details>
 
 <details>
@@ -78,9 +85,12 @@ The paper introduces Deep Regression Forests (DRFs) as an end-to-end model for a
 <details>
 <summary><b>6. Adaptive Mean-Residue Loss for Robust Facial Age Estimation</b></summary><br/>
 Adaptive Mean-Residue Loss for Robust Facial Age Estimation
-Automated facial age estimation has diverse real-world applications in multimedia analysis, e.g., video surveillance, and human-computer interaction. However, due to the randomness and ambiguity of the aging process, age assessment is challenging. Most research work over the topic regards the task as one of age regression, classification, and ranking problems, and cannot well leverage age distribution in representing labels with age ambiguity. In this work, we propose a simple yet effective loss function for robust facial age estimation via distribution learning, i.e., adaptive mean-residue loss, in which, the mean loss penalizes the difference between the estimated age distribution's mean and the ground-truth age, whereas the residue loss penalizes the entropy of age probability out of dynamic top-K in the distribution. Experimental results in the datasets FG-NET and CLAP2016 have validated the effectiveness of the proposed loss. Our code is available at https://github.com/jacobzhaoziyuan/AMR-Loss.  
+Automated facial age estimation has diverse real-world applications in multimedia analysis, e.g., video surveillance, and human-computer interaction. However, due to the randomness and ambiguity of the aging process, age assessment is challenging. Most research work over the topic regards the task as one of age regression, classification, and ranking problems, and cannot well leverage age distribution in representing labels with age ambiguity. In this work, we propose a simple yet effective loss function for robust facial age estimation via distribution learning, i.e., adaptive mean-residue loss, in which, the mean loss penalizes the difference between the estimated age distribution's mean and the ground-truth age, whereas the residue loss penalizes the entropy of age probability out of dynamic top-K in the distribution. Experimental results in the datasets FG-NET and CLAP2016 have validated the effectiveness of the proposed loss. Our code is available at [https://github.com/jacobzhaoziyuan/AMR-Loss]
 
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/ADAPTIVE_MEAN_paper.png)  
+<p align="center">
+  <img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/ADAPTIVE_MEAN_paper.png" alt="Image" />
+</p>
+
 </details>
 
 7. A Summary table for the above methods</b></summary
