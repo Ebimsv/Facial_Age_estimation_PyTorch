@@ -55,7 +55,7 @@ for epoch in range(config.num_epochs):
         best_loss = loss_valid
         if before_model_path is not None:
             os.remove(before_model_path)
-        before_model_path = f'checkpoints/epoch:{epoch}-loss_valid:{best_loss:.3}.pt'
+        before_model_path = f'checkpoints/epoch-{epoch}-loss_valid-{best_loss:.3}.pt'
         torch.save(model.state_dict(), before_model_path)
         print(f'\nModel saved in epoch: {epoch}')
 
