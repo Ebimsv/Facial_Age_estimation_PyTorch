@@ -97,11 +97,14 @@ Automated facial age estimation has diverse real-world applications in multimedi
 <summary><b>7. FaceXFormer: A Unified Transformer for Facial Analysis</b></summary><br/>
 It employs an encoder-decoder architecture, extracting multi-scale features from the input face image I, and fusing them into a unified representation F via MLP-Fusion. Task tokens T are processed alongside face representation F in the decoder, resulting in refined task-specific tokens T^. These refined tokens are then used for task-specific predictions by passing through the unified head.
 
+<p align="center">
+  <img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/FaceXFormer_paper.png" alt="Image" />
+</p>
 
 </details>
 
 
-**A Summary table for the above methods** 
+** A Summary table for the above methods** 
 
 | **Method**                                                                                | **Summary**                                                                                                                                                                        | **Code**                                                    | **Key Features**                          |
 |-------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------|
