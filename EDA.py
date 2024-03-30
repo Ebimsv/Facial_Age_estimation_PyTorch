@@ -31,15 +31,15 @@ def plot_histograms_with_names(dataframe):
 # Example usage: 
 plot_histograms_with_names(df)
 
-# Calculate the cross-tabulation of gender and ethnicity using the pandas.crosstab() function.
+# 1. Calculate the cross-tabulation of gender and ethnicity using the pandas.crosstab() function.
 cross_tab = pd.crosstab(df['gender'], df['ethnicity'])
 print(cross_tab)
 
-# Create violin plots and box plots for age, separately for men and women.
+# 2. Create violin plots and box plots for age, separately for men and women.
 men_df = df[df['gender'] == 'Male']
 women_df = df[df['gender'] == 'Female']
 
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(12, 8))
 
 plt.subplot(1, 2, 1)
 plt.violinplot(men_df['age'], vert=False)
@@ -53,14 +53,14 @@ plt.boxplot(women_df['age'], vert=False)
 plt.xlabel('Age')
 plt.title('Violin Plot - Women')
 
-# 6. Create violin plots and box plots for age, separately for each ethnicity.
+# 3. Create violin plots and box plots for age, separately for each ethnicity.
 Asian_df = df[df['ethnicity'] == 'Asian']
 Black_df = df[df['ethnicity'] == 'Black']
 Indian_df = df[df['ethnicity'] == 'Indian']
 Others_df = df[df['ethnicity'] == 'Others']
 White_df = df[df['ethnicity'] == 'White']
 
-plt.figure(figsize=(10, 15))
+plt.figure(figsize=(12, 8))
 
 plt.subplot(3, 2, 1)
 plt.violinplot(Asian_df['age'], vert=False)
