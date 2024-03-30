@@ -143,7 +143,7 @@ The Adience dataset, published in 2014, contains 26,580 photos across 2,284 subj
 
 <details>
 <summary><b>3. CACD (Cross-Age Celebrity Dataset)</b></summary><br/>
-The Cross-Age Celebrity Dataset (CACD) contains 163,446 images from 2,000 celebrities collected from the Internet. The images are collected from search engines using celebrity name and year (2004-2013) as keywords. Therefore, it is possible to estimate the ages of the celebrities on the images by simply subtract the birth year from the year of which the photo was taken. For more information, please go to [CACD](https://bcsiriuschen.github.io/CARC/)
+The Cross-Age Celebrity Dataset (CACD) contains 163,446 images from 2,000 celebrities collected from the Internet. The images are collected from search engines using celebrity name and year (2004-2013) as keywords. Therefore, it is possible to estimate the ages of the celebrities on the images by simply subtract the birth year from the year of which the photo was taken. For more information, please go to [CACD](https://bcsiriuschen.github.io/CARC/).
 </details>
 
 <details>
@@ -194,7 +194,11 @@ The labels may include information such as age, gender, and ethnicity for each i
 </details>
 
 <details>
-<summary><b>Plot Histograms for Age, Gender, and Ethnicity</b></summary><br/>
+<summary><b>Univariate Analysis</b></summary><br/>
+Univariate analysis is a type of exploratory data analysis (EDA) that focuses on examining one variable at a time.
+
+Plot Histograms for Age, Gender, and Ethnicity
+
 These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns. 
 
    - Histogram for Age:  
@@ -210,27 +214,35 @@ These histograms can provide insights into the dataset's composition and help id
 
 </details>
 
+
 <details>
-<summary><b>Calculate Cross-Tabulation of Gender and Ethnicity</b></summary><br/>
+<summary><b>Bivariate Analysis</b></summary><br/>
+Bivariate analysis examines relationships between two variables
+
+<details>
+<summary><b>1. cross-tabulation of **gender and ethnicity**.</b></summary><br/>
 Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.  
 
-   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/cross-tabulation.png)
+`cross_tab = pd.crosstab(df['gender'], df['ethnicity'])`
+`print(cross_tab)`
 
+   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/cross-tabulation.png)
 </details>
 
 <details>
-<summary><b>Create Violin Plots and Box Plots for Age (Separated by Gender)</b></summary><br/>
+<summary><b>2. Create Violin Plots and Box Plots for Age (Separated by Gender)</b></summary><br/>
 These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.  
 
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_age_men_women.png)
-
 </details>
 
+
 <details>
-<summary><b>Create Violin Plots and Box Plots for Age (Separated by Ethnicity)</b></summary><br/>
+<summary><b>3. Create Violin Plots and Box Plots for Age (Separated by Ethnicity)</b></summary><br/>
 These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.  
 
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_Separated_by_Ethnicity.png)
+</details>
 
 </details>
 
