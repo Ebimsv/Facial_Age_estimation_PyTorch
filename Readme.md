@@ -231,6 +231,7 @@ Bivariate analysis examines relationships between two variables
 Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.  
 
 `cross_tab = pd.crosstab(df['gender'], df['ethnicity'])`
+
 `print(cross_tab)`
 
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/cross-tabulation.png)
