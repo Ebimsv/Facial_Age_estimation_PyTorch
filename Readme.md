@@ -170,12 +170,8 @@ This repository contains code for performing exploratory data analysis on the UT
 
 #### Contents
 
-1. [Plot the Images in the UTK Dataset and create a csv file](#plot-the-Images-in-the-UTK-Dataset-and-create-a-csv-file)
-2. [Univariate Analysis](#Univariate-Analysis)
-3. [Bivariate Analysis](#Bivariate-Analysis)
-
 <details>
-  <summary><b>Plot the Images in the UTK Dataset and create a csv file</b></summary><br/>
+  <summary><b>I. Plot the Images in the UTK Dataset and create a csv file</b></summary><br/>
 
 <details>
   <summary><b>1. Displaying sample images</b></summary><br/>
@@ -196,7 +192,7 @@ The labels may include information such as age, gender, and ethnicity for each i
 </details>
 
 <details>
-<summary><b>Univariate Analysis</b></summary><br/>
+<summary><b>II. Univariate Analysis</b></summary><br/>
 Univariate analysis is a type of exploratory data analysis (EDA) that focuses on examining one variable at a time.
 
 Plot Histograms for Age, Gender, and Ethnicity
@@ -225,7 +221,7 @@ These histograms can provide insights into the dataset's composition and help id
 
 
 <details>
-<summary><b>Bivariate Analysis</b></summary><br/>
+<summary><b>III. Bivariate Analysis</b></summary><br/>
 Bivariate analysis examines relationships between two variables
 
 <details>
