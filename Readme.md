@@ -138,12 +138,13 @@ MORPH is a facial age estimation dataset, which contains 55,134 facial images of
 
 <details>
 <summary><b>2. Adience</b></summary><br/>
-The Adience dataset, published in 2014, contains 26,580 photos across 2,284 subjects with a binary gender label and one label from eight different age groups, partitioned into five splits. The key principle of the data set is to capture the images as close to real world conditions as possible, including all variations in appearance, pose, lighting condition and image quality, to name a few. For more information and download the dataset, please go to [Adience](https://talhassner.github.io/home/projects/Adience/Adience-data.html)
+The Adience dataset, published in 2014, contains 26,580 photos across 2,284 subjects with a binary gender label and one label from eight different age groups, partitioned into five splits. The key principle of the data set is to capture the images as close to real world conditions as possible, including all variations in appearance, pose, lighting condition and image quality, to name a few. For more information and download the dataset, please go to (https://talhassner.github.io/home/projects/Adience/Adience-data.html)
 </details>
 
 <details>
 <summary><b>3. CACD (Cross-Age Celebrity Dataset)</b></summary><br/>
-The Cross-Age Celebrity Dataset (CACD) contains 163,446 images from 2,000 celebrities collected from the Internet. The images are collected from search engines using celebrity name and year (2004-2013) as keywords. Therefore, it is possible to estimate the ages of the celebrities on the images by simply subtract the birth year from the year of which the photo was taken. For more information, please go to [CACD](https://bcsiriuschen.github.io/CARC/).
+The Cross-Age Celebrity Dataset (CACD) contains 163,446 images from 2,000 celebrities collected from the Internet. The images are collected from search engines using celebrity name and year (2004-2013) as keywords. Therefore, it is possible to estimate the ages of the celebrities on the images by simply subtract the birth year from the year of which the photo was taken. For more information, please go to (https://bcsiriuschen.github.io/CARC/)       
+
 </details>
 
 <details>
@@ -194,9 +195,6 @@ The labels may include information such as age, gender, and ethnicity for each i
 <details>
 <summary><b>II. Univariate Analysis</b></summary><br/>
 Univariate analysis is a type of exploratory data analysis (EDA) that focuses on examining one variable at a time.
-
-Plot Histograms for Age, Gender, and Ethnicity
-
 These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns. 
 
 <details>
@@ -226,7 +224,8 @@ Bivariate analysis examines relationships between two variables
 
 <details>
 <summary><b>1. Cross-tabulation of gender and ethnicity</b></summary><br/>
-Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.  
+Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. 
+  This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.  
 
 `cross_tab = pd.crosstab(df['gender'], df['ethnicity'])`  
 `print(cross_tab)`
@@ -293,46 +292,7 @@ This step is crucial for further analysis or modeling tasks, as it allows you to
 ### 3. Transformations
 
 The defined transformations include resizing images, applying random flips and rotations, adjusting image color, converting images to tensors, and normalizing pixel values.
-
-#### Contents
-
-1. [Resizing Images](#resizing-images)
-2. [Applying Random Horizontal Flips](#applying-random-horizontal-flips)
-3. [Introducing Random Rotations](#introducing-random-rotations)
-4. [Adjusting Image Color using ColorJitter](#adjusting-image-color-using-colorjitter)
-5. [Converting Images to Tensors](#converting-images-to-tensors)
-6. [Normalizing Pixel Values](#normalizing-pixel-values)
-
-
-<details>
-  <summary><b>Resizing Images</b></summary><br/>
-Resizing images to a resolution of 128x128 pixels. Resizing the images ensures consistent dimensions and prepares them for further processing or analysis.
-</details>
-
-<details>
-  <summary><b>Applying Random Horizontal Flips</b></summary><br/>
-Random flips can introduce diversity and prevent model bias towards specific orientations.
-</details>
-
-<details>
-  <summary><b>Random Rotations</b></summary><br/>
-Random rotations can simulate variation and improve model robustness to different orientations.
-</details>
-
-<details>
-  <summary><b>Adjusting Image Color using ColorJitter</b></summary><br/>
-ColorJitter allows you to modify the brightness, contrast, saturation, and hue of the images, enhancing their visual appearance and potentially improving model performance.
-</details>
-
-<details>
-  <summary><b>Converting Images to Tensors</b></summary><br/>
-Converting images to tensors is a required step for many deep learning frameworks and enables efficient computation on GPUs.
-</details>
-
-<details>
-  <summary><b>Normalizing Pixel Values</b></summary><br/>
-Normalizing the pixel values ensures that they have a standard range and distribution, making the training process more stable. The provided mean and standard deviation values (mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) can be used for this normalization.
-</details>
+I wrote all of them in `Custom-dataset_dataloader.py` file.
 
 ### 4. Custom Dataset and DataLoader
 
