@@ -225,18 +225,17 @@ These histograms can provide insights into the dataset's composition and help id
 Bivariate analysis examines relationships between two variables
 
 <details>
-<summary><b>1. cross-tabulation of gender and ethnicity</b></summary><br/>
+<summary><b>1. Cross-tabulation of gender and ethnicity</b></summary><br/>
 Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.  
 
-`cross_tab = pd.crosstab(df['gender'], df['ethnicity'])`
-
+`cross_tab = pd.crosstab(df['gender'], df['ethnicity'])`  
 `print(cross_tab)`
 
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/cross-tabulation.png)
 </details>
 
 <details>
-<summary><b>2. Create Violin Plots and Box Plots for Age (Separated by Gender)</b></summary><br/>
+<summary><b>2. Create Violin plots and Box Plots for Age (Separated by Gender)</b></summary><br/>
 These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.  
 
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_age_men_women.png)
