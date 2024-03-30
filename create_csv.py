@@ -22,15 +22,15 @@ def create_csv(dataset_folder):
         for idx, image_file in enumerate(image_files):
             if len(image_file.split('_')) < 4:
                 continue
-            age, gender, ethnicity = image_file.split('_')[:3]
-            if gender or age or ethnicity == '':
-                print('hi')
-                continue
-            gender = 'Male' if int(gender) == 0 else 'Female'
+            
+            # convert values to int with map function
+            age, gender, ethnicity = map(int, image_file.split('_')[:3])
+    
+            gender = 'Male' if gender == 0 else 'Female'
             if ethnicity != str:
-                ethnicity = ['White', 'Black', 'Asian', 'Indian', 'Others'][int(ethnicity)]
+                ethnicity = ['White', 'Black', 'Asian', 'Indian', 'Others'][ethnicity]
 
-            if int(age) < 85:
+            if age < 85:
                 data = [image_file, age, ethnicity, gender]
                 writer.writerow(data)
 
