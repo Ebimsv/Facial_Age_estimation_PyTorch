@@ -219,40 +219,30 @@ These histograms can provide insights into the dataset's composition and help id
 <summary><b>Bivariate Analysis</b></summary><br/>
 Bivariate analysis examines relationships between two variables
 
-<div style="display: flex; justify-content: center;">
-    <details>
-        <summary><b>1. cross-tabulation of gender and ethnicity</b></summary><br/>
-        Calculating the cross-tabulation of gender and ethnicity using the <code>pandas.crosstab()</code> function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.  
+<details>
+<summary><b>1. cross-tabulation of gender and ethnicity</b></summary><br/>
+Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.  
 
-        <div style="text-align: center;">
-            <img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/cross-tabulation.png" alt="Cross-tabulation">
-        </div>
-    </details>
-</div>
+`cross_tab = pd.crosstab(df['gender'], df['ethnicity'])`
+`print(cross_tab)`
 
+   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/cross-tabulation.png)
+</details>
 
-<div style="display: flex; justify-content: center;">
-    <details>
-        <summary><b>2. Create Violin Plots and Box Plots for Age (Separated by Gender)</b></summary><br/>
-        These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.  
+<details>
+<summary><b>2. Create Violin Plots and Box Plots for Age (Separated by Gender)</b></summary><br/>
+These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.  
 
-        <div style="text-align: center;">
-            <img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_age_men_women.png" alt="Violin Plot">
-        </div>
-    </details>
-</div>
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_age_men_women.png)
+</details>
 
 
-<div style="display: flex; justify-content: center;">
-    <details>
-        <summary><b>3. Create Violin Plots and Box Plots for Age (Separated by Ethnicity)</b></summary><br/>
-        These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.  
+<details>
+<summary><b>3. Create Violin Plots and Box Plots for Age (Separated by Ethnicity)</b></summary><br/>
+These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.  
 
-        <div style="text-align: center;">
-            <img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_Separated_by_Ethnicity.png" alt="Violin Plot">
-        </div>
-    </details>
-</div>
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_Separated_by_Ethnicity.png)
+</details>
 
 </details>
 
