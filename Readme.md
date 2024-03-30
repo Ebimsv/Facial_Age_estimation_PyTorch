@@ -170,12 +170,9 @@ This repository contains code for performing exploratory data analysis on the UT
 
 #### Contents
 
-1. [Explore the Images in the UTK Dataset](#explore-the-images-in-the-utk-dataset)
-2. [Create a CSV File with Labels](#create-a-csv-file-with-labels)
-3. [Plot Histograms for Age, Gender, and Ethnicity](#plot-histograms-for-age-gender-and-ethnicity)
-4. [Calculate Cross-Tabulation of Gender and Ethnicity](#calculate-cross-tabulation-of-gender-and-ethnicity)
-5. [Create Violin Plots and Box Plots for Age (Separated by Gender)](#create-violin-plots-and-box-plots-for-age-separated-by-gender)
-6. [Create Violin Plots and Box Plots for Age (Separated by Ethnicity)](#create-violin-plots-and-box-plots-for-age-separated-by-ethnicity)
+1. [Plot the Images in the UTK Dataset and create a csv file](#plot-the-Images-in-the-UTK-Dataset-and-create-a-csv-file)
+2. [Univariate Analysis](#Univariate-Analysis)
+3. [Bivariate Analysis](#Bivariate-Analysis)
 
 <details>
   <summary><b>Plot the Images in the UTK Dataset and create a csv file</b></summary><br/>
