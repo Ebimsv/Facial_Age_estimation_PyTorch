@@ -178,18 +178,23 @@ This repository contains code for performing exploratory data analysis on the UT
 6. [Create Violin Plots and Box Plots for Age (Separated by Ethnicity)](#create-violin-plots-and-box-plots-for-age-separated-by-ethnicity)
 
 <details>
-  <summary><b>Explore the Images in the UTK Dataset</b></summary><br/>
+  <summary><b>Plot the Images in the UTK Dataset and create a csv file</b></summary><br/>
+
+<details>
+  <summary><b>1. Displaying sample images</b></summary><br/>
+
 This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.  
 
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/show_rand_samples.png) 
-
 </details>
 
 <details>
-  <summary><b>Create a CSV File with Labels</b></summary><br/>
+  <summary><b>2. Create a CSV File with Labels</b></summary><br/>
 The labels may include information such as age, gender, and ethnicity for each image in the dataset.  
 
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/csv_file.png)  
+
+</details>
 
 </details>
 
