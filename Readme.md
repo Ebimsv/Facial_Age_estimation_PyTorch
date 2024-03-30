@@ -181,7 +181,7 @@ This repository contains code for performing exploratory data analysis on the UT
   <summary><b>Explore the Images in the UTK Dataset</b></summary><br/>
 This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.  
 
-   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/show_rand_samples.png) 
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/show_rand_samples.png) 
 
 </details>
 
@@ -189,7 +189,7 @@ This may include loading and displaying sample images, obtaining image statistic
   <summary><b>Create a CSV File with Labels</b></summary><br/>
 The labels may include information such as age, gender, and ethnicity for each image in the dataset.  
 
-   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/csv_file.png)  
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/csv_file.png)  
 
 </details>
 
@@ -201,16 +201,23 @@ Plot Histograms for Age, Gender, and Ethnicity
 
 These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns. 
 
-   - Histogram for Age:  
-      ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/age_histogram.png)  
+<details>
+  <summary><b>1. Histogram for Age</b></summary><br/>
 
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/age_histogram.png)  
+</details>
 
-   - Histogram for Gender:  
-      ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/gender_histogram.png)  
+<details>
+  <summary><b>2. Histogram for Gender</b></summary><br/>
 
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/gender_histogram.png) 
+</details>
 
-   - Histogram for Ethnicity:  
-      ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/ethnicity_histogram.png)
+<details>
+  <summary><b>3. Histogram for Ethnicity</b></summary><br/>
+
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/ethnicity_histogram.png)
+</details>
 
 </details>
 
