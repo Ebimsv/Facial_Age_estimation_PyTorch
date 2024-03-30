@@ -254,23 +254,40 @@ These plots can help identify any differences or patterns in the age distributio
 
 ### 2. Dataset Splitting
 
-This repository contains code for splitting datasets and analyzing the distributions of age in the training, validation, and test sets. Additionally, it provides instructions for saving these sets in separate CSV files.
-
-#### Contents
-
-1. [Plot Histograms for Age in the Training, Validation, and Test Sets](#plot-histograms-for-age-in-the-training-validation-and-test-sets)
-2. [Save the Training, Validation, and Test Sets in Separate CSV Files](#save-the-training-validation-and-test-sets-in-separate-csv-files)
+As you can saw in the **univariate analysis** section, the distribution of age isn't balance, and it's better to use **stratified sampling** to consider imbalancing in the age feature.
 
 <details>
-  <summary><b>Plot Histograms for Age in the Training, Validation, and Test Sets</b></summary><br/>
-This histograms will help ensure that the distributions of age in these sets are similar, indicating a balanced and representative dataset split.  
+  <summary><b>1. Stratified sampling, save csv, and plot histograms</b></summary><br/>
+  
+The stratified sampling works by dividing the dataset into groups based on the values of the stratification feature (in this case, age). It then randomly samples from each group to create the train and test sets. The goal is to maintain the same proportion of different age groups in both sets, which helps ensure that the models trained on the training set generalize well to unseen data with different age distributions.
 
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/histogram_train_valid_test.png)
+By using stratified sampling, you can obtain a representative train-test split that preserves the distribution of the age feature, which can be useful for building models that are robust across different age groups.
+
+We can do stratify sampling with this code:
+
+`df = pd.read_csv("./csv_dataset/utkface_dataset.csv")`  
+`df_train, df_temp = train_test_split(df, train_size=0.8, stratify=df.age, random_state=42)`  
+`df_test, df_valid = train_test_split(df_temp, train_size=0.5, stratify=df_temp.age, random_state=42)`  
 
 </details>
 
 <details>
-  <summary><b>Save the Training, Validation, and Test Sets in Separate CSV Files</b></summary><br/>
+  <summary><b>Plot and save the Training, Validation, and Test sets in separate CSV files</b></summary><br/>
+
+Save the training, validation, and test sets in separate CSV files:    
+`df_train.to_csv('./csv_dataset/train_set.csv', index=False)`  
+`df_valid.to_csv('./csv_dataset/valid_set.csv', index=False)`  
+`df_test.to_csv('./csv_dataset/test_set.csv', index=False)`
+
+And now, plot each histograms with this lines of code:  
+`fig, axes = plt.subplots(1, 3, figsize=(15, 5))`  
+`axes[0].hist(df_train.age, bins=len(df_train.age.unique())); axes[0].set_title('Train')`  
+`axes[1].hist(df_valid.age, bins=len(df_valid.age.unique())); axes[1].set_title('Validation')`  
+`axes[2].hist(df_test.age, bins=len(df_test.age.unique())); axes[2].set_title('Test')`    
+
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/histogram_train_valid_test.png)
+
+This histograms will help ensure that the distributions of age in these sets are similar, indicating a balanced and representative dataset split.  
 This step is crucial for further analysis or modeling tasks, as it allows you to access and manipulate each set individually.
 </details>
 
