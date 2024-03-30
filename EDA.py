@@ -1,34 +1,41 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 from sklearn.model_selection import train_test_split
 
 df = pd.read_csv('csv_dataset/utkface_dataset.csv')
 print(df.head())
 
-# 1. Plot histogram for age
-print(df.hist())
+# Plot histogram for `age, ethnicity, and gender`
+def plot_histograms_with_names(dataframe):
+    # Get the column names from the dataframe
+    columns = dataframe.columns
 
-# 2. Plot histogram for gender
-category_counts = df['gender'].value_counts()
-plt.bar(range(len(category_counts)), category_counts.values)
-plt.ylabel('Counts')
-plt.title('Histogram for gender')
-plt.xticks(range(len(category_counts)), category_counts.index, rotation=90)
-plt.show()
+    # Create subplots for each column
+    fig, axes = plt.subplots(nrows=len(columns)-1, ncols=1, figsize=(8, 6 * len(columns)))
 
-# 3. Plot histogram for ethnicity
-category_counts = df['ethnicity'].value_counts()
-plt.bar(range(len(category_counts)), category_counts.values)
-plt.ylabel('Counts')
-plt.title('Histogram for ethnicity')
-plt.xticks(range(len(category_counts)), category_counts.index, rotation=90)
-plt.show()
+    # Plot histogram for each column and write column name above each subplot
+    for i, column in enumerate(columns[1:]):
+        ax = axes[i]
+        sns.histplot(data=dataframe[column], ax=ax)
+        ax.set_xlabel(column)
+        ax.set_ylabel('Counts')
+        ax.set_title(f'Histogram of {column}')
+        
+    plt.tight_layout()
+    plt.show()
 
-# 4. Calculate the cross-tabulation of gender and ethnicity using the pandas.crosstab() function.
+# Example usage: 
+plot_histograms_with_names(df)
+
+# Calculate the cross-tabulation of gender and ethnicity using the pandas.crosstab() function.
 cross_tab = pd.crosstab(df['gender'], df['ethnicity'])
 print(cross_tab)
 
-# 5. Create violin plots and box plots for age, separately for men and women.
+# Create violin plots and box plots for age, separately for men and women.
 men_df = df[df['gender'] == 'Male']
 women_df = df[df['gender'] == 'Female']
 
