@@ -34,7 +34,7 @@ def inference(model, image_path, output_path):
         output_image.save(output_path)
 
 path = "/home/deep/projects/Mousavi/Facial_Age_estimation_PyTorch/checkpoints/"
-checkpoint_path = os.path.join(path, 'epoch-0-loss_valid-9.72.pt')  # Path to the saved checkpoint file
+checkpoint_path = os.path.join(path, 'epoch-16-loss_valid-4.73.pt')  # Path to the saved checkpoint file
 model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)
 model.load_state_dict(torch.load(checkpoint_path))
 
