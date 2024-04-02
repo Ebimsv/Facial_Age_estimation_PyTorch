@@ -160,10 +160,12 @@ UTKFace dataset is a large-scale face dataset with long age span (range from 0 t
 - provides the corresponding landmarks (68 points)
 - images are labelled by age, gender, and ethnicity
 
-For more information and download, please refer to the [UTKFace](https://susanqq.github.io/UTKFace/).
+For more information and download, please refer to the [UTKFace](https://susanqq.github.io/UTKFace/)   
+In this project, I downloaded cropped version of UTKFace from [Kaggle](https://www.kaggle.com/datasets/abhikjha/utk-face-cropped?select=utkcropped)
+
 </details>
 
-**Note**: In this project, we use UTKFace
+**Note**: In this project, we use UTKFace. Please download from this link and use `utkcropped` folder to create csv: [Kaggle](https://www.kaggle.com/datasets/abhikjha/utk-face-cropped?select=utkcropped)
 
 ### 1. EDA (Exploratory Data Analysis)
 
@@ -429,15 +431,6 @@ The function will process the image, estimate the age, and save the output image
 ...
 
 ### Contents
-
-1. [Inference](#inference)
-2. [Experiments](#experiments)
-   1. [Train and Evaluate the Model Using Various Datasets](#train-and-evaluate-the-model-using-various-datasets)
-   2. [Train the Model Using One Dataset and Test it on a Different One](#train-the-model-using-one-dataset-and-then-test-it-on-a-different-one)
-   3. [Analyze the Loss Value with Respect to Age, Gender, and Race](#analyze-the-loss-value-with-respect-to-age-gender-and-race)
-   4. [Analyze the Model's Sensitivity](#analyze-the-models-sensitivity)
-   5. [Create a Heatmap for the Face Images](#create-a-heatmap-for-the-face-images)
-3. [Use the Model to Perform Age Estimation on a Webcam Image](#use-the-model-to-perform-age-estimation-on-a-webcam-image)
 
 #### Inference
 
