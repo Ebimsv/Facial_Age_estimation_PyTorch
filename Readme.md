@@ -411,6 +411,12 @@ TensorBoard is a tool for providing the measurements and visualizations needed d
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/loss-tensorboard.png)  
 </details>
 
+#### Inference function
+Define the inference function (`inference.py`): The inference function takes a pre-trained Age Estimation model, an input image path, and an output image path. It loads the model checkpoint, performs inference on the input image, and saves the output image with the estimated age.
+
+**Run the inference**: Call the inference function with the loaded model, input image path, and output image path. 
+The function will process the image, estimate the age, and save the output image with the estimated age written on it.
+
 ## Todo
 
 ...
@@ -428,8 +434,8 @@ TensorBoard is a tool for providing the measurements and visualizations needed d
 
 #### Inference
 
-- [ ] Implement code for performing inference using the trained model.
-- [ ] Provide instructions on how to use the inference code with sample input data.
+- [✔️] Implement code for performing inference using the trained model.
+- [✔️] Provide instructions on how to use the inference code with sample input data.
 
 #### Experiments
 
