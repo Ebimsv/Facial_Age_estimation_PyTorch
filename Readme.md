@@ -315,7 +315,7 @@ The dataloader is responsible for efficiently loading and batching the data from
 
 ## 5. Model
 
-The models used in this project are ResNet50 and EfficientNet B0, and they are trained on the custom dataset you provide.
+The models used in this project are ResNet50 and EfficientNet B0.
 
 ### Contents
 
@@ -338,10 +338,12 @@ EfficientNet is a family of convolutional neural networks that have achieved sta
 
 You can choose each of the models with this line of code with chnage of `model_name` in `model.py`:
 
+Define Resnet:  
 `model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2')`  
+Define Efficientnet:  
 `model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1')`
 
-for test models, I pass a random input to the model and this is the output of it:
+For test models, I pass a random input to the model and this is the output of it:
 
 `model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1')`    
 `model(torch.randn(5, 3, 128, 128))` >> 5 is batch size, 3 is input channel(RGB), 128 is the size of image   
