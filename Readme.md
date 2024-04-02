@@ -417,6 +417,13 @@ Define the inference function (`inference.py`): The inference function takes a p
 **Run the inference**: Call the inference function with the loaded model, input image path, and output image path. 
 The function will process the image, estimate the age, and save the output image with the estimated age written on it.
 
+<details>
+  <summary><b>Inference pipeline</b></summary><br/>
+
+![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/age_estimation_inference.png)  
+
+</details>
+
 ## Todo
 
 ...
