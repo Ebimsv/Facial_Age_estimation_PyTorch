@@ -40,8 +40,9 @@ def num_trainable_params(model):
     nums = sum(p.numel() for p in model.parameters() if p.requires_grad) / 1e6
     return nums
 
-
-print(num_trainable_params(model))
-
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model = model.to(device)
+
+
+if __name__ == '__main__':
+    print(num_trainable_params(model))
