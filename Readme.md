@@ -160,10 +160,12 @@ UTKFace dataset is a large-scale face dataset with long age span (range from 0 t
 - provides the corresponding landmarks (68 points)
 - images are labelled by age, gender, and ethnicity
 
-For more information and download, please refer to the [UTKFace](https://susanqq.github.io/UTKFace/).
+For more information and download, please refer to the [UTKFace](https://susanqq.github.io/UTKFace/)   
+In this project, I downloaded cropped version of UTKFace from [Kaggle](https://www.kaggle.com/datasets/abhikjha/utk-face-cropped?select=utkcropped)
+
 </details>
 
-**Note**: In this project, we use UTKFace
+**Note**: In this project, we use UTKFace. Please download from this link and use `utkcropped` folder to create csv: [Kaggle](https://www.kaggle.com/datasets/abhikjha/utk-face-cropped?select=utkcropped)
 
 ### 1. EDA (Exploratory Data Analysis)
 
