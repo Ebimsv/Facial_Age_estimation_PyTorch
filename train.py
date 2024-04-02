@@ -78,10 +78,3 @@ plt.xlabel('Epoch')
 plt.ylabel('loss')
 plt.grid(True)
 plt.legend()
-
-
-# Test: Test your model using data from the test set and images that are not present in the dataset.
-# model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)
-# model.eval()
-# loss_fn = nn.L1Loss()
-# loss_test = AverageMeter()
