@@ -7,7 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 import os
 from functions import train_one_epoch, validation
-from dataset_dataloader import train_loader, valid_loader
+from custom_dataset_dataloader import train_loader, valid_loader
 from config import *
 
 # create a folder to save checkpoints
