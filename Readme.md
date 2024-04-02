@@ -255,7 +255,7 @@ These plots can help identify any differences or patterns in the age distributio
 As you can saw in the **univariate analysis** section, the distribution of age isn't balance, and it's better to use **stratified sampling** to consider imbalancing in the age feature.
 
 <details>
-  <summary><b>1. Stratified sampling, save csv, and plot histograms</b></summary><br/>
+  <summary><b>1. Stratified sampling, and save csv</b></summary><br/>
   
 The stratified sampling works by dividing the dataset into groups based on the values of the stratification feature (in this case, age). It then randomly samples from each group to create the train and test sets. The goal is to maintain the same proportion of different age groups in both sets, which helps ensure that the models trained on the training set generalize well to unseen data with different age distributions.
 
@@ -270,7 +270,7 @@ We can do stratify sampling with this code:
 </details>
 
 <details>
-  <summary><b>Plot and save the Training, Validation, and Test sets in separate CSV files</b></summary><br/>
+  <summary><b>2. Save and Plot the Training, Validation, and Test sets in separate CSV files</b></summary><br/>
 
 Save the training, validation, and test sets in separate CSV files:    
 `df_train.to_csv('./csv_dataset/train_set.csv', index=False)`  
@@ -304,16 +304,16 @@ The custom dataset allows you to load and preprocess your own data, while the da
 2. [Define DataLoader](#define-dataloader)
 
 <details>
-  <summary><b>Custom Dataset</b></summary><br/>
+  <summary><b>1. Custom Dataset</b></summary><br/>
 The custom dataset is designed to handle your specific data format and apply any necessary preprocessing steps. You can modify the dataset class according to your data structure, file paths, and preprocessing requirements.
 </details>
 
 <details>
-  <summary><b>DataLoader</b></summary><br/>
+  <summary><b>2. DataLoader</b></summary><br/>
 The dataloader is responsible for efficiently loading and batching the data from the custom dataset. It provides an iterator interface that allows you to easily access the data during model training or evaluation. You can customize the dataloader settings such as batch size, shuffling, and parallel data loading based on your specific needs.
 </details>
 
-## 5. Model with Custom Dataset
+## 5. Model
 
 The models used in this project are ResNet50 and EfficientNet B0, and they are trained on the custom dataset you provide.
 
@@ -323,18 +323,29 @@ The models used in this project are ResNet50 and EfficientNet B0, and they are t
 2. [EfficientNet B0 Model](#efficientnet-b0-model)
 
 <details>
-  <summary><b>ResNet50 Model</b></summary><br/>
+  <summary><b>1. ResNet50 Model</b></summary><br/>
 The ResNet50 architecture is a widely-used convolutional neural network that has shown impressive performance on various computer vision tasks. You will learn how to load the pre-trained ResNet50 model, fine-tune it on your custom dataset, and use it for inference.  
 
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Resnet50.png)
 </details>
 
 <details>
-  <summary><b>EfficientNet B0 Model</b></summary><br/>
+  <summary><b>2. EfficientNet B0 Model</b></summary><br/>
 EfficientNet is a family of convolutional neural networks that have achieved state-of-the-art performance on image classification tasks while being computationally efficient. You will learn how to load the pre-trained EfficientNet B0 model, adapt it to your custom dataset, and leverage its capabilities for classification or feature extraction.  
 
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/EfficientNet.png)
 </details>
+
+You can choose each of the models with this line of code with chnage of `model_name` in `model.py`:
+
+`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2')`  
+`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1')`
+
+for test models, I pass a random input to the model and this is the output of it:
+
+`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1')`    
+`model(torch.randn(5, 3, 128, 128))` >> 5 is batch size, 3 is input channel(RGB), 128 is the size of image   
+`torch.Size([5, 1])` >> The output
 
 ## 6. Training Process
 
