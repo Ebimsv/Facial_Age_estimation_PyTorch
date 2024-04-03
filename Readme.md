@@ -323,6 +323,7 @@ The models used in this project are ResNet50 and EfficientNet B0.
 
 1. [ResNet50 Model](#resnet50-model)
 2. [EfficientNet B0 Model](#efficientnet-b0-model)
+3. [Vision transformer](#efficientnet-b0-model)
 
 <details>
   <summary><b>1. ResNet50 Model</b></summary><br/>
@@ -343,7 +344,9 @@ You can choose each of the models with this line of code with chnage of `model_n
 Define Resnet:  
 `model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2')`  
 Define Efficientnet:  
-`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1')`
+`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1')`   
+Define Efficientnet: 
+`model = timm.create_model('vit_small_patch14_dinov2.lvd142m', pretrained=pretrain_weights)`  
 
 For test models, I pass a random input to the model and this is the output of it:
 
