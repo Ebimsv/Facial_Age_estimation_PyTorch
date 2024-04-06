@@ -326,33 +326,35 @@ The models used in this project are ResNet50 and EfficientNet B0.
 3. [Vision transformer](#efficientnet-b0-model)
 
 <details>
-  <summary><b>1. ResNet50 Model</b></summary><br/>
+  <summary><b>1. ResNet50</b></summary><br/>
 The ResNet50 architecture is a widely-used convolutional neural network that has shown impressive performance on various computer vision tasks. You will learn how to load the pre-trained ResNet50 model, fine-tune it on your custom dataset, and use it for inference.  
 
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Resnet50.png)
+   
+Define Resnet:    
+`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)`  
 </details>
 
 <details>
-  <summary><b>2. EfficientNet B0 Model</b></summary><br/>
+  <summary><b>2. EfficientNet B0</b></summary><br/>
 EfficientNet is a family of convolutional neural networks that have achieved state-of-the-art performance on image classification tasks while being computationally efficient. You will learn how to load the pre-trained EfficientNet B0 model, adapt it to your custom dataset, and leverage its capabilities for classification or feature extraction.  
 
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/EfficientNet.png)
+   
+Define Efficientnet:   
+`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1').to(device)` 
 </details>
 
-You can choose each of the models with this line of code with chnage of `model_name` in `model.py`:
+<details>
+  <summary><b>3. Vision Transformer</b></summary><br/>
+A vision transformer (ViT) is a transformer designed for computer vision.[1] A ViT breaks down an input image into a series of patches (rather than breaking up text into tokens), serialises each patch into a vector, and maps it to a smaller dimension with a single matrix multiplication. These vector embeddings are then processed by a transformer encoder as if they were token embeddings.
 
-Define Resnet:  
-`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2')`  
-Define Efficientnet:  
-`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1')`   
-Define Efficientnet: 
-`model = timm.create_model('vit_small_patch14_dinov2.lvd142m', pretrained=pretrain_weights)`  
+   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Vision_Transformer.gif) 
+   
+Define Vision Transformer:    
+`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='vit', pretrain_weights=True).to(device)` 
+</details>
 
-For test models, I pass a random input to the model and this is the output of it:
-
-`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1')`    
-`model(torch.randn(5, 3, 128, 128))` >> 5 is batch size, 3 is input channel(RGB), 128 is the size of image   
-`torch.Size([5, 1])` >> The output
 
 ## 6. Training Process
 
