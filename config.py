@@ -1,8 +1,27 @@
 import torch.cuda
 
-lr = 0.0005
-wd = 0.001
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-num_epochs = 30
-train_batch_size = 100
-valid_batch_size = 128
+config = {
+    'img_width': 128,
+    'img_height': 128,
+    'img_size': 128,
+    'mean': [0.485, 0.456, 0.406],
+    'std': [0.229, 0.224, 0.225],
+    'model_name': 'resnet',
+    'root_dir': 'data/C-NMC_test_prelim_phase_data',
+    'csv_path': 'data/C-NMC_test_prelim_phase_data_labels.csv',
+    'device': 'cuda' if torch.cuda.is_available() else 'cpu',
+    'leaky_relu': False,
+    'epochs': 100,
+    'batch_size': 128,
+    'eval_batch_size': 256,
+    'seed': 42,
+    'lr': 0.0001,
+    'wd': 0.001,
+    'save_interval': 1,
+    'reload_checkpoint': None,
+    'finetune': 'weights/FA_DOCS/crnn-fa-base.pt',
+    # 'finetune': None,
+    'weights_dir': 'weights',
+    'log_dir': 'logs',
+    'cpu_workers': 4,
+}
