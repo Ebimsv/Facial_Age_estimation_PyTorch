@@ -1,9 +1,7 @@
-import torch
 from torch import nn
 from torchvision.models import resnet, efficientnet_b0
 import timm
-import config 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+from config import config
 
 # Custom Model
 class AgeEstimationModel(nn.Module):
@@ -45,7 +43,7 @@ class AgeEstimationModel(nn.Module):
         return x
 
 
-model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)
+model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(config['device'])
 
 # model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='vit', pretrain_weights=True).to(device)
 
