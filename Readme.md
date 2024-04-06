@@ -355,9 +355,6 @@ Define Vision Transformer:
 `model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='vit', pretrain_weights=True).to(device)` 
 </details>
 
-You can choose each of the models with this line of code with chnage of `model_name` in `model.py`: 
-
- 
 
 ## 6. Training Process
 
