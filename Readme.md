@@ -349,7 +349,8 @@ EfficientNet is a family of convolutional neural networks that have achieved sta
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/EfficientNet.png)
    
 Define Efficientnet:   
-`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1').to(device)` 
+`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1').to(device)`
+
 </details>
 
 <details>
@@ -434,22 +435,24 @@ The goal of Step 4 is to create a small grid using weight decay and the best lea
 
 ```
 small_grid_list = []
-# for lr in [0.0005, 0.0008, 0.001]: 
-#     for wd in [1e-4, 1e-5, 0.]: 
-#         print(f'LR={lr}, WD={wd}')
-#         model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1').to(device)
-#         loss_fn = nn.L1Loss()
-#         optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wd)
-#         for epoch in range(num_epochs):
-#             model, loss_train, train_metric = train_one_epoch(model, mini_train_loader, loss_fn, optimizer, metric, epoch=epoch)
-#         small_grid_list.append([lr, wd, loss_train])
+for lr in [0.0005, 0.0008, 0.001]: 
+    for wd in [1e-4, 1e-5, 0.]: 
+        print(f'LR={lr}, WD={wd}')
+        model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1').to(device)
+        loss_fn = nn.L1Loss()
+        optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wd)
+        for epoch in range(num_epochs):
+            model, loss_train, train_metric = train_one_epoch(model, mini_train_loader, loss_fn, optimizer, metric, epoch=epoch)
+        small_grid_list.append([lr, wd, loss_train])
 ```
 
 </details>
 
 <details>
   <summary><b>Step 5: Train the model for longer epochs using the best model from step 4</b></summary><br/>
-The goal of Step 5 is to train the model for longer epochs using the best model obtained from Step 4. This step aims to maximize the model's learning potential and achieve improved performance by allowing it to learn from the data for an extended period.
+The goal of Step 5 is to train the model for longer epochs using the best model obtained from Step 4. This step aims to maximize the model's learning potential and achieve improved performance by allowing it to learn from the data for an extended period.  
+  
+Please refer to `train.py`
 </details>
 
 <details>
