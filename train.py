@@ -1,16 +1,15 @@
+import torch
 from torch import nn, optim
 from torch.utils.tensorboard import SummaryWriter
 import torchmetrics as tm
 
 import os
-import logging
 import matplotlib.pyplot as plt
 
-import config
+from config import config
 from model import AgeEstimationModel
 from functions import train_one_epoch, validation
 from custom_dataset_dataloader import train_loader, valid_loader
-from config import *
 
 
 # create a folder to save checkpoints
@@ -22,10 +21,10 @@ except OSError as error:
 
 # Step 5: Train model for longer epochs using the best model from step 4 in hyperparameters_tuning.
 # Define model, define optimizer and Set learning rate and weight decay.
-model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(config.device)
+model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(config['device'])
 loss_fn = nn.L1Loss()
-metric = tm.MeanAbsoluteError().to(device)
-optimizer = optim.SGD(model.parameters(), lr=config.lr, momentum=0.9, weight_decay=config.wd)
+metric = tm.MeanAbsoluteError().to(config['device'])
+optimizer = optim.SGD(model.parameters(), lr=config['lr'], momentum=0.9, weight_decay=config['wd'])
 
 # Write code to train the model for num_epochs epochs.
 best_loss = torch.inf
@@ -40,7 +39,7 @@ metric_valid_hist = []
 writer = SummaryWriter()
 
 
-for epoch in range(config.num_epochs):
+for epoch in range(config['epochs']):
     # Train
     model, loss_train, metric_train = train_one_epoch(model,
                                            train_loader,
@@ -81,16 +80,12 @@ for epoch in range(config.num_epochs):
 writer.close()
 
 # Plots: Plot learning curves
-plt.plot(range(num_epochs), loss_train_hist, 'r-', label='Train')
-plt.plot(range(num_epochs), loss_valid_hist, 'b-', label='Validation')
+plt.plot(range(config['epochs']), loss_train_hist, 'r-', label='Train-loss')
+plt.plot(range(config['epochs']), loss_valid_hist, 'b-', label='Validation-loss')
+plt.plot(range(config['epochs']), metric_train_hist, 'g-', label='Train-metric')
+plt.plot(range(config['epochs']), metric_valid_hist, 'b-', label='Validation-metric')
 plt.xlabel('Epoch')
 plt.ylabel('loss')
 plt.grid(True)
 plt.legend()
-
-plt.plot(range(num_epochs), metric_train_hist, 'r-', label='Train')
-plt.plot(range(num_epochs), metric_valid_hist, 'b-', label='Validation')
-plt.xlabel('Epoch')
-plt.ylabel('loss')
-plt.grid(True)
-plt.legend()
+plt.savefig('./figs/metric_plot.png')
