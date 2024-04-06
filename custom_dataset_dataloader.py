@@ -7,13 +7,13 @@ from PIL import Image
 import pandas as pd
 import os
 
-import config
+from config import config
 
 # read csv that we created in `create_csv.py` file
 df = pd.read_csv('./csv_dataset/utkface_dataset.csv')
 
-df_train, df_test = train_test_split(df, train_size=0.8, random_state=42)
-df_train, df_valid = train_test_split(df_train, train_size=0.85, random_state=42)
+df_train, df_test = train_test_split(df, train_size=0.8, random_state=config['seed'])
+df_train, df_valid = train_test_split(df_train, train_size=0.85, random_state=config['seed'])
 
 # Save the training, validation, and test sets in separate CSV files.
 
