@@ -60,7 +60,7 @@ class UTKDataset(Dataset):
 
         image = Image.open(img_dir).convert('RGB')
         image = self.transform(image)
-        age = torch.tensor(one_row[1])
+        age = torch.tensor([one_row[1]], dtype=torch.float32)
 
         gender = one_row[2]
         ethnicity = one_row[3]
