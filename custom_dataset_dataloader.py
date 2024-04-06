@@ -29,17 +29,17 @@ df_test.to_csv(os.path.join(directory, 'test_set.csv'), index=False)
 print('All CSV files created successfully.')
 
 # Define transformations
-transform_train = T.Compose([T.Resize((128, 128)),
+transform_train = T.Compose([T.Resize((config['img_width'], config['img_height'])),
                              T.RandomHorizontalFlip(),
                              T.RandomRotation(degrees=15),
                              T.ColorJitter(brightness=(0.5, 1.5), contrast=1, saturation=(0.5, 1.5), hue=(-0.1, 0.1)),
                              T.ToTensor(),
-                             T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                             T.Normalize(mean=config['mean'], std=config['std'])
                              ])
 
-transform_test = T.Compose([T.Resize((128, 128)),
+transform_test = T.Compose([T.Resize((config['img_width'], config['img_height'])),
                             T.ToTensor(),
-                            T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                            T.Normalize(mean=config['mean'], std=config['std'])
                             ])
 
 
@@ -79,9 +79,9 @@ train_set = UTKDataset(root_dir, csv_file_train, transform_train)
 valid_set = UTKDataset(root_dir, csv_file_valid, transform_test)
 test_set = UTKDataset(root_dir, csv_file_test, transform_test)
 
-train_loader = DataLoader(train_set, batch_size=config.train_batch_size, shuffle=True)
-valid_loader = DataLoader(valid_set, batch_size=config.valid_batch_size)
-test_loader = DataLoader(test_set, batch_size=config.valid_batch_size)
+train_loader = DataLoader(train_set, batch_size=config['batch_size'], shuffle=True)
+valid_loader = DataLoader(valid_set, batch_size=config['eval_batch_size'])
+test_loader = DataLoader(test_set, batch_size=config['eval_batch_size'])
 
 if __name__ == '__main__':
     # Test the dataloaders using next(iter())
