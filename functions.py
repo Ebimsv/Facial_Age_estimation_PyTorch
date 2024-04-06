@@ -1,16 +1,16 @@
 import torch
 from utils import AverageMeter
 from tqdm import tqdm
-import config
+
+from config import config
+
 
 def train_one_epoch(model, train_loader, loss_fn, optimizer, metric, epoch=1):
     model.train()
     loss_train = AverageMeter()
     
     metric.reset()
-
-    with tqdm(train_loader, unit="batch", desc=f'Epoch: {epoch+1}/{config['epochs']} ',
-              bar_format='{desc:<16}{percentage:3.0f}%|{bar:70}{r_bar}') as tqdm_dataloader:
+    with tqdm(train_loader, unit="batch", desc=f'Epoch: {epoch+1}/{config["epochs"]}', bar_format='{desc:<16}{percentage:3.0f}%|{bar:70}{r_bar}') as tqdm_dataloader:
         
         for inputs, targets, _, _ in tqdm_dataloader:
             inputs, targets = inputs.to(config['device']), targets.to(config['device'])
