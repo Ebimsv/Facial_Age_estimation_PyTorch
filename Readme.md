@@ -111,7 +111,7 @@ It employs an encoder-decoder architecture, extracting multi-scale features from
 | SwinFace                                                                                  | Swin Transformer and a Multi-Level  Channel Attention module to address  conflicts and select optimal features                                                                     | https://github.com/lxq1000/SwinFace                         | Transformers                              |
 | Unraveling the Age Estimation Puzzle                                                      | A Benchmark for Age estimation                                                                                                                                                     | https://github.com/paplhjak/facial-age-estimation-benchmark | Benchmark                                 |
 | MiVOLO                                                                                    | Estimate age and gender even when the face is occluded                                                                                                                             | https://github.com/WildChlamydia/MiVOLO                     | Age and Gender Estimation                 |
-| Rank consistent ordinal regression for neural networks with application to age estimation | introduces the COnsistent RAnk Logits (CORAL) framework, which transforms ordinal targets into binary classification subtasks to resolve inconsistencies among binary classifiers. | https://github.com/Raschka-research-group/coral-cnn         | Significant reduction in prediction error |
+| Rank consistent ordinal regression for neural networks with application to age estimation | introduces the COnsistent RAnk Logits (CORAL) framework, which transforms ordinal targets into binary classification subtasks. | https://github.com/Raschka-research-group/coral-cnn         | Significant reduction in prediction error |
 | Deep Regression Forests for Age Estimation                                                | Capturing the nonlinearity and variation in facial appearance across different ages                                                                                                | https://github.com/Sumching/Deep_Regression_Forests         |                                           |
 | Adaptive Mean-Residue Loss for Robust Facial Age Estimation                               | Effective loss function for robust facial age estimation                                                                                                                           | https://github.com/jacobzhaoziyuan/AMR-Loss                 | Adaptive loss fn                          |
 | FaceXFormer                                                |  FaceXformer, an end-to-end unified transformer model for a comprehensive range of facial analysis tasks such as face parsing, landmark detection, head pose estimation, attributes recognition, and estimation of age, gender, race, and landmarks visibility.               | https://github.com/Kartik-3004/facexformer | For almost all tasks in face
@@ -264,26 +264,32 @@ The stratified sampling works by dividing the dataset into groups based on the v
 By using stratified sampling, you can obtain a representative train-test split that preserves the distribution of the age feature, which can be useful for building models that are robust across different age groups.
 
 We can do stratify sampling with this code:
-
-`df = pd.read_csv("./csv_dataset/utkface_dataset.csv")`  
-`df_train, df_temp = train_test_split(df, train_size=0.8, stratify=df.age, random_state=42)`  
-`df_test, df_valid = train_test_split(df_temp, train_size=0.5, stratify=df_temp.age, random_state=42)`  
+```
+df = pd.read_csv("./csv_dataset/utkface_dataset.csv")
+df_train, df_temp = train_test_split(df, train_size=0.8, stratify=df.age, random_state=42)
+df_test, df_valid = train_test_split(df_temp, train_size=0.5, stratify=df_temp.age, random_state=42) 
+```
 
 </details>
 
 <details>
   <summary><b>2. Save and Plot the Training, Validation, and Test sets in separate CSV files</b></summary><br/>
 
-Save the training, validation, and test sets in separate CSV files:    
-`df_train.to_csv('./csv_dataset/train_set.csv', index=False)`  
-`df_valid.to_csv('./csv_dataset/valid_set.csv', index=False)`  
-`df_test.to_csv('./csv_dataset/test_set.csv', index=False)`
+Save the training, validation, and test sets in separate CSV files:   
+```
+df_train.to_csv('./csv_dataset/train_set.csv', index=False) 
+df_valid.to_csv('./csv_dataset/valid_set.csv', index=False)  
+df_test.to_csv('./csv_dataset/test_set.csv', index=False)
+```
 
 And now, plot each histograms with this lines of code:  
-`fig, axes = plt.subplots(1, 3, figsize=(15, 5))`  
-`axes[0].hist(df_train.age, bins=len(df_train.age.unique())); axes[0].set_title('Train')`  
-`axes[1].hist(df_valid.age, bins=len(df_valid.age.unique())); axes[1].set_title('Validation')`  
-`axes[2].hist(df_test.age, bins=len(df_test.age.unique())); axes[2].set_title('Test')`    
+
+```
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].hist(df_train.age, bins=len(df_train.age.unique())); axes[0].set_title('Train') 
+axes[1].hist(df_valid.age, bins=len(df_valid.age.unique())); axes[1].set_title('Validation')
+axes[2].hist(df_test.age, bins=len(df_test.age.unique())); axes[2].set_title('Test')
+```
 
 ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/histogram_train_valid_test.png)
 
@@ -333,6 +339,7 @@ The ResNet50 architecture is a widely-used convolutional neural network that has
    
 Define Resnet:    
 `model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)`  
+
 </details>
 
 <details>
@@ -377,27 +384,71 @@ This repository contains code for the training process of a model, including fin
 The process involves several steps, including calculating the loss for an untrained model, overfitting the model on a small subset of the dataset, training the model for a limited number of epochs with various learning rates, creating a small grid using weight decay and the best learning rate, and finally training the model for longer epochs using the best model from the previous step.
 
 <details>
-  <summary><b>Step 1: Calculate the Loss for an Untrained Model Using one Batch</b></summary><br/>
+  <summary><b>Step 1: Calculate the loss for an untrained model using one batch</b></summary><br/>
 This step helps us to understand that the forward pass of the model is working. The forward pass of a neural network model refers to the process of propagating input data through the model's layers to obtain predictions or output values.
+
+This is code for step 1 in `hyperparameters_tuning.py`:
+
+```  
+x_batch, y_batch, _, _ = next(iter(train_loader)) 
+outputs = model(x_batch.to(device))
+loss = loss_fn(outputs, y_batch.to(device)) 
+print(loss) 
+```
 </details>
 
 <details>
-  <summary><b>Step 2: Train and Overfit the Model on a Small Subset of the Dataset</b></summary><br/>
+  <summary><b>Step 2: Train and overfit the model on a small subset of the dataset</b></summary><br/>
 The goal of Step 2 is to train the model on a small subset of the dataset to assess its ability to learn and memorize the training data.
+  
+```
+_, mini_train_dataset = random_split(train_set, (len(train_set)-1000, 1000)) 
+mini_train_loader = DataLoader(mini_train_dataset, 5) 
+
+num_epochs = 5
+for epoch in range(num_epochs):  
+    model, loss_train, train_metric = train_one_epoch(model, mini_train_loader, loss_fn, optimizer, metric, epoch=epoch) 
+```
+ 
 </details>
 
 <details>
-  <summary><b>Step 3: Train the Model for a Limited Number of Epochs, Experimenting with Various Learning Rates</b></summary><br/>
-This step helps us to identify the learning rate that leads to optimal training progress and convergence.
+  <summary><b>Step 3: Train the model for a limited number of epochs, experimenting with various learning rates</b></summary><br/>
+This step helps us to identify the learning rate that leads to optimal training progress and convergence.  
+
+```
+for lr in [0.001, 0.0001, 0.0005]:
+    print(f'lr is: {lr}')
+    model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet',pretrain_weights='IMAGENET1K_V1').to(device)
+    loss_fn = nn.L1Loss()
+    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9)
+    for epoch in range(num_epochs):
+        model, loss_train, train_metric = train_one_epoch(model, train_loader, loss_fn, optimizer, metric, epoch=epoch)
+    print('')
+```
 </details>
 
 <details>
-  <summary><b>Step 4: Create a Small Grid Using Weight Decay and the Best Learning Rate and save it to a CSV file</b></summary><br/>
+  <summary><b>Step 4: Create a small grid using weight decay and the best learning rate and save it to a CSV file</b></summary><br/>
 The goal of Step 4 is to create a small grid using weight decay and the best learning rate, and save it to a CSV file. This grid allows us to examine how weight decay regularization impacts the performance of the model.
+
+```
+small_grid_list = []
+# for lr in [0.0005, 0.0008, 0.001]: 
+#     for wd in [1e-4, 1e-5, 0.]: 
+#         print(f'LR={lr}, WD={wd}')
+#         model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1').to(device)
+#         loss_fn = nn.L1Loss()
+#         optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wd)
+#         for epoch in range(num_epochs):
+#             model, loss_train, train_metric = train_one_epoch(model, mini_train_loader, loss_fn, optimizer, metric, epoch=epoch)
+#         small_grid_list.append([lr, wd, loss_train])
+```
+
 </details>
 
 <details>
-  <summary><b>Step 5: Train the Model for Longer Epochs Using the Best Model from Step 4</b></summary><br/>
+  <summary><b>Step 5: Train the model for longer epochs using the best model from step 4</b></summary><br/>
 The goal of Step 5 is to train the model for longer epochs using the best model obtained from Step 4. This step aims to maximize the model's learning potential and achieve improved performance by allowing it to learn from the data for an extended period.
 </details>
 
