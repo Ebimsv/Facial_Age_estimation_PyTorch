@@ -1,12 +1,13 @@
 import torch
 import os
+import glob
 from PIL import Image, ImageDraw, ImageFont
 import torchvision.transforms as T
 from model import AgeEstimationModel
 
 import torchvision.transforms as transforms
 
-import config 
+from config import config
 
     
 def inference(model, image_path, output_path):
@@ -34,9 +35,12 @@ def inference(model, image_path, output_path):
         output_image.save(output_path)
 
 path = "/home/deep/projects/Mousavi/Facial_Age_estimation_PyTorch/checkpoints/"
-checkpoint_path = os.path.join(path, 'epoch-16-loss_valid-4.73.pt')  # Path to the saved checkpoint file
+checkpoint_files = glob.glob(os.path.join(path, 'epoch-*-loss_valid-*.pt'))
+latest_checkpoint = max(checkpoint_files, key=os.path.getctime)
+
 model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name=config['model_name'], pretrain_weights='IMAGENET1K_V2').to(config['device'])
-model.load_state_dict(torch.load(checkpoint_path))
+# Load the model using the latest checkpoint file
+model.load_state_dict(torch.load(latest_checkpoint))
 
 image_path_test = config['image_path_test'] # Path to the input image
 output_path_test = config['output_path_test']  # Path to save the output image
