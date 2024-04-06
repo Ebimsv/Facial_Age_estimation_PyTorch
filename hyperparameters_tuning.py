@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader, random_split
 from torch import optim
 
 from model import model
-import config 
+from config import config
 
 from custom_dataset_dataloader import train_set, train_loader
 from functions import train_one_epoch
