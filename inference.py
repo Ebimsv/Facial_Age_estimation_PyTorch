@@ -6,19 +6,19 @@ from model import AgeEstimationModel
 
 import torchvision.transforms as transforms
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+import config 
 
     
 def inference(model, image_path, output_path):
     model.eval() 
     with torch.no_grad():
         image = Image.open(image_path).convert('RGB')
-        transform = T.Compose([T.Resize((128, 128)),
+        transform = T.Compose([T.Resize(((config['img_width'], config['img_height']))),
                                T.ToTensor(),
-                               T.Normalize(mean=[0.485, 0.456, 0.406], 
-                                           std=[0.229, 0.224, 0.225])
+                               T.Normalize(mean=config['mean'], 
+                                           std=config['std'])
                               ])
-        input_data = transform(image).unsqueeze(0).to(device) 
+        input_data = transform(image).unsqueeze(0).to(config['device']) 
         outputs = model(input_data)  # Forward pass through the model
         
         # Extract the age estimation value from the output tensor
@@ -35,9 +35,9 @@ def inference(model, image_path, output_path):
 
 path = "/home/deep/projects/Mousavi/Facial_Age_estimation_PyTorch/checkpoints/"
 checkpoint_path = os.path.join(path, 'epoch-16-loss_valid-4.73.pt')  # Path to the saved checkpoint file
-model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)
+model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name=config['model_name'], pretrain_weights='IMAGENET1K_V2').to(config['device'])
 model.load_state_dict(torch.load(checkpoint_path))
 
-image_path = '/home/deep/projects/Mousavi/Facial_Age_estimation_PyTorch/img_test/30_1_2.jpg'  # Path to the input image
-output_path = '/home/deep/projects/Mousavi/Facial_Age_estimation_PyTorch/img_test/output.jpg'  # Path to save the output image
-inference(model, image_path, output_path)
+image_path_test = config['image_path_test'] # Path to the input image
+output_path_test = config['output_path_test']  # Path to save the output image
+inference(model, image_path_test, output_path_test)
