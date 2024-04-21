@@ -229,8 +229,10 @@ Bivariate analysis examines relationships between two variables
 Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. 
   This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.  
 
-`cross_tab = pd.crosstab(df['gender'], df['ethnicity'])`  
-`print(cross_tab)`
+```python
+cross_tab = pd.crosstab(df['gender'], df['ethnicity'])`  
+print(cross_tab)
+```
 
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/cross-tabulation.png)
 </details>
@@ -264,7 +266,8 @@ The stratified sampling works by dividing the dataset into groups based on the v
 By using stratified sampling, you can obtain a representative train-test split that preserves the distribution of the age feature, which can be useful for building models that are robust across different age groups.
 
 We can do stratify sampling with this code:
-```
+
+```python
 df = pd.read_csv("./csv_dataset/utkface_dataset.csv")
 df_train, df_temp = train_test_split(df, train_size=0.8, stratify=df.age, random_state=42)
 df_test, df_valid = train_test_split(df_temp, train_size=0.5, stratify=df_temp.age, random_state=42) 
@@ -276,7 +279,8 @@ df_test, df_valid = train_test_split(df_temp, train_size=0.5, stratify=df_temp.a
   <summary><b>2. Save and Plot the Training, Validation, and Test sets in separate CSV files</b></summary><br/>
 
 Save the training, validation, and test sets in separate CSV files:   
-```
+
+```python
 df_train.to_csv('./csv_dataset/train_set.csv', index=False) 
 df_valid.to_csv('./csv_dataset/valid_set.csv', index=False)  
 df_test.to_csv('./csv_dataset/test_set.csv', index=False)
@@ -284,7 +288,7 @@ df_test.to_csv('./csv_dataset/test_set.csv', index=False)
 
 And now, plot each histograms with this lines of code:  
 
-```
+```python
 fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 axes[0].hist(df_train.age, bins=len(df_train.age.unique())); axes[0].set_title('Train') 
 axes[1].hist(df_valid.age, bins=len(df_valid.age.unique())); axes[1].set_title('Validation')
@@ -338,7 +342,10 @@ The ResNet50 architecture is a widely-used convolutional neural network that has
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Resnet50.png)
    
 Define Resnet:    
-`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)`  
+
+```python
+model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)
+```
 
 </details>
 
@@ -349,7 +356,10 @@ EfficientNet is a family of convolutional neural networks that have achieved sta
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/EfficientNet.png)
    
 Define Efficientnet:   
-`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1').to(device)`
+
+```python
+model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1').to(device)
+```
 
 </details>
 
@@ -359,8 +369,12 @@ A vision transformer (ViT) is a transformer designed for computer vision.[1] A V
 
    ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Vision_Transformer.gif) 
    
-Define Vision Transformer:    
-`model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='vit', pretrain_weights=True).to(device)` 
+Define Vision Transformer:  
+
+```python
+model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='vit', pretrain_weights=True).to(device)
+```
+
 </details>
 
 
@@ -390,7 +404,7 @@ This step helps us to understand that the forward pass of the model is working. 
 
 This is code for step 1 in `hyperparameters_tuning.py`:
 
-```  
+```python
 x_batch, y_batch, _, _ = next(iter(train_loader)) 
 outputs = model(x_batch.to(device))
 loss = loss_fn(outputs, y_batch.to(device)) 
@@ -402,7 +416,7 @@ print(loss)
   <summary><b>Step 2: Train and overfit the model on a small subset of the dataset</b></summary><br/>
 The goal of Step 2 is to train the model on a small subset of the dataset to assess its ability to learn and memorize the training data.
   
-```
+```python
 _, mini_train_dataset = random_split(train_set, (len(train_set)-1000, 1000)) 
 mini_train_loader = DataLoader(mini_train_dataset, 5) 
 
@@ -417,7 +431,7 @@ for epoch in range(num_epochs):
   <summary><b>Step 3: Train the model for a limited number of epochs, experimenting with various learning rates</b></summary><br/>
 This step helps us to identify the learning rate that leads to optimal training progress and convergence.  
 
-```
+```python
 for lr in [0.001, 0.0001, 0.0005]:
     print(f'lr is: {lr}')
     model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet',pretrain_weights='IMAGENET1K_V1').to(device)
@@ -433,7 +447,7 @@ for lr in [0.001, 0.0001, 0.0005]:
   <summary><b>Step 4: Create a small grid using weight decay and the best learning rate and save it to a CSV file</b></summary><br/>
 The goal of Step 4 is to create a small grid using weight decay and the best learning rate, and save it to a CSV file. This grid allows us to examine how weight decay regularization impacts the performance of the model.
 
-```
+```python
 small_grid_list = []
 for lr in [0.0005, 0.0008, 0.001]: 
     for wd in [1e-4, 1e-5, 0.]: 
