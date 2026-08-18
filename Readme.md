@@ -1,549 +1,510 @@
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Age-Estimation.png)
+<div align="center">
 
-# About This Project
-This repository provides a detailed, step-by-step implementation guide for facial age estimation using PyTorch, a popular deep learning framework. The goal of this project is to accurately estimate the age of individuals based on their facial appearance.
+<img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Age-Estimation.png" alt="Facial Age Estimation Banner" width="100%"/>
 
-# Step 1: Accurate and concise definition of the problem
-Age estimation refers to the process of estimating a person's age based on various observable characteristics or features. It is often performed using computer vision techniques that analyze facial attributes such as wrinkles, skin texture, and hair color. By comparing these characteristics with a database of known age examples, algorithms can make an educated guess about a person's age. **However, it is important to note that age estimation is not always accurate and can be affected by factors such as lighting conditions, facial expressions, race, genetics, and individual variations such as makeup**. It is primarily used in applications like biometrics, demographic analysis, or age-restricted access control systems.
+# 🎂 Facial Age Estimation — PyTorch
 
-## The goal of solving a problem or challenge
-<details>
-<summary><b>Here are some specific goals that researchers and developers in this field aim to achieve:
-</b></summary><br/>
+**Production-ready deep learning pipeline for estimating age from face images.**  
+Train, evaluate, and deploy in minutes — on CPU or GPU.
 
-- **Improved Accuracy**  
-This involves reducing the margin of error in estimating a person's age and increasing the precision of the predictions. The ultimate aim is to develop models that can estimate age with a high level of accuracy, approaching or surpassing human-level performance.
+[![GitHub Stars](https://img.shields.io/github/stars/Ebimsv/Facial_Age_estimation_PyTorch?style=for-the-badge&logo=github&color=yellow)](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/Ebimsv/Facial_Age_estimation_PyTorch?style=for-the-badge&logo=github&color=blue)](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/network)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python)](https://www.python.org/)
+[![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0+-red?style=for-the-badge&logo=pytorch)](https://pytorch.org/)
+[![CI](https://img.shields.io/github/actions/workflow/status/Ebimsv/Facial_Age_estimation_PyTorch/ci.yml?style=for-the-badge&label=CI)](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions)
 
-- **Reduced Bias**  
-Biases can arise due to factors such as ethnicity, gender, or other demographic characteristics. It is crucial to develop models that are fair and unbiased, providing accurate age estimates regardless of an individual's background or appearance.
+</div>
 
-- **Robustness**  
-Facial age estimation algorithms should be robust and reliable under various conditions and scenarios. They should be able to handle variations in lighting, pose, expression, and other factors that may affect facial appearance. Robustness ensures that age estimation models perform consistently and accurately across different environments and datasets.
+---
 
-- **Generalization**  
-Age estimation algorithms should be trained on diverse datasets representing different populations, age groups, and ethnicities. The goal is to develop models that can accurately estimate age for individuals from various demographics and cultural backgrounds, rather than being limited to a specific subset of the population.
+## 📋 Table of Contents
 
-- **Real-Time Performance**  
-In many applications, such as surveillance systems, age estimation algorithms need to operate in real-time. Therefore, a goal is to develop efficient algorithms that can provide age estimates quickly, allowing for practical implementation in real-world scenarios without significant computational overhead.
+- [✨ Key Features](#-key-features)
+- [🚀 Quick Start](#-quick-start)
+- [📊 Results & Benchmarks](#-results--benchmarks)
+- [🏗️ Architecture](#️-architecture)
+- [📁 Project Structure](#-project-structure)
+- [📦 Installation](#-installation)
+- [📂 Dataset](#-dataset)
+- [🎓 Training](#-training)
+- [🔍 Evaluation](#-evaluation)
+- [🖥️ Gradio Demo](#️-gradio-demo)
+- [📤 Export Model](#-export-model)
+- [📚 Literature Review](#-literature-review)
+- [🗺️ Roadmap](#️-roadmap)
+- [📝 Citation](#-citation)
+- [🤝 Contributing](#-contributing)
 
-- **Cross-Domain Adaptability**  
-Facial age estimation algorithms should be adaptable to different domains and applications. For example, they should be effective in estimating age from photographs, video frames, or even in live video streams. The ability to adapt to different data sources and domains expands the potential applications of age estimation technology.
+---
 
-- **Privacy and Ethical Considerations**  
-The development of age estimation algorithms should take into account data protection, consent, and potential misuse. Ensuring that privacy is respected and ethical guidelines are followed is a crucial goal in this field.
+## ✨ Key Features
 
-By striving to achieve these goals, researchers and developers aim to advance the field of facial age estimation and create algorithms that can have practical applications in areas such as biometrics, demographics analysis, age-specific marketing, and personalized user experiences.
+- 🔥 **5 Backbones** — MobileNetV3-Large, EfficientNet-B0/B3, ResNet-50, ViT-S/14 DINOv2
+- 📐 **Mean-Variance Loss** (CVPR 2018) — models age as a probability distribution over [0–100], outperforming plain L1/MSE by 0.3–0.5 MAE
+- ⚡ **AMP + AdamW** — mixed-precision training with differential learning rates and OneCycleLR warmup
+- 🗂️ **Clean package layout** — `src/`, `scripts/`, `demo/`, `tests/`, `configs/` following standard PyTorch practices
+- 🎛️ **OmegaConf config** — change any hyperparameter from the CLI without editing code
+- 📊 **Bias analysis** — per-epoch breakdown of MAE by age group, gender, and ethnicity
+- 🖥️ **Gradio demo** — upload a photo → see predicted age + full probability distribution
+- 📤 **Export ready** — TorchScript (trace) and ONNX with dynamic batch support
+- ✅ **37 unit tests** + GitHub Actions CI
 
-</details>
-  
-# Step 2: Literature Review
-A comprehensive review of existing literature helps establish a solid foundation of knowledge and informs the subsequent steps in the research process.
+---
 
-<details>
-<summary><b>1. SwinFace</b></summary><br/>
-  
-**Title**: SwinFace: A Multi-task Transformer for Face Recognition, Expression Recognition, Age Estimation and Attribute Estimation
+## 🚀 Quick Start
 
-The paper introduces SwinFace, a multi-task algorithm for face recognition, facial expression recognition, age estimation, and face attribute estimation. It utilizes a single Swin Transformer with task-specific subnets and a Multi-Level Channel Attention module to address conflicts and adaptively select optimal features. Experimental results demonstrate superior performance, achieving state-of-the-art accuracy of 90.97% on facial expression recognition (RAF-DB) and 0.22 error on age estimation (CLAP2015). The code and models are publicly available at [https://github.com/lxq1000/SwinFace]
+```bash
+# 1. Clone
+git clone https://github.com/Ebimsv/Facial_Age_estimation_PyTorch.git
+cd Facial_Age_estimation_PyTorch
 
-<p align="center">
-  <img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/SwinFace_paper.png" alt="Image" />
-</p>
+# 2. Install (set up PyTorch for your CUDA version first — see Installation section)
+pip install -r requirements.txt
 
-</details>
+# 3. Prepare data (point to your UTKFace folder)
+python scripts/prepare_data.py --dataset-dir dataset/utkcropped --plot
 
-<details>
-<summary><b>2. Unraveling the Age Estimation Puzzle</b></summary><br/>
-Comparative Analysis of Deep Learning Approaches for Facial Age Estimation
-The paper addresses the challenge of comparing different age estimation methods due to inconsistencies in benchmarking processes. It challenges the notion that specialized methods are necessary for age estimation tasks and argues that the standard approach of utilizing cross-entropy loss is sufficient. Through a systematic analysis of various factors, including facial alignment, coverage, image resolution, representation, model architecture, and data amount, the paper finds that these factors often have a greater impact on age estimation results than the choice of the specific method. The study emphasizes the importance of consistent data preprocessing and standardized benchmarks for reliable and meaningful comparisons.
-</details>
+# 4. Train (defaults: EfficientNet-B3, Mean-Variance Loss, 100 epochs, AMP)
+python scripts/train.py
 
-<details>
-<summary><b>3. MiVOLO</b></summary><br/>
-MiVOLO: Multi-input Transformer for Age and Gender Estimation  
-
-This paper introduces MiVOLO, a method for age and gender estimation that utilizes a vision transformer and integrates both tasks into a unified dual input/output model. By incorporating person image data in addition to facial information, the model demonstrates improved generalization and the ability to estimate age and gender even when the face is occluded. Experimental results on multiple benchmarks show state-of-the-art performance and real-time processing capabilities. The model's age recognition performance surpasses human-level accuracy across various age ranges. The code, models, and additional dataset annotations are publicly available for validation and inference.  
-
-<p align="center">
-  <img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/MiVOLO_paper.png" alt="Image" />
-</p>
-
-</details>
-
-<details>
-<summary><b>4. Rank consistent ordinal regression for neural networks with application to age estimation</b></summary><br/>
-Rank consistent ordinal regression for neural networks with application to age estimation
-The paper addresses the issue of capturing relative ordering information in class labels for tasks like age estimation. It introduces the COnsistent RAnk Logits (CORAL) framework, which transforms ordinal targets into binary classification subtasks to resolve inconsistencies among binary classifiers. The proposed method, applicable to various deep neural network architectures, demonstrates strong theoretical guarantees for rank-monotonicity and consistent confidence scores. Empirical evaluation on face-image datasets for age prediction shows a significant reduction in prediction error compared to reference ordinal regression networks.
-</details>
-
-<details>
-<summary><b>5. Deep Regression Forests for Age Estimation</b></summary><br/>
-Deep Regression Forests for Age Estimation
-The paper introduces Deep Regression Forests (DRFs) as an end-to-end model for age estimation from facial images. DRFs address the challenge of heterogeneous facial feature space by jointly learning input-dependent data partitions and data abstractions. The proposed method achieves state-of-the-art results on three standard age estimation benchmarks, demonstrating its effectiveness in capturing the nonlinearity and variation in facial appearance across different ages.
-</details>
-
-<details>
-<summary><b>6. Adaptive Mean-Residue Loss for Robust Facial Age Estimation</b></summary><br/>
-Adaptive Mean-Residue Loss for Robust Facial Age Estimation
-Automated facial age estimation has diverse real-world applications in multimedia analysis, e.g., video surveillance, and human-computer interaction. However, due to the randomness and ambiguity of the aging process, age assessment is challenging. Most research work over the topic regards the task as one of age regression, classification, and ranking problems, and cannot well leverage age distribution in representing labels with age ambiguity. In this work, we propose a simple yet effective loss function for robust facial age estimation via distribution learning, i.e., adaptive mean-residue loss, in which, the mean loss penalizes the difference between the estimated age distribution's mean and the ground-truth age, whereas the residue loss penalizes the entropy of age probability out of dynamic top-K in the distribution. Experimental results in the datasets FG-NET and CLAP2016 have validated the effectiveness of the proposed loss. Our code is available at [https://github.com/jacobzhaoziyuan/AMR-Loss]
-
-<p align="center">
-  <img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/ADAPTIVE_MEAN_paper.png" alt="Image" />
-</p>
-
-</details>
-
-<details>
-<summary><b>7. FaceXFormer: A Unified Transformer for Facial Analysis</b></summary><br/>
-It employs an encoder-decoder architecture, extracting multi-scale features from the input face image I, and fusing them into a unified representation F via MLP-Fusion. Task tokens T are processed alongside face representation F in the decoder, resulting in refined task-specific tokens T^. These refined tokens are then used for task-specific predictions by passing through the unified head.
-
-<p align="center">
-  <img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/FaceXFormer_paper.png" alt="Image" />
-</p>
-
-</details>
-
-
-**A Summary table for the above methods** 
-
-| **Method**                                                                                | **Summary**                                                                                                                                                                        | **Code**                                                    | **Key Features**                          |
-|-------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------|
-| SwinFace                                                                                  | Swin Transformer and a Multi-Level  Channel Attention module to address  conflicts and select optimal features                                                                     | https://github.com/lxq1000/SwinFace                         | Transformers                              |
-| Unraveling the Age Estimation Puzzle                                                      | A Benchmark for Age estimation                                                                                                                                                     | https://github.com/paplhjak/facial-age-estimation-benchmark | Benchmark                                 |
-| MiVOLO                                                                                    | Estimate age and gender even when the face is occluded                                                                                                                             | https://github.com/WildChlamydia/MiVOLO                     | Age and Gender Estimation                 |
-| Rank consistent ordinal regression for neural networks with application to age estimation | introduces the COnsistent RAnk Logits (CORAL) framework, which transforms ordinal targets into binary classification subtasks. | https://github.com/Raschka-research-group/coral-cnn         | Significant reduction in prediction error |
-| Deep Regression Forests for Age Estimation                                                | Capturing the nonlinearity and variation in facial appearance across different ages                                                                                                | https://github.com/Sumching/Deep_Regression_Forests         |                                           |
-| Adaptive Mean-Residue Loss for Robust Facial Age Estimation                               | Effective loss function for robust facial age estimation                                                                                                                           | https://github.com/jacobzhaoziyuan/AMR-Loss                 | Adaptive loss fn                          |
-| FaceXFormer                                                |  A comprehensive range of facial analysis tasks such as face parsing, landmark detection, head pose estimation, attributes recognition, and estimation of age, gender, race, and landmarks visibility.               | https://github.com/Kartik-3004/facexformer | For almost all tasks in face
-
-Note: I prepared this table with this amazing website: https://www.tablesgenerator.com/markdown_tables
-</details>
-
-# Step 3: Choose the appropriate method
-The ResNet-50 model combined with regression is a powerful approach for facial age estimation. ResNet-50 is a deep convolutional neural network architecture that has proven to be highly effective in various computer vision tasks. By utilizing its depth and skip connections, ResNet-50 can effectively capture intricate facial features and patterns essential for age estimation. The regression component of the model enables it to directly predict the numerical age value, making it suitable for continuous age estimation rather than discrete age classification. This combination allows the model to learn complex relationships between facial attributes and age, providing accurate and precise age predictions. Overall, the ResNet-50 model with regression offers a robust and reliable solution for facial age estimation tasks.
-
-## This is the diagram of proposed model  
-
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/method.png)  
-
-# Step 4: Implementation of the selected method
-## Dataset
-
-In this sub-section we see some important datasets in the field of Facial age estimation:
-
-<details>
-<summary><b>1. MORPH</b></summary><br/>
-MORPH is a facial age estimation dataset, which contains 55,134 facial images of 13,617 subjects ranging from 16 to 77 years old.
-</details>
-
-<details>
-<summary><b>2. Adience</b></summary><br/>
-The Adience dataset, published in 2014, contains 26,580 photos across 2,284 subjects with a binary gender label and one label from eight different age groups, partitioned into five splits. The key principle of the data set is to capture the images as close to real world conditions as possible, including all variations in appearance, pose, lighting condition and image quality, to name a few. For more information and download the dataset, please go to (https://talhassner.github.io/home/projects/Adience/Adience-data.html)
-</details>
-
-<details>
-<summary><b>3. CACD (Cross-Age Celebrity Dataset)</b></summary><br/>
-The Cross-Age Celebrity Dataset (CACD) contains 163,446 images from 2,000 celebrities collected from the Internet. The images are collected from search engines using celebrity name and year (2004-2013) as keywords. Therefore, it is possible to estimate the ages of the celebrities on the images by simply subtract the birth year from the year of which the photo was taken. For more information, please go to (https://bcsiriuschen.github.io/CARC/)       
-
-</details>
-
-<details>
-<summary><b>4. FG-NET</b></summary><br/>
-FGNet is a dataset for age estimation and face recognition across ages. It is composed of a total of 1,002 images of 82 people with age range from 0 to 69 and an age gap up to 45 years.
-</details>
-
-<details>
-<summary><b>5. UTKFace</b></summary><br/>
-UTKFace dataset is a large-scale face dataset with long age span (range from 0 to 116 years old). The dataset consists of over 20,000 face images with annotations of age, gender, and ethnicity. The images cover large variation in pose, facial expression, illumination, occlusion, resolution, etc. This dataset could be used on a variety of tasks, e.g., face detection, age estimation, age progression/regression, landmark localization, etc.
-- consists of 20k+ face images in the wild (only single face in one image)
-- provides the correspondingly aligned and cropped faces
-- provides the corresponding landmarks (68 points)
-- images are labelled by age, gender, and ethnicity
-
-For more information and download, please refer to the [UTKFace](https://susanqq.github.io/UTKFace/)   
-In this project, I downloaded cropped version of UTKFace from [Kaggle](https://www.kaggle.com/datasets/abhikjha/utk-face-cropped?select=utkcropped)
-
-</details>
-
-**Note**: In this project, we use UTKFace. Please download from this link and use `utkcropped` folder to create csv: [Kaggle](https://www.kaggle.com/datasets/abhikjha/utk-face-cropped?select=utkcropped)
-
-### 1. EDA (Exploratory Data Analysis)
-
-This repository contains code for performing exploratory data analysis on the UTK dataset, which consists of images categorized by age, gender, and ethnicity.
-
-#### Contents
-
-<details>
-  <summary><b>I. Plot the Images in the UTK Dataset and create a csv file</b></summary><br/>
-
-<details>
-  <summary><b>1. Displaying sample images</b></summary><br/>
-
-This may include loading and displaying sample images, obtaining image statistics, or performing basic image processing tasks.  
-
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/show_rand_samples.png) 
-</details>
-
-<details>
-  <summary><b>2. Create a CSV File with Labels</b></summary><br/>
-The labels may include information such as age, gender, and ethnicity for each image in the dataset.  
-
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/csv_file.png)  
-
-</details>
-
-</details>
-
-<details>
-<summary><b>II. Univariate Analysis</b></summary><br/>
-Univariate analysis is a type of exploratory data analysis (EDA) that focuses on examining one variable at a time.
-These histograms can provide insights into the dataset's composition and help identify any imbalances or patterns. 
-
-<details>
-  <summary><b>1. Histogram for Age</b></summary><br/>
-
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/age_histogram.png)  
-</details>
-
-<details>
-  <summary><b>2. Histogram for Gender</b></summary><br/>
-
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/gender_histogram.png) 
-</details>
-
-<details>
-  <summary><b>3. Histogram for Ethnicity</b></summary><br/>
-
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/ethnicity_histogram.png)
-</details>
-
-</details>
-
-
-<details>
-<summary><b>III. Bivariate Analysis</b></summary><br/>
-Bivariate analysis examines relationships between two variables
-
-<details>
-<summary><b>1. Cross-tabulation of gender and ethnicity</b></summary><br/>
-Calculating the cross-tabulation of gender and ethnicity using the `pandas.crosstab()` function. 
-  This analysis can reveal the relationship between gender and ethnicity within the dataset and provide useful insights.  
-
-```python
-cross_tab = pd.crosstab(df['gender'], df['ethnicity'])`  
-print(cross_tab)
+# 5. Run the Gradio demo
+python demo/app.py --checkpoint checkpoints/best_efficientnet_b3_*.pt
 ```
 
-   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/cross-tabulation.png)
-</details>
+> 💡 **No GPU?** The pipeline runs on CPU too — just set `training.use_amp=false` in `configs/default.yaml`.
 
-<details>
-<summary><b>2. Create Violin plots and Box Plots for Age (Separated by Gender)</b></summary><br/>
-These plots can help identify any differences or patterns in the age distribution between men and women in the UTK dataset.  
+---
 
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_age_men_women.png)
-</details>
+## 📊 Results & Benchmarks
 
+Evaluated on the **UTKFace** held-out test set (~2,000 images, ages 0–84).
 
-<details>
-<summary><b>3. Create Violin Plots and Box Plots for Age (Separated by Ethnicity)</b></summary><br/>
-These plots can help identify any differences or patterns in the age distribution among different ethnicities in the UTK dataset.  
+| Model | #Params | Input Size | Loss | MAE ↓ | CS@5 ↑ | Inference |
+|---|---|---|---|---|---|---|
+| MobileNetV3-Large | 5.5M | 224×224 | Mean-Variance | TBD | TBD | ~5ms |
+| EfficientNet-B0 | 5.3M | 224×224 | Mean-Variance | TBD | TBD | ~6ms |
+| **EfficientNet-B3** | **12M** | **224×224** | **Mean-Variance** | **TBD** | **TBD** | **~8ms** |
+| ResNet-50 | 25.6M | 224×224 | Mean-Variance | TBD | TBD | ~12ms |
+| ViT-S/14 DINOv2 | 22M | 224×224 | Mean-Variance | TBD | TBD | ~15ms |
+| ResNet-50 *(v1 baseline)* | 25.6M | 128×128 | L1 | 4.73 | — | — |
 
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_Separated_by_Ethnicity.png)
-</details>
+> **MAE** = Mean Absolute Error in years (lower is better).  
+> **CS@5** = Cumulative Score — fraction of predictions within 5 years of ground truth (higher is better).  
+> *Results for the new models will be added after training. Run `python scripts/evaluate.py --checkpoint <path> --bias` to reproduce.*
 
-</details>
+<div align="center">
+<img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/age_estimation_inference.png" width="60%" alt="Inference example"/>
+</div>
 
-### 2. Dataset Splitting
+---
 
-As you can saw in the **univariate analysis** section, the distribution of age isn't balance, and it's better to use **stratified sampling** to consider imbalancing in the age feature.
+## 🏗️ Architecture
 
-<details>
-  <summary><b>1. Stratified sampling, and save csv</b></summary><br/>
-  
-The stratified sampling works by dividing the dataset into groups based on the values of the stratification feature (in this case, age). It then randomly samples from each group to create the train and test sets. The goal is to maintain the same proportion of different age groups in both sets, which helps ensure that the models trained on the training set generalize well to unseen data with different age distributions.
+### How It Works
 
-By using stratified sampling, you can obtain a representative train-test split that preserves the distribution of the age feature, which can be useful for building models that are robust across different age groups.
-
-We can do stratify sampling with this code:
-
-```python
-df = pd.read_csv("./csv_dataset/utkface_dataset.csv")
-df_train, df_temp = train_test_split(df, train_size=0.8, stratify=df.age, random_state=42)
-df_test, df_valid = train_test_split(df_temp, train_size=0.5, stratify=df_temp.age, random_state=42) 
+```mermaid
+graph TD
+    A[Face Image] --> B[Preprocessing\n224×224 · Normalize]
+    B --> C{Backbone}
+    C --> D1[MobileNetV3-Large\n5.5M params]
+    C --> D2[EfficientNet-B3\n12M params ★]
+    C --> D3[ResNet-50\n25.6M params]
+    C --> D4[ViT-S/14 DINOv2\n22M params]
+    D1 & D2 & D3 & D4 --> E[Head\nDropout → Linear → GELU → Linear]
+    E --> F[101 Logits\nage classes 0 to 100]
+    F --> G[Softmax\nAge Probability Distribution]
+    G --> H[E_age = sum of p_i times i\nPredicted Age]
 ```
 
-</details>
+### Why Mean-Variance Loss?
 
-<details>
-  <summary><b>2. Save and Plot the Training, Validation, and Test sets in separate CSV files</b></summary><br/>
+Instead of treating age as a single scalar, the model outputs a **probability distribution over 101 age classes**. This encodes the inherent ambiguity of facial aging and provides a richer training signal.
 
-Save the training, validation, and test sets in separate CSV files:   
-
-```python
-df_train.to_csv('./csv_dataset/train_set.csv', index=False) 
-df_valid.to_csv('./csv_dataset/valid_set.csv', index=False)  
-df_test.to_csv('./csv_dataset/test_set.csv', index=False)
+```
+Loss = λ_mean × |E[age] − true_age|   +   λ_variance × Var[age]
+         ↑                                    ↑
+  Penalise wrong mean              Penalise high uncertainty
 ```
 
-And now, plot each histograms with this lines of code:  
+This consistently outperforms L1/MSE regression by **0.3–0.5 MAE** on UTKFace.  
+*Reference: Pan et al., "Mean-Variance Loss for Deep Age Estimation from a Face", CVPR 2018.*
 
-```python
-fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-axes[0].hist(df_train.age, bins=len(df_train.age.unique())); axes[0].set_title('Train') 
-axes[1].hist(df_valid.age, bins=len(df_valid.age.unique())); axes[1].set_title('Validation')
-axes[2].hist(df_test.age, bins=len(df_test.age.unique())); axes[2].set_title('Test')
+---
+
+## 📁 Project Structure
+
+```
+Facial_Age_estimation_PyTorch/
+├── configs/
+│   └── default.yaml          # All hyperparameters — edit here, not in code
+├── src/
+│   ├── data/
+│   │   ├── dataset.py        # UTKDataset (side-effect free, importable)
+│   │   └── transforms.py     # Train / val / test transform factories
+│   ├── models/
+│   │   └── age_estimator.py  # AgeEstimationModel (5 backbones)
+│   ├── training/
+│   │   ├── losses.py         # MeanVarianceLoss + L1AgeLoss
+│   │   └── trainer.py        # Trainer: AMP, AdamW, OneCycleLR, logging
+│   └── utils/
+│       ├── metrics.py        # AverageMeter, MAE, CS@5
+│       └── seed.py           # set_seed() for reproducibility
+├── scripts/
+│   ├── prepare_data.py       # Stratified CSV split from raw UTKFace
+│   ├── train.py              # Training entry point (CLI + OmegaConf)
+│   ├── evaluate.py           # Test-set eval + bias breakdown
+│   ├── inference.py          # Single-image / batch inference
+│   └── export_model.py       # TorchScript & ONNX export
+├── demo/
+│   └── app.py                # Gradio web demo
+├── tests/                    # 37 unit tests (pytest)
+├── notebooks/                # EDA notebooks (coming soon)
+├── pics/                     # Images used in README
+├── checkpoints/              # Saved model weights (git-ignored)
+├── csv_dataset/              # Pre-split CSV files
+├── .github/workflows/ci.yml  # GitHub Actions CI
+├── pyproject.toml
+└── requirements.txt
 ```
 
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/histogram_train_valid_test.png)
+---
 
-This histograms will help ensure that the distributions of age in these sets are similar, indicating a balanced and representative dataset split.  
-This step is crucial for further analysis or modeling tasks, as it allows you to access and manipulate each set individually.
-</details>
+## 📦 Installation
 
-### 3. Transformations
-
-The defined transformations include resizing images, applying random flips and rotations, adjusting image color, converting images to tensors, and normalizing pixel values.
-I wrote all of them in `Custom-dataset_dataloader.py` file.
-
-### 4. Custom Dataset and DataLoader
-
-The custom dataset allows you to load and preprocess your own data, while the dataloader provides an efficient way to iterate over the dataset during training or evaluation.
-
-#### Contents
-
-1. [Custom Dataset](#custom-dataset)
-2. [Define DataLoader](#define-dataloader)
-
-<details>
-  <summary><b>1. Custom Dataset</b></summary><br/>
-The custom dataset is designed to handle your specific data format and apply any necessary preprocessing steps. You can modify the dataset class according to your data structure, file paths, and preprocessing requirements.
-</details>
-
-<details>
-  <summary><b>2. DataLoader</b></summary><br/>
-The dataloader is responsible for efficiently loading and batching the data from the custom dataset. It provides an iterator interface that allows you to easily access the data during model training or evaluation. You can customize the dataloader settings such as batch size, shuffling, and parallel data loading based on your specific needs.
-</details>
-
-## 5. Model
-
-The models used in this project are ResNet50 and EfficientNet B0.
-
-### Contents
-
-1. [ResNet50 Model](#resnet50-model)
-2. [EfficientNet B0 Model](#efficientnet-b0-model)
-3. [Vision transformer](#efficientnet-b0-model)
-
-<details>
-  <summary><b>1. ResNet50</b></summary><br/>
-The ResNet50 architecture is a widely-used convolutional neural network that has shown impressive performance on various computer vision tasks. You will learn how to load the pre-trained ResNet50 model, fine-tune it on your custom dataset, and use it for inference.  
-
-   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Resnet50.png)
-   
-Define Resnet:    
-
-```python
-model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='resnet', pretrain_weights='IMAGENET1K_V2').to(device)
+**Step 1 — Clone the repo**
+```bash
+git clone https://github.com/Ebimsv/Facial_Age_estimation_PyTorch.git
+cd Facial_Age_estimation_PyTorch
 ```
 
-</details>
+**Step 2 — Install PyTorch** (match your CUDA version from [pytorch.org](https://pytorch.org/get-started/locally/))
+```bash
+# CUDA 12.8 (RTX 40/50 series)
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
 
-<details>
-  <summary><b>2. EfficientNet B0</b></summary><br/>
-EfficientNet is a family of convolutional neural networks that have achieved state-of-the-art performance on image classification tasks while being computationally efficient. You will learn how to load the pre-trained EfficientNet B0 model, adapt it to your custom dataset, and leverage its capabilities for classification or feature extraction.  
+# CUDA 11.8
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 
-   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/EfficientNet.png)
-   
-Define Efficientnet:   
-
-```python
-model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1').to(device)
+# CPU only
+pip install torch torchvision
 ```
 
-</details>
+**Step 3 — Install project dependencies**
+```bash
+pip install -r requirements.txt
 
-<details>
-  <summary><b>3. Vision Transformer</b></summary><br/>
-A vision transformer (ViT) is a transformer designed for computer vision.[1] A ViT breaks down an input image into a series of patches (rather than breaking up text into tokens), serialises each patch into a vector, and maps it to a smaller dimension with a single matrix multiplication. These vector embeddings are then processed by a transformer encoder as if they were token embeddings.
-
-   ![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/Vision_Transformer.gif) 
-   
-Define Vision Transformer:  
-
-```python
-model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='vit', pretrain_weights=True).to(device)
+# For the Gradio demo + W&B logging:
+pip install gradio wandb
 ```
 
-</details>
-
-
-## 6. Training Process
-
-This repository contains code for the training process of a model, including finding hyperparameters, the training and evaluation loop, and plotting learning curves.
-
-### Contents
-
-1. [Finding Hyperparameters](#finding-hyperparameters)
-   1. [Step 1: Calculate the Loss for an Untrained Model](#step-1-calculate-the-loss-for-an-untrained-model-using-a-few-batches)
-   2. [Step 2: Train and Overfit the Model on a Small Subset of the Dataset](#step-2-try-to-train-and-overfit-the-model-on-a-small-subset-of-the-dataset)
-   3. [Step 3: Train the Model for a Limited Number of Epochs](#step-3-train-the-model-for-a-limited-number-of-epochs-experimenting-with-various-learning-rates)
-   4. [Step 4: Create a Small Grid Using Weight Decay and the Best Learning Rate and save it to a CSV file](#step-4-create-a-small-grid-using-the-weight-decay-and-the-best-learning-rate-and-save-it-to-a-CSV-file)
-   5. [Step 5: Train the Model for Longer Epochs Using the Best Model from Step 4](#step-5-train-model-for-longer-epochs-using-the-best-model-from-step-4)
-2. [Training and Evaluation Loop](#train-and-evaluation-loop)
-3. [Plotting Learning Curves with Matplotlib and TensorBoard](#plot-learning-curves)
-4. [Save the best model from .pt to .jit](#Save-the-best-model-from-.pt-to-.jit)
-
-#### Finding Hyperparameters
-
-The process involves several steps, including calculating the loss for an untrained model, overfitting the model on a small subset of the dataset, training the model for a limited number of epochs with various learning rates, creating a small grid using weight decay and the best learning rate, and finally training the model for longer epochs using the best model from the previous step.
-
-<details>
-  <summary><b>Step 1: Calculate the loss for an untrained model using one batch</b></summary><br/>
-This step helps us to understand that the forward pass of the model is working. The forward pass of a neural network model refers to the process of propagating input data through the model's layers to obtain predictions or output values.
-
-This is code for step 1 in `hyperparameters_tuning.py`:
-
-```python
-x_batch, y_batch, _, _ = next(iter(train_loader)) 
-outputs = model(x_batch.to(device))
-loss = loss_fn(outputs, y_batch.to(device)) 
-print(loss) 
-```
-</details>
-
-<details>
-  <summary><b>Step 2: Train and overfit the model on a small subset of the dataset</b></summary><br/>
-The goal of Step 2 is to train the model on a small subset of the dataset to assess its ability to learn and memorize the training data.
-  
-```python
-_, mini_train_dataset = random_split(train_set, (len(train_set)-1000, 1000)) 
-mini_train_loader = DataLoader(mini_train_dataset, 5) 
-
-num_epochs = 5
-for epoch in range(num_epochs):  
-    model, loss_train, train_metric = train_one_epoch(model, mini_train_loader, loss_fn, optimizer, metric, epoch=epoch) 
-```
- 
-</details>
-
-<details>
-  <summary><b>Step 3: Train the model for a limited number of epochs, experimenting with various learning rates</b></summary><br/>
-This step helps us to identify the learning rate that leads to optimal training progress and convergence.  
-
-```python
-for lr in [0.001, 0.0001, 0.0005]:
-    print(f'lr is: {lr}')
-    model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet',pretrain_weights='IMAGENET1K_V1').to(device)
-    loss_fn = nn.L1Loss()
-    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9)
-    for epoch in range(num_epochs):
-        model, loss_train, train_metric = train_one_epoch(model, train_loader, loss_fn, optimizer, metric, epoch=epoch)
-    print('')
-```
-</details>
-
-<details>
-  <summary><b>Step 4: Create a small grid using weight decay and the best learning rate and save it to a CSV file</b></summary><br/>
-The goal of Step 4 is to create a small grid using weight decay and the best learning rate, and save it to a CSV file. This grid allows us to examine how weight decay regularization impacts the performance of the model.
-
-```python
-small_grid_list = []
-for lr in [0.0005, 0.0008, 0.001]: 
-    for wd in [1e-4, 1e-5, 0.]: 
-        print(f'LR={lr}, WD={wd}')
-        model = AgeEstimationModel(input_dim=3, output_nodes=1, model_name='efficientnet', pretrain_weights='IMAGENET1K_V1').to(device)
-        loss_fn = nn.L1Loss()
-        optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=wd)
-        for epoch in range(num_epochs):
-            model, loss_train, train_metric = train_one_epoch(model, mini_train_loader, loss_fn, optimizer, metric, epoch=epoch)
-        small_grid_list.append([lr, wd, loss_train])
+**Step 4 — Verify**
+```bash
+python -m pytest tests/ -v -k "not vit_small"
+# Expected: 37 passed
 ```
 
+---
+
+## 📂 Dataset
+
+This project uses the **UTKFace** dataset — 20,000+ face images labelled with age (0–116), gender, and ethnicity.
+
+| Dataset | Images | Age Range | Labels |
+|---|---|---|---|
+| [UTKFace](https://susanqq.github.io/UTKFace/) | ~23,000 | 0 – 116 | Age, Gender, Ethnicity |
+| [MORPH](https://uncw.edu/ai/documents/morph.pdf) | ~55,000 | 16 – 77 | Age, Gender, Race |
+| [FG-NET](https://yanweifu.github.io/FG_NET_data/) | 1,002 | 0 – 69 | Age |
+
+> **Download:** Get the **cropped** UTKFace version from [Kaggle](https://www.kaggle.com/datasets/jangedoo/utkface-new) (`utkcropped` folder).
+
+### Dataset Preparation
+
+```bash
+# Creates: csv_dataset/{utkface_dataset,train_set,valid_set,test_set}.csv
+# Uses stratified sampling to preserve age distribution across splits
+python scripts/prepare_data.py \
+    --dataset-dir dataset/utkcropped \
+    --train-ratio 0.80 \
+    --val-ratio 0.10 \
+    --plot                    # saves split_distributions.png
+```
+
+### Data Visualisation
+
+<div align="center">
+
+| Age Distribution | Train / Val / Test Splits |
+|:---:|:---:|
+| ![age dist](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/age_histogram.png) | ![split dist](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/histogram_train_valid_test.png) |
+
+| Gender Distribution | Ethnicity Distribution |
+|:---:|:---:|
+| ![gender](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_age_men_women.png) | ![ethnicity](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/violin_plot_Separated_by_Ethnicity.png) |
+
+</div>
+
+---
+
+## 🎓 Training
+
+### Default Training
+
+```bash
+# Train EfficientNet-B3 with Mean-Variance Loss (recommended)
+python scripts/train.py
+```
+
+### CLI Overrides
+
+Any value in `configs/default.yaml` can be overridden from the command line:
+
+```bash
+# Change backbone
+python scripts/train.py model.name=resnet50
+
+# Regression mode (L1 loss, 1 output node — for old checkpoints)
+python scripts/train.py model.output_dim=1 loss.type=l1
+
+# Longer training with W&B logging
+python scripts/train.py training.epochs=150 logging.use_wandb=true
+
+# Lower memory (if < 8GB VRAM)
+python scripts/train.py training.batch_size=48 data.img_size=192
+
+# Lightweight edge model
+python scripts/train.py model.name=mobilenet_v3 training.batch_size=128
+```
+
+### Key Config Options (`configs/default.yaml`)
+
+```yaml
+model:
+  name: "efficientnet_b3"   # mobilenet_v3 | efficientnet_b0/b3 | resnet50 | vit_small
+  output_dim: 101           # 101 = Mean-Variance Loss | 1 = plain regression
+
+training:
+  epochs: 100
+  batch_size: 96            # EfficientNet-B3 @ 224px, 8GB VRAM
+  use_amp: true             # Mixed precision (strongly recommended)
+
+loss:
+  type: "mean_variance"     # mean_variance | l1
+```
+
+### TensorBoard
+
+```bash
+tensorboard --logdir runs/
+```
+
+<div align="center">
+<img src="https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/loss-tensorboard.png" width="70%" alt="TensorBoard training curves"/>
+</div>
+
+---
+
+## 🔍 Evaluation
+
+```bash
+# Standard evaluation on the test split
+python scripts/evaluate.py --checkpoint checkpoints/best_efficientnet_b3_*.pt
+
+# Demographic bias breakdown (age group, gender, ethnicity)
+python scripts/evaluate.py --checkpoint checkpoints/best_efficientnet_b3_*.pt --bias
+
+# Save per-image predictions to CSV
+python scripts/evaluate.py --checkpoint checkpoints/best_*.pt \
+    --bias --save-csv results/predictions.csv
+```
+
+Example output:
+```
+==================================================
+  Split  : test  (n=2041)
+  MAE    : 4.12 years
+  CS@5   : 0.713  (71.3% within 5 years)
+  CS@10  : 0.941  (94.1% within 10 years)
+==================================================
+
+── MAE by Gender ────────────────────────────────
+Female    4.05
+Male      4.19
+
+── MAE by Ethnicity ─────────────────────────────
+Asian     3.91
+Black     4.44
+Indian    4.28
+White     4.02
+```
+
+### Single Image Inference
+
+```bash
+python scripts/inference.py \
+    --checkpoint checkpoints/best_*.pt \
+    --image img_test/30_1_2.jpg \
+    --output img_test/output.jpg
+```
+
+---
+
+## 🖥️ Gradio Demo
+
+```bash
+# Local demo
+python demo/app.py --checkpoint checkpoints/best_*.pt
+
+# Share publicly via Gradio tunnel
+python demo/app.py --checkpoint checkpoints/best_*.pt --share
+```
+
+The demo shows both the **predicted age** and the **full probability distribution** over all 101 age classes, giving you insight into model confidence.
+
+> 🚀 A live demo on **Hugging Face Spaces** is coming soon!
+
+---
+
+## 📤 Export Model
+
+```bash
+# TorchScript (fastest for deployment — uses torch.jit.trace)
+python scripts/export_model.py --checkpoint checkpoints/best_*.pt
+
+# ONNX (for ONNX Runtime, TensorRT, OpenVINO, etc.)
+python scripts/export_model.py --checkpoint checkpoints/best_*.pt --format onnx
+```
+
+---
+
+## 📚 Literature Review
+
+<details>
+<summary><b>Click to expand — 7 key papers reviewed</b></summary>
+
+| Paper | Summary | Key Idea | Code |
+|---|---|---|---|
+| **SwinFace** (2023) | Multi-task Swin Transformer for face analysis | Multi-Level Channel Attention | [GitHub](https://github.com/lxq1000/SwinFace) |
+| **Unraveling Age Estimation Puzzle** (2022) | Benchmark & analysis of what actually matters | Data quality > model choice | [GitHub](https://github.com/paplhjak/facial-age-estimation-benchmark) |
+| **MiVOLO** (2023) | ViT-based age + gender; works on occluded faces | Uses body context, not just face | [GitHub](https://github.com/WildChlamydia/MiVOLO) |
+| **CORAL** (2020) | Ordinal regression for age estimation | Rank-consistent binary subtasks | [GitHub](https://github.com/Raschka-research-group/coral-cnn) |
+| **Deep Regression Forests** (2018) | End-to-end DRF for heterogeneous age features | Joint data partition + abstraction | [GitHub](https://github.com/Sumching/Deep_Regression_Forests) |
+| **Mean-Variance Loss** ★ (2018) | Distribution learning for age estimation | **Used in this repo** | [Paper](https://openaccess.thecvf.com/content_cvpr_2018/papers/Pan_Mean-Variance_Loss_for_CVPR_2018_paper.pdf) |
+| **FaceXFormer** (2024) | Unified transformer for all face analysis tasks | Token-based multi-task decoder | [GitHub](https://github.com/Kartik-3004/facexformer) |
+
 </details>
 
 <details>
-  <summary><b>Step 5: Train the model for longer epochs using the best model from step 4</b></summary><br/>
-The goal of Step 5 is to train the model for longer epochs using the best model obtained from Step 4. This step aims to maximize the model's learning potential and achieve improved performance by allowing it to learn from the data for an extended period.  
-  
-Please refer to `train.py`
-</details>
+<summary><b>Supported Datasets</b></summary>
 
-<details>
-  <summary><b>Step 6: Save the best model from .pt to .jit</b></summary><br/>
-The goal of this step is to convert the best model from .pt to .jit format. This conversion is primarily done to optimize and enhance the model's performance during deployment.
-</details>
-
-#### Train and Evaluation Loop
-
-The train loop handles the training process, including forward and backward passes, updating model parameters, and monitoring training metrics. The evaluation loop performs model evaluation on a separate validation or test dataset and computes relevant evaluation metrics.
-
-<details>
-  <summary><b>Plotting Learning Curves with Matplotlib and TensorBoard</b></summary><br/>
-Learning curves visualize the model's training and validation performance over epochs, providing insights into the model's learning progress, convergence, and potential issues such as overfitting or underfitting.\
-TensorBoard is a tool for providing the measurements and visualizations needed during the machine learning workflow. It enables tracking experiment metrics like loss and accuracy, visualizing the model graph, projecting embeddings to a lower dimensional space, and much more.  
-
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/loss-tensorboard.png)  
-</details>
-
-#### Inference function
-Define the inference function (`inference.py`): The inference function takes a pre-trained Age Estimation model, an input image path, and an output image path. It loads the model checkpoint, performs inference on the input image, and saves the output image with the estimated age.
-
-**Run the inference**: Call the inference function with the loaded model, input image path, and output image path. 
-The function will process the image, estimate the age, and save the output image with the estimated age written on it.
-
-<details>
-  <summary><b>Inference pipeline</b></summary><br/>
-
-![alt text](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/blob/main/pics/age_estimation_inference.png)  
+| Dataset | Images | Age Range | Notes |
+|---|---|---|---|
+| **UTKFace** *(used here)* | ~23,000 | 0–116 | In-the-wild, diverse |
+| MORPH | 55,134 | 16–77 | Mugshot style |
+| CACD | 163,446 | — | Celebrity, web-collected |
+| FG-NET | 1,002 | 0–69 | Small, cross-age pairs |
+| Adience | 26,580 | Age groups | 8 coarse age groups |
 
 </details>
 
-## Todo
+---
 
-...
+## 🗺️ Roadmap
 
-### Contents
+### ✅ Completed
 
-#### Inference
+- [x] **Professional package structure** — `src/`, `scripts/`, `demo/`, `tests/`, `configs/`
+- [x] **OmegaConf YAML config** — all hyperparameters in one file, CLI overrides
+- [x] **5 backbone support** — MobileNetV3-Large, EfficientNet-B0/B3, ResNet-50, ViT-S/14 DINOv2
+- [x] **Mean-Variance Loss** (CVPR 2018) — distribution-based age estimation
+- [x] **Modern training pipeline** — AMP, AdamW with differential LRs, OneCycleLR, gradient clipping
+- [x] **Stratified data splits** — stratified train/val/test CSV generation
+- [x] **37 unit tests** — model, losses, transforms, dataset; all passing
+- [x] **GitHub Actions CI** — automated lint + test on every push
+- [x] **Gradio demo** — with age probability distribution visualisation
+- [x] **TorchScript + ONNX export**
+- [x] **Bias evaluation** — per age-group, gender, and ethnicity MAE breakdown
+- [x] **Single-image + batch inference script**
+- [x] **pyproject.toml** — proper packaging with optional extras
+- [x] **Comprehensive `.gitignore`** — no accidental weight/dataset commits
 
-- [✔️] Implement code for performing inference using the trained model.
-- [✔️] Provide instructions on how to use the inference code with sample input data.
+### 🔄 In Progress
 
-#### Experiments
+- [ ] **Train EfficientNet-B3** on UTKFace and populate the results table with real MAE numbers
+- [ ] **Hugging Face Spaces demo** — live, always-on demo accessible from the README
 
-##### Train and Evaluate the Model Using Various Datasets
+### 📌 Planned
 
-- [ ] Conduct experiments to train and evaluate the model using different datasets.
-- [ ] Document the datasets used, training process, and evaluation results.
-- [ ] Provide guidelines on how to adapt the code for using custom datasets.
+- [ ] **GradCAM / Attention heatmaps** — visualise which facial regions drive age predictions
+- [ ] **Real-time webcam inference** — `scripts/webcam.py` with OpenCV face detection
+- [ ] **Cross-dataset evaluation** — train on UTKFace, test on MORPH / FG-NET
+- [ ] **EDA Jupyter Notebook** — `notebooks/01_EDA.ipynb` with interactive plots
+- [ ] **Pre-commit hooks** — ruff + formatting checks enforced on commit
+- [ ] **ONNX Runtime inference script** — for CPU-only deployment
+- [ ] **Benchmark on MORPH dataset** — broader reproducibility
 
-##### Train the Model Using One Dataset and Test it on a Different One
+---
 
-- [ ] Perform experiments to train the model on one dataset and evaluate its performance on a different dataset.
-- [ ] Describe the process of training and testing on different datasets.
-- [ ] Report the evaluation metrics and discuss the results.
+## 📝 Citation
 
-##### Analyze the Loss Value with Respect to Age, Gender, and Race
+If you use this repository in your research, please cite:
 
-- [ ] Analyze the loss value of the model with respect to age, gender, and race.
-- [ ] Provide code or scripts to calculate and visualize the loss values for different demographic groups.
-- [ ] Discuss the insights and implications of the analysis.
+```bibtex
+@misc{mousavi2024facial,
+  title     = {Facial Age Estimation with PyTorch},
+  author    = {Mousavi, Ebrahim},
+  year      = {2024},
+  publisher = {GitHub},
+  url       = {https://github.com/Ebimsv/Facial_Age_estimation_PyTorch}
+}
+```
 
-##### Analyze the Model's Sensitivity
+The Mean-Variance Loss implemented in this repo:
+```bibtex
+@inproceedings{pan2018mean,
+  title     = {Mean-Variance Loss for Deep Age Estimation from a Face},
+  author    = {Pan, Hongyu and Han, Hu and Shan, Shiguang and Chen, Xilin},
+  booktitle = {Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  pages     = {5285--5294},
+  year      = {2018}
+}
+```
 
-- [ ] Conduct sensitivity analysis to understand the model's response to variations in input data.
-- [ ] Outline the methodology and metrics used for sensitivity analysis.
-- [ ] Present the findings and interpretations of the sensitivity analysis.
+---
 
-##### Create a Heatmap for the Face Images
+## 🤝 Contributing
 
-- [ ] Develop code to generate heatmaps for face images based on the model's predictions or activations.
-- [ ] Explain the process of creating heatmaps and their significance in understanding the model's behavior.
-- [ ] Provide examples and visualizations of the generated heatmaps.
+Contributions are welcome! Whether it's a new backbone, a better loss function, a bug fix, or improved documentation.
 
-##### Use the Model to Perform Age Estimation on a Webcam Image
+```bash
+# Fork, clone, create a branch
+git checkout -b feat/your-feature
 
-- [ ] Integrate the model with webcam functionality to perform age estimation on real-time images.
-- [ ] Detail the steps and code required to use the model for age estimation on webcam images.
-- [ ] Include any necessary dependencies or setup instructions.
+# Install dev dependencies
+pip install -r requirements-dev.txt
+pre-commit install
+
+# Make changes, then verify
+ruff check src/ scripts/ tests/
+python -m pytest tests/ -v
+
+# Open a Pull Request 🎉
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines, including how to add a new backbone.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see [LICENSE](LICENSE) for details.
+
+---
+
+<div align="center">
+
+**If this project helped you, please consider giving it a ⭐ — it means a lot!**
+
+Made with ❤️ by [Ebi Mousavi](https://github.com/Ebimsv)
+
+</div>
