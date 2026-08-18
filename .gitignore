@@ -27,9 +27,10 @@ ENV/
 # Exception: keep the example checkpoint referenced in README
 # !checkpoints/example_checkpoint.pt
 
-# ── Dataset ──────────────────────────────────────────────────────────────────
-dataset/
-data/
+# Dataset — use leading / to match ONLY the root-level folder,
+# NOT src/data/ or any other nested 'data' directory.
+/dataset/
+/data/
 
 # ── Logging & experiment tracking ────────────────────────────────────────────
 runs/

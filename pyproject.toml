@@ -62,6 +62,13 @@ ignore = [
     "N812",  # lowercase imported as non-lowercase
 ]
 
+[tool.ruff.lint.isort]
+# Tell ruff/isort that 'src' is our own first-party code.
+# Without this, CI (a fresh machine with no installed packages) cannot auto-detect
+# src as local code and may mis-classify 'from src.*' as third-party, causing
+# I001 import-ordering errors that don't reproduce locally.
+known-first-party = ["src"]
+
 [tool.ruff.lint.per-file-ignores]
 "tests/*"   = ["S101"]           # assert is fine in tests
 "scripts/*" = ["E402"]           # sys.path manipulation must precede project imports
