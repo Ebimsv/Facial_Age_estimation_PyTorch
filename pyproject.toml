@@ -63,7 +63,9 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"]  # assert is fine in tests
+"tests/*"   = ["S101"]           # assert is fine in tests
+"scripts/*" = ["E402"]           # sys.path manipulation must precede project imports
+"demo/*"    = ["E402", "W291"]   # same; W291 comes from multi-line Gradio markdown strings
 
 # ── Pytest ───────────────────────────────────────────────────────────────────
 [tool.pytest.ini_options]

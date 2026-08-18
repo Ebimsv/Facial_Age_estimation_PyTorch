@@ -11,7 +11,6 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.models import AgeEstimationModel
 
-
 BACKBONES = ["mobilenet_v3", "efficientnet_b0", "efficientnet_b3", "resnet50"]
 # Note: "vit_small" is excluded from fast unit tests because it downloads ~80MB weights.
 

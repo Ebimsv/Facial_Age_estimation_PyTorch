@@ -27,7 +27,12 @@ import torch
 from omegaconf import OmegaConf
 from tqdm import tqdm
 
-from src.data import build_dataloaders, get_test_transforms, get_train_transforms, get_val_transforms
+from src.data import (
+    build_dataloaders,
+    get_test_transforms,
+    get_train_transforms,
+    get_val_transforms,
+)
 from src.models import AgeEstimationModel
 from src.training import get_loss_fn
 from src.utils import compute_cumulative_score, compute_mae, set_seed

@@ -23,7 +23,7 @@ from torch.amp import GradScaler, autocast
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from src.utils.metrics import AverageMeter, compute_mae, compute_cumulative_score
+from src.utils.metrics import AverageMeter, compute_cumulative_score, compute_mae
 
 if TYPE_CHECKING:
     from omegaconf import DictConfig
@@ -43,7 +43,7 @@ class Trainer:
         self,
         model: nn.Module,
         loss_fn: nn.Module,
-        cfg: "DictConfig",
+        cfg: DictConfig,
         device: torch.device,
     ) -> None:
         self.model = model

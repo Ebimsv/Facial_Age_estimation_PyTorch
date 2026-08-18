@@ -32,7 +32,12 @@ sys.path.insert(0, str(PROJECT_ROOT))
 import torch
 from omegaconf import OmegaConf
 
-from src.data import build_dataloaders, get_test_transforms, get_train_transforms, get_val_transforms
+from src.data import (
+    build_dataloaders,
+    get_test_transforms,
+    get_train_transforms,
+    get_val_transforms,
+)
 from src.models import build_model
 from src.training import Trainer, get_loss_fn
 from src.utils import set_seed

@@ -27,7 +27,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-
 # ── Label maps ───────────────────────────────────────────────────────────────
 GENDER_MAP = {0: "Male", 1: "Female"}
 ETHNICITY_MAP = {0: "White", 1: "Black", 2: "Asian", 3: "Indian", 4: "Others"}
