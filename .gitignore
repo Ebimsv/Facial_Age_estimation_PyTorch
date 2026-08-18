@@ -1,3 +1,65 @@
-__pycache__
-.idea
-dataset
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Virtual environments ─────────────────────────────────────────────────────
+.env
+.venv
+env/
+venv/
+ENV/
+
+# ── Model weights & checkpoints ──────────────────────────────────────────────
+# Tracked individually when needed; keep large binaries off GitHub
+*.pt
+*.pth
+*.onnx
+*.jit
+*.bin
+
+# Exception: keep the example checkpoint referenced in README
+# !checkpoints/example_checkpoint.pt
+
+# ── Dataset ──────────────────────────────────────────────────────────────────
+dataset/
+data/
+
+# ── Logging & experiment tracking ────────────────────────────────────────────
+runs/
+wandb/
+mlruns/
+*.log
+logs/
+
+# ── Jupyter ──────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── IDE & OS ─────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Ruff / pre-commit cache ───────────────────────────────────────────────────
+.ruff_cache/
+.pre-commit-cache/
+
+# ── Pytest ───────────────────────────────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Secrets ──────────────────────────────────────────────────────────────────
+.env.local
+secrets.yaml

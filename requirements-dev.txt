@@ -1,0 +1,17 @@
+# Development extras — install with: pip install -r requirements-dev.txt
+-r requirements.txt
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# ── Linting & formatting ─────────────────────────────────────────────────────
+ruff>=0.1.0
+pre-commit>=3.0.0
+
+# ── Demo ─────────────────────────────────────────────────────────────────────
+gradio>=4.0.0
+huggingface-hub>=0.19.0
+
+# ── Experiment tracking ───────────────────────────────────────────────────────
+wandb>=0.15.0
