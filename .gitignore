@@ -27,10 +27,15 @@ ENV/
 # Exception: keep the example checkpoint referenced in README
 # !checkpoints/example_checkpoint.pt
 
-# Dataset — use leading / to match ONLY the root-level folder,
-# NOT src/data/ or any other nested 'data' directory.
+# ── Dataset images (large binary files — never commit) ──────────────────────
+# The leading / anchors to repo root only, so src/data/ is NOT affected.
 /dataset/
 /data/
+
+# ── Generated CSV files (small, useful to commit for reproducibility) ────────
+# csv_dataset/ is intentionally NOT listed here so the split CSVs are tracked.
+# Uncomment the line below if you prefer users to generate their own splits:
+# /csv_dataset/
 
 # ── Logging & experiment tracking ────────────────────────────────────────────
 runs/
