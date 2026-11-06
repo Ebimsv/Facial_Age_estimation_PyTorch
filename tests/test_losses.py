@@ -195,7 +195,10 @@ def test_cuda_autocast_loss_and_gradients(mode):
     loss_fn = loss_fn.cuda()
     model = torch.nn.Linear(3, 1 if mode == "l1" else 5).cuda()
     optimizer = torch.optim.SGD(model.parameters(), lr=.01)
-    scaler = torch.amp.GradScaler("cuda")
+    # The default startup scale can overflow an FP16 linear weight gradient even
+    # for L1 (e.g. 65536 * 1). Test objective stability at a representable scale;
+    # dynamic startup backoff is GradScaler's job, not a failure of FP32 moments.
+    scaler = torch.amp.GradScaler("cuda", init_scale=128.)
     with torch.autocast("cuda", dtype=torch.float16):
         logits = model(torch.ones(2, 3, device="cuda"))
         loss, _, _ = loss_fn(logits, torch.full((2, 1), 2., device="cuda"))
@@ -204,3 +207,6 @@ def test_cuda_autocast_loss_and_gradients(mode):
     scaler.scale(loss).backward()
     scaler.unscale_(optimizer)
     assert all(torch.isfinite(p.grad).all() for p in model.parameters())
+    scaler.step(optimizer)
+    scaler.update()
+    assert all(torch.isfinite(p).all() for p in model.parameters())
