@@ -46,6 +46,7 @@ class TrainingConfig:
     seed: int = MISSING
     use_amp: bool = MISSING
     grad_clip: float = MISSING
+    deterministic: bool = False
 
 
 @dataclass
@@ -159,8 +160,6 @@ def validate_split_options(train_ratio: float, val_ratio: float, seed: int) -> N
     _finite(val_ratio, "data.val_ratio", 0, positive=True)
     if train_ratio + val_ratio >= 1:
         raise ValueError("data.train_ratio + data.val_ratio must be < 1 (leave a nonempty test split)")
-    if round(1 - train_ratio - val_ratio, 4) <= 0:
-        raise ValueError("Test fraction is too small for the preparation split's four-decimal precision")
     _integer(seed, "training.seed", 0)
     if seed >= 2**32:
         raise ValueError("training.seed must be < 2**32")

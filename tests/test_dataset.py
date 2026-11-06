@@ -1,4 +1,4 @@
-"""Tests for UTKDataset — dataset tests skip if the real data isn't available."""
+"""Tests for UTKDataset using synthetic images and CSVs only."""
 
 from __future__ import annotations
 
@@ -75,3 +75,13 @@ def test_dataset_age_tensor_range(tmp_path: Path) -> None:
     ds = UTKDataset(root_dir=img_dir, csv_file=csv_path, transform=transform)
     ages = [ds[i][1].item() for i in range(len(ds))]
     assert all(20 <= a <= 29 for a in ages), f"Unexpected ages: {ages}"
+
+
+def test_corrupt_image_raises_contextual_decode_error(tmp_path):
+    img_dir, csv_path = _make_dummy_dataset(tmp_path, n=1)
+    path = next(img_dir.iterdir())
+    path.write_bytes(b"not an image")
+    ds = UTKDataset(img_dir, csv_path)
+    with pytest.raises(ValueError, match="Could not decode dataset image") as error:
+        ds[0]
+    assert path.name in str(error.value)

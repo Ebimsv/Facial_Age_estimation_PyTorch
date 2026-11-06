@@ -15,7 +15,7 @@ from src.models import build_model
 from src.models.legacy import LegacyResNet50
 from src.training.trainer import Trainer
 from src.utils.checkpoint import _legacy_config, create_checkpoint, load_checkpoint
-from src.utils.config import to_plain_config
+from src.utils.config import merge_config, to_plain_config
 
 
 @pytest.fixture(scope="module")
@@ -104,11 +104,14 @@ def test_runtime_yaml_interpolation_resolves_against_saved_cfg(tmp_path, artifac
 
 
 @pytest.mark.parametrize("mode", ["l1_mean_variance", "mean_variance"])
-def test_explicit_unmodified_default_yaml_does_not_replace_regression_contract(tmp_path, artifacts, mode):
+@pytest.mark.parametrize("old_training_defaults", [False, True])
+def test_explicit_unmodified_default_yaml_does_not_replace_regression_contract(tmp_path, artifacts, mode, old_training_defaults):
     path, _, model, _ = artifacts["l1"]
     default_yaml = tmp_path / "external-default.yaml"
     defaults = OmegaConf.create(files("src.configs").joinpath("default.yaml").read_text())
     defaults.loss.type = mode
+    if old_training_defaults:
+        del defaults.training.deterministic
     default_yaml.write_text(OmegaConf.to_yaml(defaults), encoding="utf-8")
     bundle = load_checkpoint(path, default_yaml, device="cpu")
     assert bundle.cfg.loss.type == "l1" and bundle.cfg.data.img_size == 64
@@ -191,3 +194,34 @@ def test_trainer_writes_new_schema(tmp_path, artifacts):
     loaded = load_checkpoint(trainer.best_ckpt_path, device="cpu")
     assert loaded.cfg.loss.type == "l1"
     assert loaded.metadata["training_objective"] == saved["training_objective"]
+    experiment = loaded.metadata["experiment_metadata"]
+    assert experiment == saved["experiment_metadata"]
+    assert experiment["data"] is None  # no loader supplied; provenance stays unknown
+    assert experiment["randomness"]["configured_seed"] == cfg.training.seed
+    assert isinstance(experiment["environment"]["packages"]["torch"], str)
+
+
+def test_trainer_saves_loader_data_hashes_without_inventing_source(tmp_path, artifacts):
+    import pandas as pd
+    from PIL import Image
+
+    from src.data.dataset import build_dataloaders
+    from src.training.losses import get_loss_fn
+    from src.training.trainer import Trainer
+
+    _, _, model, cfg = artifacts["l1"]
+    for split in ["train", "valid", "test"]:
+        names = [f"{split}_0.png", f"{split}_1.png"]
+        for name in names:
+            Image.new("RGB", (2, 2)).save(tmp_path / name)
+        pd.DataFrame({"image_name": names, "age": [20, 21], "gender": "Male", "ethnicity": "White"}).to_csv(
+            tmp_path / f"{split}_set.csv", index=False)
+    loaders = build_dataloaders(tmp_path, tmp_path, None, None, None, batch_size=2, num_workers=0, seed=cfg.training.seed)
+    cfg = merge_config(cfg, {"logging": {"save_dir": str(tmp_path / "checkpoints"), "use_tensorboard": False}})
+    trainer = Trainer(model, get_loss_fn(cfg), cfg, torch.device("cpu"), data_provenance=loaders[0].data_provenance)
+    trainer._save_checkpoint(0, 4.)
+    metadata = load_checkpoint(trainer.best_ckpt_path, device="cpu").metadata["experiment_metadata"]
+    assert metadata["data"] == loaders[0].data_provenance
+    assert metadata["data"]["protocol"] == "unversioned_csv"
+    assert metadata["data"]["identity_leakage"] == "unknown"
+    assert len(metadata["data"]["csv_files"]["train_set.csv"]["sha256"]) == 64

@@ -88,7 +88,7 @@ def main() -> None:
     print(f"Loaded checkpoint: {Path(args.checkpoint).name}")
     print(f"  Epoch index: {bundle.metadata.get('epoch', 'unknown')}")
     print(f"  Validation MAE: {bundle.metadata.get('val_mae', 'unknown')}")
-    set_seed(cfg.training.seed)
+    set_seed(cfg.training.seed, deterministic=cfg.training.deterministic)
 
     # ── Data ──────────────────────────────────────────────────────────────
     train_loader, val_loader, test_loader = build_dataloaders(
@@ -102,6 +102,7 @@ def main() -> None:
         num_workers=cfg.data.num_workers,
         pin_memory=(device.type == "cuda"),
         age_range=(cfg.loss.start_age, cfg.loss.end_age),
+        seed=cfg.training.seed,
     )
 
     loader = {"train": train_loader, "val": val_loader, "test": test_loader}[args.split]

@@ -9,12 +9,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import torch
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import Compose
+
+from src.data.validation import describe_splits, image_path, validate_table
+from src.utils.seed import seed_worker
 
 
 class UTKDataset(Dataset):
@@ -41,29 +43,22 @@ class UTKDataset(Dataset):
         transform: Compose | None = None,
         age_range: tuple[int, int] | None = None,
     ) -> None:
-        self.root_dir = Path(root_dir)
+        self.root_dir = Path(root_dir).resolve()
         self.transform = transform
-        self.data = pd.read_csv(csv_file)
-
-        # Validate required columns
-        required = {"image_name", "age", "gender", "ethnicity"}
-        missing = required - set(self.data.columns)
-        if missing:
-            raise ValueError(f"CSV is missing columns: {missing}")
-        if age_range is not None:
-            ages = pd.to_numeric(self.data["age"], errors="coerce")
-            if not (np.isfinite(ages) & ages.between(*age_range)).all():
-                raise ValueError(f"{csv_file}: age targets must be finite and inside {age_range}")
-            self.data["age"] = ages
+        self.data = validate_table(pd.read_csv(csv_file), context=str(csv_file),
+                                   root=self.root_dir, age_range=age_range)
 
     def __len__(self) -> int:
         return len(self.data)
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor, str, str]:
         row = self.data.iloc[idx]
-        img_path = self.root_dir / row["image_name"]
-
-        image = Image.open(img_path).convert("RGB")
+        img_path = image_path(self.root_dir, row["image_name"])
+        try:
+            with Image.open(img_path) as source:
+                image = source.convert("RGB")
+        except (OSError, ValueError, Image.DecompressionBombError) as exc:
+            raise ValueError(f"Could not decode dataset image: {img_path}") from exc
         if self.transform is not None:
             image = self.transform(image)
 
@@ -89,6 +84,7 @@ def build_dataloaders(
     num_workers: int = 4,
     pin_memory: bool = True,
     age_range: tuple[int, int] | None = None,
+    seed: int = 42,
 ) -> tuple[DataLoader, DataLoader, DataLoader]:
     """Construct train / val / test DataLoaders from pre-split CSVs.
 
@@ -103,6 +99,7 @@ def build_dataloaders(
         num_workers:     DataLoader worker processes.
         pin_memory:      Pin memory for GPU transfers (recommended when using CUDA).
         age_range:       Optional inclusive target support for every split CSV.
+        seed:            Independent loader generators; custom Python/NumPy worker RNG seeds.
 
     Returns:
         Tuple of (train_loader, val_loader, test_loader).
@@ -117,6 +114,9 @@ def build_dataloaders(
             raise ValueError(f"{name} split is empty; prepare nonempty split CSVs before training")
     if len(train_ds) < batch_size:
         raise ValueError("Training loader would have zero batches with drop_last=True; reduce training.batch_size")
+    provenance = describe_splits(csv_dir, Path(root_dir),
+                                 {"train": train_ds.data, "val": val_ds.data, "test": test_ds.data}, age_range)
+    provenance["loader_seed"] = seed
 
     train_loader = DataLoader(
         train_ds,
@@ -125,6 +125,8 @@ def build_dataloaders(
         num_workers=num_workers,
         pin_memory=pin_memory,
         drop_last=True,  # keeps batch sizes uniform for OneCycleLR
+        generator=torch.Generator().manual_seed(seed),
+        worker_init_fn=seed_worker,
     )
     val_loader = DataLoader(
         val_ds,
@@ -132,6 +134,8 @@ def build_dataloaders(
         shuffle=False,
         num_workers=num_workers,
         pin_memory=pin_memory,
+        generator=torch.Generator().manual_seed(seed + 1),
+        worker_init_fn=seed_worker,
     )
     test_loader = DataLoader(
         test_ds,
@@ -139,6 +143,11 @@ def build_dataloaders(
         shuffle=False,
         num_workers=num_workers,
         pin_memory=pin_memory,
+        generator=torch.Generator().manual_seed(seed + 2),
+        worker_init_fn=seed_worker,
     )
+
+    for loader in (train_loader, val_loader, test_loader):
+        loader.data_provenance = provenance
 
     return train_loader, val_loader, test_loader

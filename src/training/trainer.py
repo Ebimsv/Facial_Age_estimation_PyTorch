@@ -26,6 +26,7 @@ from tqdm import tqdm
 from src.training.losses import training_objective_spec
 from src.utils.checkpoint import create_checkpoint
 from src.utils.config import to_plain_config
+from src.utils.environment import collect_environment
 from src.utils.metrics import AverageMeter, compute_cumulative_score, compute_mae
 
 if TYPE_CHECKING:
@@ -48,11 +49,24 @@ class Trainer:
         loss_fn: nn.Module,
         cfg: DictConfig,
         device: torch.device,
+        data_provenance: dict | None = None,
     ) -> None:
         self.model = model
         self.loss_fn = loss_fn
         self.cfg = cfg
         self.device = device
+        self.experiment_metadata = {
+            "data": data_provenance, "environment": collect_environment(),
+            "device": {"type": str(device), "cuda_runtime": torch.version.cuda,
+                       "name": torch.cuda.get_device_name(device) if device.type == "cuda" else None},
+            "randomness": {"configured_seed": cfg.training.seed,
+                           "deterministic_requested": cfg.training.deterministic,
+                           "deterministic_algorithms": torch.are_deterministic_algorithms_enabled(),
+                           "cudnn_deterministic": torch.backends.cudnn.deterministic,
+                           "cudnn_benchmark": torch.backends.cudnn.benchmark,
+                           "pythonhashseed": os.environ.get("PYTHONHASHSEED"),
+                           "cublas_workspace_config": os.environ.get("CUBLAS_WORKSPACE_CONFIG")},
+        }
 
         # Move loss buffers (e.g., MeanVarianceLoss.ages) to the same device
         self.loss_fn = self.loss_fn.to(device)
@@ -86,7 +100,8 @@ class Trainer:
             import wandb
             self.wandb_run = wandb.init(
                 project=cfg.logging.wandb_project,
-                config={**to_plain_config(cfg), "training_objective": training_objective_spec(cfg.loss.type)},
+                config={**to_plain_config(cfg), "training_objective": training_objective_spec(cfg.loss.type),
+                        "experiment_metadata": self.experiment_metadata},
                 name=cfg.model.name,
             )
 
@@ -298,7 +313,8 @@ class Trainer:
         torch.save(
             create_checkpoint(self.model, self.cfg, epoch=epoch, val_mae=val_mae,
                               optimizer_state_dict=self.optimizer.state_dict(),
-                              training_objective=training_objective_spec(self.cfg.loss.type)),
+                              training_objective=training_objective_spec(self.cfg.loss.type),
+                              experiment_metadata=self.experiment_metadata),
             fname,
         )
         self.best_ckpt_path = fname

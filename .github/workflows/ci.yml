@@ -102,7 +102,7 @@ jobs:
 
       - name: Run dataset tests (synthetic data — no real dataset needed)
         run: |
-          pytest tests/test_dataset.py -v --tb=short
+          pytest tests/test_dataset.py tests/test_prepare_data.py tests/test_reproducibility.py -v --tb=short
 
       - name: Validate configuration and preparation contracts (offline)
         run: pytest tests/test_config.py -v --tb=short

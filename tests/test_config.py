@@ -222,6 +222,8 @@ def test_csv_age_range_rejected_before_image_io(tmp_path, ages):
 
 @pytest.mark.parametrize(("n", "batch", "error"), [(0, 2, "empty"), (1, 2, "zero batches")])
 def test_empty_and_zero_batch_loaders(tmp_path, n, batch, error):
+    if n:
+        (tmp_path / "0.jpg").touch()
     for split in ["train", "valid", "test"]:
         _csv(tmp_path / f"{split}_set.csv", [20] * n)
     with pytest.raises(ValueError, match=error):
@@ -234,12 +236,12 @@ def test_preparation_uses_config_and_records_effective_parameters(tmp_path, monk
     images.mkdir()
     for i in range(40):
         (images / f"20_0_0_{i}.jpg").touch()
-    # Decoding/image-quality validation belongs to P1.5, not this parameter test.
+    # This parameter-only test opts out of content hashes; decode checks are separate.
     custom = tmp_path / "config.yaml"
     custom.write_text("data:\n  train_ratio: 0.6\n  val_ratio: 0.25\ntraining:\n  seed: 7\n", encoding="utf-8")
     output = tmp_path / "csv"
     monkeypatch.setattr("sys.argv", ["prepare_data", "--config", str(custom), "--dataset-dir", str(images),
-                                     "--csv-dir", str(output), "--train-ratio", "0.5"])
+                                     "--csv-dir", str(output), "--train-ratio", "0.5", "--skip-content-hash"])
     prepare_data.main()
     manifest = json.loads((output / "preparation_manifest.json").read_text())
     assert manifest["parameters"]["train_ratio"] == 0.5

@@ -65,12 +65,12 @@ def test_evaluation_cli_uses_artifact_and_runtime_data_paths(sample, tmp_path, m
     images, csvs = tmp_path / "images", tmp_path / "csvs"
     images.mkdir()
     csvs.mkdir()
-    for name in ["a.png", "b.png"]:
-        image.save(images / name)
-    rows = pd.DataFrame({"image_name": ["a.png", "b.png"], "age": [15, 15],
-                         "gender": ["Male", "Male"], "ethnicity": ["White", "White"]})
     for split in ["train", "valid", "test"]:
-        rows.to_csv(csvs / f"{split}_set.csv", index=False)
+        names = [f"{split}_a.png", f"{split}_b.png"]
+        for name in names:
+            image.save(images / name)
+        pd.DataFrame({"image_name": names, "age": [15, 15], "gender": "Male", "ethnicity": "White"}).to_csv(
+            csvs / f"{split}_set.csv", index=False)
     output = tmp_path / "predictions.csv"
     monkeypatch.setattr("sys.argv", ["eval-age", "--checkpoint", str(path), "--device", "cpu",
                                      "--root-dir", str(images), "--csv-dir", str(csvs),

@@ -78,7 +78,7 @@ def main() -> None:
         return
 
     # ── Reproducibility ───────────────────────────────────────────────────
-    set_seed(cfg.training.seed)
+    set_seed(cfg.training.seed, deterministic=cfg.training.deterministic)
 
     # ── Device ────────────────────────────────────────────────────────────
     if cfg.device:
@@ -107,6 +107,7 @@ def main() -> None:
         num_workers=cfg.data.num_workers,
         pin_memory=(device.type == "cuda"),
         age_range=(cfg.loss.start_age, cfg.loss.end_age),
+        seed=cfg.training.seed,
     )
     validate_training_steps(cfg, len(train_loader))
 
@@ -124,7 +125,8 @@ def main() -> None:
     loss_fn = get_loss_fn(cfg)
 
     # ── Trainer ───────────────────────────────────────────────────────────
-    trainer = Trainer(model=model, loss_fn=loss_fn, cfg=cfg, device=device)
+    trainer = Trainer(model=model, loss_fn=loss_fn, cfg=cfg, device=device,
+                      data_provenance=train_loader.data_provenance)
     trainer.run(train_loader, val_loader)
 
 

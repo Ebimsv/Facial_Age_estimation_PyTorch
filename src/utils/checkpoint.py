@@ -50,7 +50,7 @@ def _contract(cfg, architecture: str = "current") -> dict[str, Any]:
 
 
 def create_checkpoint(model, cfg, *, epoch=None, val_mae=None, optimizer_state_dict=None,
-                      training_objective=None) -> dict:
+                      training_objective=None, experiment_metadata=None) -> dict:
     """Build a plain versioned artifact; training/resume state is optional."""
     cfg = merge_config(cfg)
     architecture = "legacy_resnet50_v1" if isinstance(model, LegacyResNet50) else "current"
@@ -65,6 +65,8 @@ def create_checkpoint(model, cfg, *, epoch=None, val_mae=None, optimizer_state_d
                 "epoch": epoch, "val_mae": val_mae}
     if training_objective is not None:
         artifact["training_objective"] = training_objective
+    if experiment_metadata is not None:
+        artifact["experiment_metadata"] = experiment_metadata
     if optimizer_state_dict is not None:
         artifact["optimizer_state_dict"] = optimizer_state_dict
     return artifact
@@ -97,6 +99,8 @@ def _runtime_config(cfg, config_path, runtime_overrides):
         template = OmegaConf.to_container(patch, resolve=False)
         reference = OmegaConf.to_container(defaults, resolve=False)
         for candidate_template in (template, reference):
+            if isinstance(candidate_template.get("training"), dict):
+                candidate_template["training"].setdefault("deterministic", False)
             if isinstance(candidate_template.get("loss"), dict) and candidate_template["loss"].get("type") in DISTRIBUTION_LOSSES:
                 candidate_template["loss"]["type"] = "l1_mean_variance"
         if template == reference:
@@ -200,7 +204,8 @@ def load_checkpoint(
         metadata = {"schema_version": SCHEMA_VERSION, **expected,
                     "source_format": "v1" if version is not None else "unversioned",
                     "epoch": artifact.get("epoch"), "val_mae": artifact.get("val_mae"),
-                    "training_objective": artifact.get("training_objective")}
+                    "training_objective": artifact.get("training_objective"),
+                    "experiment_metadata": artifact.get("experiment_metadata")}
     if architecture == "legacy_resnet50_v1":
         expected = _contract(_legacy_config(), architecture)
         if any(metadata[key] != expected[key] for key in expected):

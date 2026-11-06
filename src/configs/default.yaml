@@ -36,6 +36,7 @@ training:
   batch_size: 96                      # EfficientNet-B3 @ 224 with AMP on 8GB VRAM
   eval_batch_size: 128
   seed: 42
+  deterministic: false               # strict PyTorch algorithms; may reject unsupported operations
   use_amp: true                       # mixed-precision (float16 forward, float32 grad)
   grad_clip: 1.0                      # max gradient norm
 
