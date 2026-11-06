@@ -102,7 +102,9 @@ outside a running epoch only creates an inference artifact, not a complete resum
 
 Data contracts use provenance from the canonical loader. Verified manifests bind
 CSV and image bytes; unversioned CSVs bind current CSV hashes but do not verify
-image content. Direct custom DataLoaders without provenance can only be checked
+image content. Preserve the original protocol CSVs and manifests when resuming;
+regenerating a manifest can change its provenance contract even if CSV rows match.
+Direct custom DataLoaders without provenance can only be checked
 structurally; the caller must keep sample/transform contents and independent RNG
 objects unchanged. NumPy `Generator` instances or custom libraries are not captured
 automatically. Repeatability is scoped to the same runtime, code, hardware,
@@ -199,7 +201,7 @@ correctness tests, not a UTKFace accuracy benchmark or a guarantee of cross-devi
 bitwise GPU training.
 
 
-Local P2.1 verification: **376 tests passed**, including 57 trainer/resume cases,
+Local P2.1 verification: **377 tests passed**, including 58 trainer/resume cases,
 four CUDA tests across the full suite, actual W&B 0.23.1 offline output and
 TensorBoard event reading. Python 3.13.9 / torch 2.9.0+cu128 on the existing Conda
 environment, RTX 5070 Laptop GPU. The complete suite used

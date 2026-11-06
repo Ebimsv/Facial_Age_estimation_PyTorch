@@ -19,15 +19,17 @@
 | F12 | Complete برای update-based scheduling | optimizer post-step hook و counter؛ AMP skip scheduler را جلو نمی‌برد. horizon ثابت و تغییر epochs در resume رد می‌شود |
 | F14 | Partial برای reproducibility عمومی؛ epoch resume پیاده شد | RNG Python/NumPy/torch/CUDA، loader/sampler generators و contract restore؛ exact CPU در محیط ثابت با صفر/دو worker تأیید شد. cross-hardware/runtime، custom RNG و exact mid-epoch تأیید نشده‌اند |
 | F20 | Complete در logging فعلی | lazy init، finally cleanup، run directories، global batch axis، TensorBoard purge و W&B session/group/custom-axis/offline؛ تست واقعی TB/W&B و failure injection |
-| F19 | Partial برای کل پروژه | ۳۷۶ تست کامل موفق، شامل ۵۷ trainer/resume؛ GPU، CLI، package و inference سازگار. evaluation مستقل و ONNX runtime matrix هنوز بازند |
+| F19 | Partial برای کل پروژه | ۳۷۷ تست کامل موفق، شامل ۵۸ trainer/resume؛ GPU، CLI، package و inference سازگار. evaluation مستقل و ONNX runtime matrix هنوز بازند |
 
-کد: `1f55a38`؛ **۳۷۶ تست محلی موفق** و Ruff/whitespace موفق. Python 3.13.9 /
+کد: `1f55a38` و اصلاح `4530886` برای رد `run_id` خالی؛ **۳۷۷ تست محلی موفق** و Ruff/whitespace موفق. Python 3.13.9 /
 torch 2.9.0+cu128 در Conda موجود، RTX 5070 Laptop، CUBLAS_WORKSPACE_CONFIG پیش از
 شروع suite تعیین شد. چهار CUDA test در suite، Adam/scaler/RNG restore و skip واقعی
 را پوشش دادند؛ این benchmark یا تضمین تکرارپذیری GPU روی هر سخت‌افزار نیست.
 W&B 0.23.1 آفلاین و TensorBoard واقعی اجرا شدند. وابستگی/وزن جدید نصب/دانلود نشد؛
 CI جدید extra W&B را فقط روی runner Python 3.11 برای integration آفلاین نصب می‌کند.
-نتیجهٔ ریموت P2.1 پس از push باید جدا ثبت شود.
+**CI کامیت `4530886` موفق شد**: lint و تست‌های CPU در Python 3.10/3.11/3.12،
+شامل build/install بسته و W&B آفلاین روی 3.11؛ [اجرای تأییدشده](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42286680309).
+CI روی CPU است؛ موفقیت تست‌های CUDA از اجرای محلی ثبت شده است.
 
 `training_state.version=1` به artifact inference schema v1 افزوده شد؛ load محدود
 همچنان برقرار است. raw/legacy/inference-only به resume جعلی تبدیل نمی‌شوند. best/last

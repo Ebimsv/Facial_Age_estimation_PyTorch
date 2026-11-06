@@ -8,8 +8,8 @@
 
 ## ثبت پیشرفت جاری — P2.1: آموزش قابل ادامه و checkpoint امن
 
-در ۲۰۲۶-۱۱-۰۶، P2.1 با کامیت کد `1f55a38` پیاده‌سازی شد. **۳۷۶ تست کامل محلی موفق**،
-Ruff و whitespace موفق‌اند؛ شامل ۵۷ تست Trainer/resume، چهار CUDA test در کل suite،
+در ۲۰۲۶-۱۱-۰۶، P2.1 با کامیت کد `1f55a38` و اصلاح تکمیلی `4530886` پیاده‌سازی شد. **۳۷۷ تست کامل محلی موفق**،
+Ruff و whitespace موفق‌اند؛ شامل ۵۸ تست Trainer/resume، چهار CUDA test در کل suite،
 worker/spawn، TensorBoard واقعی و W&B 0.23.1 آفلاین. همان Conda موجود با Python 3.13.9 /
 torch 2.9.0+cu128 و RTX 5070 Laptop؛ هیچ dependency/وزن/داده نصب یا دانلود نشد.
 گام بعدی **P2.2** است؛ آموزش واقعی طولانی یا benchmark جدید آغاز نشد.
@@ -30,6 +30,7 @@ torch 2.9.0+cu128 و RTX 5070 Laptop؛ هیچ dependency/وزن/داده نصب 
   ساخته می‌شود. تغییر epoch horizon/optimizer/seed/model/داده ناسازگار رد می‌شود؛ مکان داده
   و logging در صورت تطبیق قرارداد مجازند. output resume کنار همان artifact است.
   نسخه‌های قدیمی inference-only، raw state_dict و pickle قدیمی resume حدسی نمی‌گیرند.
+  `run_id` خالی یا نامعتبر در checkpoint رد می‌شود؛ تست رگرسیون `4530886` این guard را پوشش می‌دهد.
 - restore مدل/optimizer/scheduler/scaler و سپس، پس از logger initialization، RNG و
   generatorها انجام می‌شود. ادامه از پایان epoch است؛ قطع وسط epoch باعث replay آن
   epoch از checkpoint قبلی می‌شود، نه exact mid-epoch resume. sampler استاندارد، batching
@@ -52,8 +53,10 @@ torch 2.9.0+cu128 و RTX 5070 Laptop؛ هیچ dependency/وزن/داده نصب 
   logger cleanup، رویداد واقعی TensorBoard، offline W&B، AMP skip CUDA و restore CUDA
   Adam/scaler/RNG آزموده شدند. تولید checkpoint واقعی CNN و inference مشترک نیز پاس شد.
 - [docs/TRAINING.md](../docs/TRAINING.md) دستورها، scope و فلوچارت بازیابی دارد؛ README،
-  راهنمای checkpoint/config/data/download/install به‌روز شدند. CI این کامیت پس از push
-  جداگانه بررسی می‌شود؛ نتیجهٔ محلی جای شاهد ریموت نیست.
+  راهنمای checkpoint/config/data/download/install به‌روز شدند. **CI کامیت `4530886` موفق شد**:
+  lint و تست‌های CPU روی Python 3.10/3.11/3.12، شامل build/install بسته و integration
+  آفلاین W&B روی Python 3.11؛ [اجرای تأییدشده](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42286680309).
+  تست‌های GPU در این runnerهای CPU شرطی‌اند؛ شاهد CUDA از suite کامل محلی است.
 
 F10/F11/F12/F20 در دامنهٔ پیاده‌سازی این گام رفع شدند؛ F14 از نظر epoch-boundary
 پیشرفت کرده و cross-runtime/hardware یا state سفارشی همچنان محدود است. CSV تاریخی،

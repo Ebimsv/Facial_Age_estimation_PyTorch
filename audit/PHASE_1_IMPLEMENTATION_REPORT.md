@@ -7,11 +7,13 @@
 
 - تکمیل دانلود Hugging Face پیش از فاز دوم: [`b09a79a`](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/commit/b09a79a)؛ جزئیات جاری در بخش ۹.
 
-> وضعیت پس از این گزارش: P2.1 اکنون پیاده‌سازی شده است؛ **۳۷۶ تست کامل محلی موفق**.
+> وضعیت پس از این گزارش: P2.1 اکنون پیاده‌سازی شده است؛ **۳۷۷ تست کامل محلی موفق**.
 > ذخیرهٔ امن، epoch-boundary resume، AMP scheduling و logging در
 > [TRAINING.md](../docs/TRAINING.md) و ثبت جاری [نقشهٔ راه](IMPLEMENTATION_ROADMAP.md)
 > آمده‌اند. اخطارهای P2.1 در متن زیر، وضعیت تاریخی پایان فاز اول را ثبت می‌کنند؛
 > best deletion در نسخهٔ جدید رفع شده است. گام بعدی اکنون P2.2 است.
+> CI کد نهایی P2.1 (`4530886`) نیز روی Python 3.10/3.11/3.12 و lint موفق شد؛
+> [شاهد ریموت](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42286680309).
 
 ## ۱. نتیجهٔ فاز اول
 

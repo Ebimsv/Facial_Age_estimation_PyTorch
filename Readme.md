@@ -48,7 +48,7 @@ Train, evaluate, and deploy in minutes — on CPU or GPU.
 - 📊 **Bias analysis** — per-epoch breakdown of MAE by age group, gender, and ethnicity
 - 🖥️ **Gradio demo** — upload a photo → see predicted age + full probability distribution
 - 📤 **Export ready** — TorchScript (trace) and ONNX with dynamic batch support
-- ✅ **376 tests** + GitHub Actions CI (GPU/demo checks are conditional)
+- ✅ **377 tests** + GitHub Actions CI (GPU/demo checks are conditional)
 
 ---
 
@@ -175,7 +175,7 @@ Facial_Age_estimation_PyTorch/
 │   └── export_model.py       # TorchScript & ONNX export
 ├── demo/
 │   └── app.py                # Gradio web demo
-├── tests/                    # 376 tests (pytest)
+├── tests/                    # 377 tests (pytest)
 ├── notebooks/                # EDA notebooks (coming soon)
 ├── pics/                     # Images used in README
 ├── checkpoints/              # Saved model weights (git-ignored)
@@ -512,7 +512,7 @@ python scripts/export_model.py --checkpoint checkpoints/RUN_ID/best.pt --format 
 - [x] **L1 + central variance** — explicit variant, float32 moments, raw regression gradients and bounded modern inference
 - [x] **Modern training pipeline** — AMP, AdamW with differential LRs, OneCycleLR, gradient clipping
 - [x] **Stratified data splits** — stratified train/val/test CSV generation
-- [x] **376 tests** — including data manifests, worker repeatability, regression gradients, checkpoint contracts, and installed packaging
+- [x] **377 tests** — including data manifests, worker repeatability, regression gradients, checkpoint contracts, and installed packaging
 - [x] **GitHub Actions CI** — automated lint + test on every push
 - [x] **Gradio demo** — with age probability distribution visualisation
 - [x] **TorchScript + ONNX export**

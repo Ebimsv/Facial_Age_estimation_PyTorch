@@ -21,9 +21,11 @@ RNG/generator، correctness اصلی این گام‌اند. loggerها مستق
 رفتار resume را روشن می‌کنند. minimum torch API از source 2.3 بررسی شد؛ matrix دقیق
 minimum هنوز اجرا نشده و reproducibility بین نسخه‌ها/سخت‌افزارها تضمین نشده است.
 
-**۳۷۶ تست محلی موفق**، شامل ۵۷ Trainer/resume، قطع وسط epoch، برابری دقیق CPU با
-صفر/دو worker، چهار CUDA test در کل suite و TB/W&B واقعی آفلاین. CI پس از push جدا
-بررسی می‌شود؛ job Python 3.11 فقط برای integration آفلاین extra W&B را نصب می‌کند.
+**۳۷۷ تست محلی موفق**، شامل ۵۸ Trainer/resume، قطع وسط epoch، برابری دقیق CPU با
+صفر/دو worker، چهار CUDA test در کل suite و TB/W&B واقعی آفلاین. **CI کامیت `4530886`
+نیز موفق شد**: lint و تست‌های CPU روی Python 3.10/3.11/3.12، از جمله build/install؛
+[اجرای تأییدشده](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42286680309).
+job Python 3.11 فقط برای integration آفلاین extra W&B را نصب می‌کند؛ شاهد CUDA محلی است.
 محیط کاربر و داده/وزن‌هایش تغییر نکردند. وضعیت unsafe fallback و credential guard حفظ شد.
 
 ارزش فنی بعدی **P2.2** است: ارزیابی مستقل و کامل split انتخابی و خروجی قابل پیگیری؛
