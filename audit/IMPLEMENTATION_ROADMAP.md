@@ -33,13 +33,17 @@
   حذف شدند؛ CSV فعلی test شامل ۴۶۵۴ سطر با سن ۱–۸۴ معرفی و legacy از test benchmark
   تفکیک شد. هیچ آموزش، ablation، نتیجهٔ test-set یا وزن جدید تولید نشده است.
 - CSVها، checkpoint واقعی و credential کاربر تغییر نکردند. تست CUDA نوشته شده ولی
-  اجرای واقعی آن تأیید نشده است؛ CI این تغییر پس از push جداگانه بررسی می‌شود.
+  اجرای واقعی آن تأیید نشده است؛ نتیجهٔ CI در ادامه جداگانه ثبت شده است.
 
 شواهد: `tests/test_model.py`، `tests/test_losses.py`، `tests/test_checkpoint.py` و
 `tests/test_inference.py`. راهنمای جدید: [docs/LOSSES.md](../docs/LOSSES.md).
 F04 و اصلاح پیاده‌سازی/توضیح F08/F09 انجام شدند؛ ablation و benchmark همچنان P4.1،
 resume/atomic save همچنان P2.1، و اعتبار داده/provenance همچنان P1.5 هستند.
 ثبت‌های مراحل قبل در ادامه، سوابق تاریخی‌اند.
+
+**تأیید ریموت:** CI کامیت `abd0304` موفق شد؛ lint و تست‌های Python 3.10، 3.11 و
+3.12 سبز شدند. [run تأییدشده](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42237846889).
+این شاهد، اجرای CUDA یا نتیجهٔ MAE نیست؛ دو تست CUDA محلی skip بودند.
 
 ## ثبت پیشرفت تاریخی — P1.3
 

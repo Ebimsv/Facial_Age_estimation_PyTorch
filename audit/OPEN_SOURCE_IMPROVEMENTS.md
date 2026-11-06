@@ -18,7 +18,8 @@ MAE یا latency بی‌روش را وعده نمی‌دهد؛ نتیجهٔ lega
 export و compatibility تست دارند. objective revision=2 در آموزش جدید ثبت می‌شود و
 از وزن قدیمی provenance ساختگی استخراج نمی‌شود. **۱۷۷ تست محلی موفق و ۲ تست CUDA
 skip شدند**؛ مجموع ۱۷۹ مورد، با Ruff موفق. CPU low-precision شاهد اجرای CUDA نیست.
-CI پس از push جداگانه بررسی می‌شود؛ تست اختیاری demo بدون extra نیز ممکن است skip شود.
+**CI کامیت `abd0304` نیز موفق شد**: lint و Python 3.10/3.11/3.12؛
+[run تأییدشده](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42237846889). تست اختیاری demo بدون extra ممکن است skip شود.
 
 اولویت اجرایی بعدی **P1.5** است: دادهٔ معتبر، split ثابت و provenance؛ سپس guardrail
 دریافت داده و آموزش قابل ادامه. انتشار benchmark یا checkpoint جدید همچنان به اجرای

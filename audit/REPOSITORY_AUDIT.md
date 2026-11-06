@@ -23,7 +23,8 @@
 نتیجهٔ محلی: **۱۷۹ تست جمع‌آوری‌شده، ۱۷۷ موفق، ۲ skip اختیاری CUDA؛ Ruff و whitespace
 موفق**. Python 3.13.9 / torch 2.9.0+cu128، CPU، همان محیط موجود و بدون نصب dependency.
 این نتیجه، آزمایش CUDA یا benchmark دقت/سرعت نیست. تست Gradio محلی اجرا شد؛ در CI
-بدون extra مربوط، آن تست نیز می‌تواند skip شود. نتیجهٔ CI این تغییر پس از push ثبت می‌شود.
+بدون extra مربوط، آن تست نیز می‌تواند skip شود. **CI کامیت `abd0304` موفق شد**:
+lint و تست‌های Python 3.10/3.11/3.12؛ [شاهد ریموت](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42237846889).
 
 Trainer برای اجرای جدید objective revision=2 را در checkpoint و W&B ثبت می‌کند؛
 `create_checkpoint` عمومی و تبدیل قدیمی به‌طور پیش‌فرض سابقهٔ آموزش نمی‌سازند.
