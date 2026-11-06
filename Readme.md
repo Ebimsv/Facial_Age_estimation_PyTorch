@@ -48,7 +48,7 @@ Train, evaluate, and deploy in minutes — on CPU or GPU.
 - 📊 **Bias analysis** — per-epoch breakdown of MAE by age group, gender, and ethnicity
 - 🖥️ **Gradio demo** — upload a photo → see predicted age + full probability distribution
 - 📤 **Export ready** — TorchScript (trace) and ONNX with dynamic batch support
-- ✅ **135 tests** + GitHub Actions CI
+- ✅ **159 tests** + GitHub Actions CI
 
 ---
 
@@ -158,7 +158,7 @@ Facial_Age_estimation_PyTorch/
 │   └── export_model.py       # TorchScript & ONNX export
 ├── demo/
 │   └── app.py                # Gradio web demo
-├── tests/                    # 135 tests (pytest)
+├── tests/                    # 159 tests (pytest)
 ├── notebooks/                # EDA notebooks (coming soon)
 ├── pics/                     # Images used in README
 ├── checkpoints/              # Saved model weights (git-ignored)
@@ -200,6 +200,19 @@ pip install ".[demo,wandb]"
 # For development and packaging tests (includes pytest and build):
 pip install ".[dev]"
 ```
+
+For checkpoint schema v1, runtime overrides, and the tracked historical ResNet50
+weight, see [checkpoint contracts and legacy loading](docs/CHECKPOINTS.md).
+The existing legacy weight can be used without downloading pretrained backbones:
+
+```bash
+python scripts/inference.py --checkpoint checkpoints/epoch-16-loss_valid-4.73.pt \
+  --legacy-resnet50 --device cpu --image img_test/30_1_2.jpg
+```
+
+This is a historical compatibility example; `4.73` denotes validation history,
+not a newly verified held-out test score. Modern checkpoints carry their own
+preprocessing and decoder metadata; inference restores those settings automatically.
 
 `requirements.txt` remains available for dependency-only installation. Installing
 the project also provides `train-age`, `eval-age`, and `export-age`. The installed
@@ -434,7 +447,7 @@ python scripts/export_model.py --checkpoint checkpoints/best_*.pt --format onnx
 - [x] **Mean-Variance Loss** (CVPR 2018) — distribution-based age estimation
 - [x] **Modern training pipeline** — AMP, AdamW with differential LRs, OneCycleLR, gradient clipping
 - [x] **Stratified data splits** — stratified train/val/test CSV generation
-- [x] **135 tests** — model, losses, transforms, dataset, config contracts, and installed packaging
+- [x] **159 tests** — including checkpoint contracts, legacy compatibility, inference parity, and installed packaging
 - [x] **GitHub Actions CI** — automated lint + test on every push
 - [x] **Gradio demo** — with age probability distribution visualisation
 - [x] **TorchScript + ONNX export**

@@ -33,8 +33,8 @@ export-age --help
 
 Installing the core package does not require Gradio or W&B. Dataset downloading
 and training are separate operations; installation does not fetch datasets or
-model weights. Existing checkpoint compatibility is unchanged by this packaging
-step; see audit findings F02/F03 before using the legacy checkpoint.
+model weights. See [checkpoint loading and legacy profiles](CHECKPOINTS.md) for
+the shared loader, restricted deserialization and explicit historical weight support.
 
 ## Configuration and relative paths
 
@@ -53,9 +53,9 @@ Use `train-age --print-config` to inspect settings without starting training.
   for source execution, and against the current working directory for an installed
   package. Absolute dataset paths also work. The configuration file's directory
   is not automatically used as the dataset root.
-- Inference, checkpoint, export, and log/output paths retain their existing CLI
-  semantics. This step does not change checkpoint config merge precedence; that
-  is planned under P1.3.
+- Checkpoint-backed commands restore their preprocessing/decoder from the artifact.
+  Their `--config` accepts runtime overrides under the policy in
+  [CHECKPOINTS.md](CHECKPOINTS.md); training config behavior is described separately.
 
 For example, after installing the package, create a working directory with your
 data and CSVs and run:
@@ -123,5 +123,5 @@ be included. Distribution tests check metadata alignment with `requirements.txt`
 This packaging step does not report model accuracy, throughput, or GPU training
 results. Verification consists of the existing unit suite plus packaging regression
 tests, metadata validation, artifact content inspection, and Ruff. See the P1.1
-and P1.2 completion notes in [the implementation roadmap](../audit/IMPLEMENTATION_ROADMAP.md)
+through P1.3 completion notes in [the implementation roadmap](../audit/IMPLEMENTATION_ROADMAP.md)
 for historical and current test counts and remaining scope.

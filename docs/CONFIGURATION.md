@@ -62,8 +62,8 @@ plain = to_plain_config(cfg)  # resolved nested dict/lists, suitable for JSON
 
 Do not mutate `cfg` in place after validation. Checkpoints and W&B receive the
 resolved plain configuration rather than a shallow dictionary of DictConfig nodes.
-This does not yet implement checkpoint schema versioning or full inference config
-restoration; those remain P1.3 work.
+Checkpoint schema v1 and shared inference restoration are now implemented; see
+[checkpoint contracts](CHECKPOINTS.md) for the separate runtime override policy.
 
 ## Model and age contracts
 
@@ -95,8 +95,8 @@ cannot silently broadcast across the distribution's age classes. Targets must be
 finite, match the batch size, and lie inside the inclusive support. Training and
 evaluation also validate CSV ages before image I/O. Regression forward clamping
 and the mean-variance variant's mathematics are unchanged in P1.2; P1.4 addresses
-those separately. Demo plotting and complete checkpoint preprocessing consistency
-remain later work.
+those separately. Demo plots now use the checkpoint's saved support, and all
+checkpoint-backed commands restore the same preprocessing/decoder.
 
 ## Training and loader checks
 
@@ -147,6 +147,7 @@ those are P1.5 work. Existing tracked CSVs have not been regenerated.
   with a FutureWarning. Non-null values or unknown keys are rejected. Use the
   inference CLI's `--checkpoint`, `--image`/`--image-dir`, and `--output` flags.
 
-These checks do not make the legacy checkpoint loadable by the current head.
-See [the audit](../audit/REPOSITORY_AUDIT.md) for F02/F03 and
-[the roadmap](../audit/IMPLEMENTATION_ROADMAP.md) for the remaining P1.3 migration.
+Legacy weights require the historical head/profile, now supported explicitly by
+`--legacy-resnet50`; changing output_dim alone is insufficient. See
+[checkpoint migration](CHECKPOINTS.md), [the audit](../audit/REPOSITORY_AUDIT.md)
+and [the roadmap](../audit/IMPLEMENTATION_ROADMAP.md).

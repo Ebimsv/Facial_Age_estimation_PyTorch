@@ -6,9 +6,33 @@
 
 مبنای تاریخچه: `a2c3a4e7b57390b12c4b43e9c53b15a10ec557e4`
 
-این سند snapshot ممیزی پیش از پیاده‌سازی است. پس از تأیید کاربر، P1.1 و P1.2 اجرا شدند؛
+این سند snapshot ممیزی پیش از پیاده‌سازی است. پس از تأیید کاربر، P1.1 تا P1.3 اجرا شدند؛
 وضعیت فعلی و شواهد اجرای آن در [ثبت پیشرفت نقشهٔ راه](IMPLEMENTATION_ROADMAP.md)
 آمده است. یافته‌های تاریخی این سند به‌عنوان باگ‌های بازِ نسخهٔ جدید تفسیر نشوند.
+
+## وضعیت جاری پس از P1.3 — ۲۰۲۶-۱۱-۰۶
+
+- نتیجهٔ محلی: **۱۵۹ تست موفق، Ruff و whitespace check موفق**؛ همان محیط کوندای
+  قبلی، CPU، بدون نصب یا دانلود وزن/داده. ۱۸ تست checkpoint و ۵ تست pipeline اضافه شده‌اند؛
+  packaging اکنون ۱۱ تست دارد، از جمله inference از wheel نصب‌شده خارج checkout.
+- **F02: Complete در دامنهٔ قرارداد inference**؛ loader/transform/decoder مشترک و
+  schema v1 در تمام entry pointها برقرار است؛ artifact بر تنظیمات محلی اولویت دارد.
+- **F03: سازگاری legacy رفع شد؛ انتشار وزن جدید همچنان Partial**. مدل واقعی با
+  head تاریخی و خروجی خام، زیر restricted loader و پرچم صریح اجرا شد. preprocessing از
+  کد همراه اولین commit وزن (`432569f`) استخراج شده است، نه از حدس نام فایل.
+- **F22: Partial**؛ unsafe fallback حذف شد؛ pickle قدیمی فقط با opt-in صریح است.
+  فایل credential هنوز خارج کامیت و دست‌نخورده است و ignore آن در P1.6 باقی است.
+- **F18: Partial**؛ export از قرارداد مشترک و sidecar استفاده می‌کند و parity
+  TorchScript روی CNN آزموده شد؛ ONNX/runtime و ماتریس بیشتر هنوز P2.4 است.
+- **F13: Partial**؛ تمام transformهای ارزیابی اکنون مشترک و قطعی‌اند، ولی train loader
+  هنوز shuffle/drop_last دارد و ارزیابی به سه CSV وابسته است؛ این بخش در P2.2 باقی است.
+- **F17/F19: Partial**؛ نمودار support سفارشی، device و تست‌های parity بهتر شده‌اند؛
+  batch واقعی، webcam، decode/error UX کامل و resume/train/export matrix کامل نشده‌اند.
+- F04/F08/F09 و resume/atomic save اصلاح نشده‌اند؛ اجرای P1.3 به معنی پایان فاز ۱ نیست.
+
+وزن واقعی روی تصویر نمونه خروجی ۲۶٫۵ سال داد؛ این فقط اجرای smoke محلی است، نه نتیجهٔ
+test-set یا شاهد MAE=4.73. فایل checkpoint و CSVها تغییر نکردند. راهنمای استفاده و
+مهاجرت: [CHECKPOINTS.md](../docs/CHECKPOINTS.md). بخش P1.2 و ممیزی اولیهٔ پایین، سوابق تاریخی‌اند.
 
 ## وضعیت جاری پس از P1.2 — ۲۰۲۶-۱۱-۰۶
 
