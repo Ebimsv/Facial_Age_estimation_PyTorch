@@ -29,7 +29,8 @@ CSVهای قدیمی موجودند. حذف ۴۳۶ مورد به‌علت سن �
 
 Python 3.13.9 / torch 2.9.0+cu128؛ **۳۱۹ تست محلی موفق**، دو CUDA و worker/spawn،
 Ruff/whitespace موفق. هیچ dependency نصب یا مدل آموزش داده نشد؛ آزمون زندهٔ HF جدا از
-تست‌های مصنوعی CI است. نتیجهٔ CI این توسعه پس از push ثبت می‌شود. تنظیمات دانلود
+تست‌های مصنوعی CI است. **CI کامیت `6be18cb` هم موفق شد**: lint و Python 3.10/3.11/3.12؛
+[شاهد ریموت](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42280629726). تنظیمات دانلود
 از training/checkpoint جدا هستند؛ نسخهٔ کامل و digest اجباری و fallback خودکار ممنوع است.
 
 راهنما: [DOWNLOADING.md](../docs/DOWNLOADING.md) و بخش ۹

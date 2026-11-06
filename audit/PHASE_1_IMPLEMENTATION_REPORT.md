@@ -292,7 +292,9 @@ source پیش‌فرض Hugging Face، revision کامل ثابت و size/SHA-256
 
 **۳۱۹ تست کامل موفق**؛ ۵۰ تست جدید HF/HTTP/TAR/config و ۱۲ تست packaging در کل suite
 حاضرند. نصب wheel مستقل، bundled config، checkpointهای قبلی، CUDA و worker/spawn نیز
-پاس شدند. این تست‌های شبکه مصنوعی‌اند؛ CI توسعهٔ جدید پس از push جداگانه ثبت می‌شود.
+پاس شدند. **CI کامیت `6be18cb` نیز موفق شد**: lint و Python 3.10/3.11/3.12؛
+[اجرای تأییدشدهٔ توسعهٔ HF](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42280629726).
+تست‌های HTTP در CI مصنوعی‌اند؛ دانلود واقعی، آزمایش محلی مستقل بود.
 
 دانلود واقعی این بار اجرا شد: **۱۰۶۶۳۴۶۳۱ بایت** با SHA-256
 `2c0655397b498e81b82d685ee74bee8c2e4364a5897caf3afec6ea48929024a7` تطبیق یافت و

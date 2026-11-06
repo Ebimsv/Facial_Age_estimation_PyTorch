@@ -17,7 +17,8 @@ Kaggle explicit alternative است. source config از model/checkpoint contract
 این بار دریافت زندهٔ HF انجام شد: archive با digest ثابت تأیید و ۲۳۷۰۵ تصویر ذخیره شد؛
 protocol واقعی در مسیر ignored محلی `dataset/protocol_hf_v1` با ۱۸۰۱۵/۲۲۵۲/۲۲۵۲ ساخته
 و توسط loader دوباره hash/partition verify شد. dataset/وزن به مخزن اضافه نشده است.
-**۳۱۹ تست محلی موفق** شامل ۵۰ HF و بستهٔ نصب‌شده؛ CI پس از push جدا بررسی می‌شود.
+**۳۱۹ تست محلی موفق** شامل ۵۰ HF و بستهٔ نصب‌شده؛ **CI کامیت `6be18cb` نیز موفق شد**:
+lint و Python 3.10/3.11/3.12؛ [run تأییدشده](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42280629726).
 
 شاهد واقعی، ۱۷۴ گروه تکرار بایتی مشترک بین splitهای تاریخی را تأیید کرد؛ این مشکل
 با نام‌های disjoint قابل رد نبود. CSV تاریخی حفظ شد، اما برای آزمایش تازه باید از protocol

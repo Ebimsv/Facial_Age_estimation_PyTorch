@@ -30,7 +30,7 @@
   ignoredِ `dataset/protocol_hf_v1` با seed42، سن<85، decode کامل نامزدهای داخل بازه
   و hash ساخته شد: ۴۳۶ age exclusion، ۷۵۰ duplicate exclusion در ۳۶۸ گروه؛ ۲۲۵۱۹
   پذیرفته با **۱۸۰۱۵ train / ۲۲۵۲ val / ۲۲۵۲ test**. loader دوباره تمام hash/partition
-  را تأیید کرد. هیچ مدل ساخته/آموزش داده نشد؛ CSV/وزن تاریخی تغییری نکرد.
+  را تأیید کرد. برای دادهٔ واقعی مدل ساخته یا آموزش داده نشد؛ CSV/وزن تاریخی تغییری نکرد.
 - **F07 اکنون شاهد واقعی دارد:** ۱۷۴ گروه بایتی بین splitهای تاریخی مشترک‌اند؛ ۹۰
   train/test، ۶۶ train/val و ۱۸ val/test. آنها را برای baseline تازه استفاده نکنید؛
   protocol جدید اعضای همهٔ گروه‌های تکراری را حذف کرده است. identity/near-duplicate و
@@ -40,8 +40,8 @@
   انتخاب دادهٔ آماده در کار بعد: `data.csv_dir=dataset/protocol_hf_v1`؛ root پیش‌فرض تصاویر
   درست است. تنظیمات منبع هرگز به‌تنهایی provenance یک پوشهٔ cache قدیمی را اثبات نمی‌کنند.
 - مستندات دانلود/README/داده/نصب و [گزارش فاز اول](PHASE_1_IMPLEMENTATION_REPORT.md)
-  (بخش ۹ و فلوچارت) به‌روز شدند. تست پایهٔ CI فقط fixtureهای HTTP/TAR دارد؛ نتیجهٔ
-  ریموت این توسعه پس از push جدا ثبت می‌شود. دانلود زندهٔ Kaggle همچنان تأیید نشده است.
+  (بخش ۹ و فلوچارت) به‌روز شدند. تست پایهٔ CI فقط fixtureهای HTTP/TAR دارد؛ **CI کامیت `6be18cb` موفق شد**:
+  lint و Python 3.10/3.11/3.12؛ [run تأییدشده](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42280629726). دانلود زندهٔ Kaggle همچنان تأیید نشده است.
 
 آماده‌بودن داده جای atomic checkpoint/resume را نمی‌گیرد؛ P2.1 پیش از آموزش طولانی
 باقی است. ثبت‌های بعدی snapshot تاریخی‌اند؛ عبارت «دادهٔ واقعی دریافت نشد» در آنها
