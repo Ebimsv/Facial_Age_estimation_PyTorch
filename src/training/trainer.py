@@ -229,7 +229,7 @@ class Trainer:
         if not math.isfinite(state["best_mae"]) or not 0 <= state["best_epoch"] < epoch:
             raise ValueError("Invalid resume best metric/epoch")
         self.run_id = state["run_id"]
-        if not isinstance(self.run_id, str) or Path(self.run_id).name != self.run_id or self.run_id in {".", ".."}:
+        if not isinstance(self.run_id, str) or not self.run_id or Path(self.run_id).name != self.run_id or self.run_id in {".", ".."}:
             raise ValueError("Invalid resume run_id")
         self.save_dir = path.resolve().parent
         self._ensure_run()

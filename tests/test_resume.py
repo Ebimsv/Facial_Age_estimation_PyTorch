@@ -115,7 +115,7 @@ def test_incomplete_state_has_no_unsafe_legacy_resume(tmp_path, monkeypatch, fie
 
 
 @pytest.mark.parametrize("field,value", [("version", 99), ("version", True), ("next_epoch", 100),
-                                         ("global_step", 999), ("successful_updates", 999)])
+                                         ("global_step", 999), ("successful_updates", 999), ("run_id", "")])
 def test_bad_resume_versions_and_counters_are_rejected(tmp_path, monkeypatch, field, value):
     broken, cfg = interrupted_run(tmp_path, monkeypatch)
     artifact = load_training_checkpoint(broken.last_ckpt_path)
@@ -123,7 +123,7 @@ def test_bad_resume_versions_and_counters_are_rejected(tmp_path, monkeypatch, fi
     target = broken.save_dir / "modified.pt"
     atomic_save(artifact, target)
     trainer = Trainer(TinyModel(), L1AgeLoss(), cfg, torch.device("cpu"))
-    with pytest.raises(ValueError, match="state|counters"):
+    with pytest.raises(ValueError, match="state|counters|run_id"):
         trainer.run(*loaders(), resume=target)
 
 
