@@ -1,7 +1,9 @@
 # ممیزی فنی مخزن Facial Age Estimation — PyTorch
 
-تاریخ: ۲۰۲۶-۱۱-۰۶، منطقهٔ زمانی Asia/Tehran  
-مخزن: https://github.com/Ebimsv/Facial_Age_estimation_PyTorch  
+تاریخ: ۲۰۲۶-۱۱-۰۶، منطقهٔ زمانی Asia/Tehran
+
+مخزن: https://github.com/Ebimsv/Facial_Age_estimation_PyTorch
+
 مبنای تاریخچه: `a2c3a4e7b57390b12c4b43e9c53b15a10ec557e4`
 
 این سند snapshot ممیزی پیش از پیاده‌سازی است. پس از تأیید کاربر، P1.1 اجرا شد؛
