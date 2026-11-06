@@ -225,6 +225,13 @@ def merge_config(base: DictConfig, *updates, overrides: list[str] | None = None)
         if not isinstance(raw, DictConfig):
             raise ValueError("Configuration must be a mapping")
         _migrate_legacy(raw)
+        # Some OmegaConf versions reject interpolated container types during the
+        # typed merge, before _validate_values can attach the normalization key.
+        # Check shape on the untyped merged mapping; leave scalar coercion to the schema.
+        for name in ("mean", "std"):
+            value = OmegaConf.select(raw, f"data.{name}")
+            if not (OmegaConf.is_list(value) or isinstance(value, (list, tuple))) or len(value) != 3:
+                raise ValueError(f"data.{name} must contain three RGB values")
         cfg = OmegaConf.merge(OmegaConf.structured(ExperimentConfig), raw)
         _validate_values(cfg)  # access interpolations through their named fields for useful errors
         OmegaConf.resolve(cfg)
