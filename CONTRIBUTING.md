@@ -15,7 +15,7 @@ python -m venv .venv && source .venv/bin/activate  # or use conda
 
 # 3. Install dev dependencies
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
-pip install -r requirements-dev.txt
+python -m pip install -e ".[dev,demo,wandb]"
 
 # 4. Install pre-commit hooks
 pre-commit install

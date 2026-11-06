@@ -11,7 +11,7 @@ Train, evaluate, and deploy in minutes — on CPU or GPU.
 [![GitHub Forks](https://img.shields.io/github/forks/Ebimsv/Facial_Age_estimation_PyTorch?style=for-the-badge&logo=github&color=blue)](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/network)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python)](https://www.python.org/)
-[![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0+-red?style=for-the-badge&logo=pytorch)](https://pytorch.org/)
+[![PyTorch 2.3+](https://img.shields.io/badge/PyTorch-2.3+-red?style=for-the-badge&logo=pytorch)](https://pytorch.org/)
 [![CI](https://img.shields.io/github/actions/workflow/status/Ebimsv/Facial_Age_estimation_PyTorch/ci.yml?style=for-the-badge&label=CI)](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions)
 
 </div>
@@ -48,7 +48,7 @@ Train, evaluate, and deploy in minutes — on CPU or GPU.
 - 📊 **Bias analysis** — per-epoch breakdown of MAE by age group, gender, and ethnicity
 - 🖥️ **Gradio demo** — upload a photo → see predicted age + full probability distribution
 - 📤 **Export ready** — TorchScript (trace) and ONNX with dynamic batch support
-- ✅ **37 unit tests** + GitHub Actions CI
+- ✅ **45 tests** + GitHub Actions CI
 
 ---
 
@@ -60,7 +60,7 @@ git clone https://github.com/Ebimsv/Facial_Age_estimation_PyTorch.git
 cd Facial_Age_estimation_PyTorch
 
 # 2. Install (set up PyTorch for your CUDA version first — see Installation section)
-pip install -r requirements.txt
+pip install .
 
 # 3. Prepare data (point to your UTKFace folder)
 python scripts/prepare_data.py --dataset-dir dataset/utkcropped --plot
@@ -158,7 +158,7 @@ Facial_Age_estimation_PyTorch/
 │   └── export_model.py       # TorchScript & ONNX export
 ├── demo/
 │   └── app.py                # Gradio web demo
-├── tests/                    # 37 unit tests (pytest)
+├── tests/                    # 45 tests (pytest)
 ├── notebooks/                # EDA notebooks (coming soon)
 ├── pics/                     # Images used in README
 ├── checkpoints/              # Saved model weights (git-ignored)
@@ -192,16 +192,26 @@ pip install torch torchvision
 
 **Step 3 — Install project dependencies**
 ```bash
-pip install -r requirements.txt
+pip install .
 
 # For the Gradio demo + W&B logging:
-pip install gradio wandb
+pip install ".[demo,wandb]"
+
+# For development and packaging tests (includes pytest and build):
+pip install ".[dev]"
 ```
+
+`requirements.txt` remains available for dependency-only installation. Installing
+the project also provides `train-age`, `eval-age`, and `export-age`. The installed
+package includes its default YAML configuration and works outside the checkout.
+See [installation and verified environments](docs/INSTALLATION.md) for Conda usage,
+configuration paths, and the distinction between API minimums and tested versions.
 
 **Step 4 — Verify**
 ```bash
 python -m pytest tests/ -v -k "not vit_small"
-# Expected: 37 passed
+# Includes model, loss, transform, dataset, and packaging checks.
+# Packaging checks require the dev extra and use a temporary install without downloads.
 ```
 
 ---
@@ -419,7 +429,7 @@ python scripts/export_model.py --checkpoint checkpoints/best_*.pt --format onnx
 - [x] **Mean-Variance Loss** (CVPR 2018) — distribution-based age estimation
 - [x] **Modern training pipeline** — AMP, AdamW with differential LRs, OneCycleLR, gradient clipping
 - [x] **Stratified data splits** — stratified train/val/test CSV generation
-- [x] **37 unit tests** — model, losses, transforms, dataset; all passing
+- [x] **45 tests** — model, losses, transforms, dataset; all passing
 - [x] **GitHub Actions CI** — automated lint + test on every push
 - [x] **Gradio demo** — with age probability distribution visualisation
 - [x] **TorchScript + ONNX export**
