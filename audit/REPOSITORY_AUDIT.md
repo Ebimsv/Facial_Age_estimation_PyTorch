@@ -6,9 +6,37 @@
 
 مبنای تاریخچه: `a2c3a4e7b57390b12c4b43e9c53b15a10ec557e4`
 
-این سند snapshot ممیزی پیش از پیاده‌سازی است. پس از تأیید کاربر، P1.1 اجرا شد؛
+این سند snapshot ممیزی پیش از پیاده‌سازی است. پس از تأیید کاربر، P1.1 و P1.2 اجرا شدند؛
 وضعیت فعلی و شواهد اجرای آن در [ثبت پیشرفت نقشهٔ راه](IMPLEMENTATION_ROADMAP.md)
 آمده است. یافته‌های تاریخی این سند به‌عنوان باگ‌های بازِ نسخهٔ جدید تفسیر نشوند.
+
+## وضعیت جاری پس از P1.2 — ۲۰۲۶-۱۱-۰۶
+
+این بخش وضعیت فعلی را از مشاهدات تاریخی زیر جدا می‌کند؛ شرح اولیه برای حفظ شواهد
+نسخهٔ مبنا باقی مانده است. نتیجهٔ محلی جدید: **۱۳۵ تست موفق و Ruff سبز** در محیط
+کوندای موجود با Python 3.13.9 / torch 2.9.0+cu128؛ تست‌ها CPU و offline بودند.
+
+| یافته | وضعیت جاری | تغییر تأییدشده و کار باقی‌مانده |
+|---|---|---|
+| F01 | Complete برای اصلاح بسته‌بندی | در P1.1 wheel/sdist و CLI نصب‌شده تأیید شد؛ حداقل runtime matrix همچنان F15 است |
+| F05 | Complete در دامنهٔ schema/تنظیمات | schema typed، merge نهایی، immutable config، خطای typo، قرارداد mode/support، مهاجرت کلیدهای بی‌اثر و config preparation در `src/utils/config.py` و `src/configs` |
+| F02 | Partial | ناسازگاری decoder/output اکنون fail-fast است؛ بازیابی مشترک تمام metadata در P1.3 باقی است |
+| F06 | Partial | سن‌های finite/support و flags آماده‌سازی بررسی می‌شوند؛ decode، path، label کامل و sparse strata هنوز P1.5 هستند |
+| F07 | Partial | پارامترها و تعداد واقعی در preparation_manifest ثبت می‌شود؛ hash/version/identity و provenance کامل هنوز وجود ندارد |
+| F10 | Partial | اندازهٔ ViT از config می‌آید و 224/280 آزموده شد؛ heuristic گروه پارامترهای fc هنوز در P2.1 باقی است |
+| F11 / F14 / F20 | Partial | config به‌صورت nested plain/resolved ذخیره می‌شود؛ resume، atomic save، RNG و lifecycle/logging کامل هنوز باقی است |
+| F19 | Partial | ۸۸ تست config/contract و ۱۰ packaging موجودند؛ train/resume/export end-to-end هنوز کامل نیست |
+| F28 | Partial | split خالی، train صفر batch و warmup با طول صفر پیش از مدل رد می‌شوند؛ edge-case عمومی metrics و ارزیابی مستقل split هنوز باقی است |
+
+شواهد جدید: `tests/test_config.py`، `tests/test_packaging.py`، `scripts/train.py::main`،
+`scripts/prepare_data.py::main`، `AgeEstimationModel.__init__`، guardهای loss و
+`UTKDataset`/`build_dataloaders`. نحوهٔ تست و رفتار جدید در
+[راهنمای تنظیمات](../docs/CONFIGURATION.md) و [ثبت پیشرفت](IMPLEMENTATION_ROADMAP.md) آمده است.
+
+هیچ نتیجهٔ MAE یا benchmark جدیدی تولید نشده است. CSVهای موجود، وزن legacy و
+`kaggle.json` تغییر نکرده‌اند. فرمول mean-variance و clamp رگرسیون اصلاح نشده‌اند؛
+F03/F04/F08/F09 را به‌اشتباه بسته تلقی نکنید. بخش‌های «تست اجرا نشده» و «۳۷ تست»
+در متن اولیه، مربوط به زمان ممیزی پیش از یافتن محیط‌های کوندا هستند.
 
 ## ۱. دامنه، روش و محدودیت شواهد
 

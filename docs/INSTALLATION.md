@@ -38,6 +38,11 @@ step; see audit findings F02/F03 before using the legacy checkpoint.
 
 ## Configuration and relative paths
 
+Configurations now use a typed, resolved, read-only schema. Partial YAML files and
+joint CLI overrides are supported; see [configuration contracts](CONFIGURATION.md)
+for model/loss compatibility, preparation-only settings and legacy-key migration.
+Use `train-age --print-config` to inspect settings without starting training.
+
 - The packaged default configuration is `src/configs/default.yaml` and is loaded
   through `importlib.resources`; an installed wheel needs no repository checkout.
 - `configs/default.yaml` remains the editable source-checkout compatibility copy.
@@ -118,5 +123,5 @@ be included. Distribution tests check metadata alignment with `requirements.txt`
 This packaging step does not report model accuracy, throughput, or GPU training
 results. Verification consists of the existing unit suite plus packaging regression
 tests, metadata validation, artifact content inspection, and Ruff. See the P1.1
-completion note in [the implementation roadmap](../audit/IMPLEMENTATION_ROADMAP.md)
-for the final test count and remaining scope.
+and P1.2 completion notes in [the implementation roadmap](../audit/IMPLEMENTATION_ROADMAP.md)
+for historical and current test counts and remaining scope.

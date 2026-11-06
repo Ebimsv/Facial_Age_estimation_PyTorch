@@ -53,6 +53,8 @@ pytest tests/ -v
 
 1. Look up the architecture's feature dimension (the `in_features` of the final linear layer).
 2. Add it to `_BACKBONE_DIMS` in `src/models/age_estimator.py`.
+   Also add its name to `SUPPORTED_BACKBONES` in `src/utils/config.py`, and define
+   any input-size constraints in `validate_model_options` with corresponding tests.
 3. Add an `elif` branch in `AgeEstimationModel.__init__` following the same pattern.
 4. Add a new config file under `configs/model/` if the backbone needs specific settings.
 5. Add the backbone to the `BACKBONES` list in `tests/test_model.py`.

@@ -48,7 +48,7 @@ Train, evaluate, and deploy in minutes — on CPU or GPU.
 - 📊 **Bias analysis** — per-epoch breakdown of MAE by age group, gender, and ethnicity
 - 🖥️ **Gradio demo** — upload a photo → see predicted age + full probability distribution
 - 📤 **Export ready** — TorchScript (trace) and ONNX with dynamic batch support
-- ✅ **45 tests** + GitHub Actions CI
+- ✅ **135 tests** + GitHub Actions CI
 
 ---
 
@@ -158,7 +158,7 @@ Facial_Age_estimation_PyTorch/
 │   └── export_model.py       # TorchScript & ONNX export
 ├── demo/
 │   └── app.py                # Gradio web demo
-├── tests/                    # 45 tests (pytest)
+├── tests/                    # 135 tests (pytest)
 ├── notebooks/                # EDA notebooks (coming soon)
 ├── pics/                     # Images used in README
 ├── checkpoints/              # Saved model weights (git-ignored)
@@ -269,11 +269,16 @@ python scripts/train.py
 
 Any value in `configs/default.yaml` can be overridden from the command line:
 
+Overrides are validated together against a typed schema. Unknown keys and
+incompatible model/loss settings fail before model construction. Partial YAML
+files are supported; inspect the resolved settings with `train-age --print-config`.
+See [configuration contracts and migration](docs/CONFIGURATION.md).
+
 ```bash
 # Change backbone
 python scripts/train.py model.name=resnet50
 
-# Regression mode (L1 loss, 1 output node — for old checkpoints)
+# Regression mode (L1 loss, 1 output node; legacy checkpoint migration is separate)
 python scripts/train.py model.output_dim=1 loss.type=l1
 
 # Longer training with W&B logging
@@ -429,7 +434,7 @@ python scripts/export_model.py --checkpoint checkpoints/best_*.pt --format onnx
 - [x] **Mean-Variance Loss** (CVPR 2018) — distribution-based age estimation
 - [x] **Modern training pipeline** — AMP, AdamW with differential LRs, OneCycleLR, gradient clipping
 - [x] **Stratified data splits** — stratified train/val/test CSV generation
-- [x] **45 tests** — model, losses, transforms, dataset; all passing
+- [x] **135 tests** — model, losses, transforms, dataset, config contracts, and installed packaging
 - [x] **GitHub Actions CI** — automated lint + test on every push
 - [x] **Gradio demo** — with age probability distribution visualisation
 - [x] **TorchScript + ONNX export**
