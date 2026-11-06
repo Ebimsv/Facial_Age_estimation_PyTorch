@@ -42,6 +42,8 @@ Configurations now use a typed, resolved, read-only schema. Partial YAML files a
 joint CLI overrides are supported; see [configuration contracts](CONFIGURATION.md)
 for model/loss compatibility, preparation-only settings and legacy-key migration.
 Use `train-age --print-config` to inspect settings without starting training.
+See [loss definitions and numerical policy](LOSSES.md) for the default L1+variance
+variant, raw regression training and modern inference bounds.
 
 - The packaged default configuration is `src/configs/default.yaml` and is loaded
   through `importlib.resources`; an installed wheel needs no repository checkout.
@@ -123,5 +125,5 @@ be included. Distribution tests check metadata alignment with `requirements.txt`
 This packaging step does not report model accuracy, throughput, or GPU training
 results. Verification consists of the existing unit suite plus packaging regression
 tests, metadata validation, artifact content inspection, and Ruff. See the P1.1
-through P1.3 completion notes in [the implementation roadmap](../audit/IMPLEMENTATION_ROADMAP.md)
+through P1.4 completion notes in [the implementation roadmap](../audit/IMPLEMENTATION_ROADMAP.md)
 for historical and current test counts and remaining scope.

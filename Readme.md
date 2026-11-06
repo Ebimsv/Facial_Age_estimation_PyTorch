@@ -41,14 +41,14 @@ Train, evaluate, and deploy in minutes — on CPU or GPU.
 ## ✨ Key Features
 
 - 🔥 **5 Backbones** — MobileNetV3-Large, EfficientNet-B0/B3, ResNet-50, ViT-S/14 DINOv2
-- 📐 **Mean-Variance Loss** (CVPR 2018) — models age as a probability distribution over [0–100], outperforming plain L1/MSE by 0.3–0.5 MAE
+- 📐 **L1 + variance objective** — models age as a distribution; a documented variant inspired by mean-variance methods, with float32 central moments
 - ⚡ **AMP + AdamW** — mixed-precision training with differential learning rates and OneCycleLR warmup
 - 🗂️ **Clean package layout** — `src/`, `scripts/`, `demo/`, `tests/`, `configs/` following standard PyTorch practices
 - 🎛️ **OmegaConf config** — change any hyperparameter from the CLI without editing code
 - 📊 **Bias analysis** — per-epoch breakdown of MAE by age group, gender, and ethnicity
 - 🖥️ **Gradio demo** — upload a photo → see predicted age + full probability distribution
 - 📤 **Export ready** — TorchScript (trace) and ONNX with dynamic batch support
-- ✅ **159 tests** + GitHub Actions CI
+- ✅ **179 tests** + GitHub Actions CI (GPU/demo checks are conditional)
 
 ---
 
@@ -65,7 +65,7 @@ pip install .
 # 3. Prepare data (point to your UTKFace folder)
 python scripts/prepare_data.py --dataset-dir dataset/utkcropped --plot
 
-# 4. Train (defaults: EfficientNet-B3, Mean-Variance Loss, 100 epochs, AMP)
+# 4. Train (defaults: EfficientNet-B3, L1 + variance, 100 epochs, AMP)
 python scripts/train.py
 
 # 5. Run the Gradio demo
@@ -78,16 +78,18 @@ python demo/app.py --checkpoint checkpoints/best_efficientnet_b3_*.pt
 
 ## 📊 Results & Benchmarks
 
-Evaluated on the **UTKFace** held-out test set (~2,000 images, ages 0–84).
+New models have not yet been benchmarked under a published protocol. The committed
+UTKFace test CSV contains 4,654 images, ages 1–84; regenerating splits can change it.
+The legacy row below is historical validation, not a comparable test-set result.
 
 | Model | #Params | Input Size | Loss | MAE ↓ | CS@5 ↑ | Inference |
 |---|---|---|---|---|---|---|
-| MobileNetV3-Large | 5.5M | 224×224 | Mean-Variance | TBD | TBD | ~5ms |
-| EfficientNet-B0 | 5.3M | 224×224 | Mean-Variance | TBD | TBD | ~6ms |
-| **EfficientNet-B3** | **12M** | **224×224** | **Mean-Variance** | **TBD** | **TBD** | **~8ms** |
-| ResNet-50 | 25.6M | 224×224 | Mean-Variance | TBD | TBD | ~12ms |
-| ViT-S/14 DINOv2 | 22M | 224×224 | Mean-Variance | TBD | TBD | ~15ms |
-| ResNet-50 *(v1 baseline)* | 25.6M | 128×128 | L1 | 4.73 | — | — |
+| MobileNetV3-Large | 5.5M | 224×224 | L1 + variance | TBD | TBD | — |
+| EfficientNet-B0 | 5.3M | 224×224 | L1 + variance | TBD | TBD | — |
+| **EfficientNet-B3** | **12M** | **224×224** | **L1 + variance** | **TBD** | **TBD** | — |
+| ResNet-50 | 25.6M | 224×224 | L1 + variance | TBD | TBD | — |
+| ViT-S/14 DINOv2 | 22M | 224×224 | L1 + variance | TBD | TBD | — |
+| ResNet-50 *(legacy validation only)* | 25.6M | 128×128 | L1 | 4.73 | — | — |
 
 > **MAE** = Mean Absolute Error in years (lower is better).  
 > **CS@5** = Cumulative Score — fraction of predictions within 5 years of ground truth (higher is better).  
@@ -117,18 +119,26 @@ graph TD
     G --> H[E_age = sum of p_i times i\nPredicted Age]
 ```
 
-### Why Mean-Variance Loss?
+### L1 + Variance Objective
 
-Instead of treating age as a single scalar, the model outputs a **probability distribution over 101 age classes**. This encodes the inherent ambiguity of facial aging and provides a richer training signal.
+The distribution head outputs logits over a configurable age support (0–100 by
+default). Training uses the repository's L1 plus central-variance variant:
 
+```text
+p = softmax(logits)
+mu = sum(p_j * age_j)
+variance = sum(p_j * (age_j - mu)^2)
+loss = lambda_mean * mean(abs(mu - target)) + lambda_variance * mean(variance)
 ```
-Loss = λ_mean × |E[age] − true_age|   +   λ_variance × Var[age]
-         ↑                                    ↑
-  Penalise wrong mean              Penalise high uncertainty
-```
 
-This consistently outperforms L1/MSE regression by **0.3–0.5 MAE** on UTKFace.  
-*Reference: Pan et al., "Mean-Variance Loss for Deep Age Estimation from a Face", CVPR 2018.*
+`loss.type=l1_mean_variance` is the default; `mean_variance` is a compatible alias.
+This differs from the published CVPR 2018 joint objective. No measured MAE
+advantage over L1/MSE is claimed. See [loss definitions, precision and gradient
+policies](docs/LOSSES.md) for the reference comparison and numerical tests.
+
+For scalar regression, the model returns raw values during training; the modern
+inference decoder applies its saved [0,100] bound. The historical raw-output
+profile remains separate.
 
 ---
 
@@ -158,7 +168,7 @@ Facial_Age_estimation_PyTorch/
 │   └── export_model.py       # TorchScript & ONNX export
 ├── demo/
 │   └── app.py                # Gradio web demo
-├── tests/                    # 159 tests (pytest)
+├── tests/                    # 179 tests (pytest)
 ├── notebooks/                # EDA notebooks (coming soon)
 ├── pics/                     # Images used in README
 ├── checkpoints/              # Saved model weights (git-ignored)
@@ -274,7 +284,7 @@ python scripts/prepare_data.py \
 ### Default Training
 
 ```bash
-# Train EfficientNet-B3 with Mean-Variance Loss (recommended)
+# Train EfficientNet-B3 with L1 + central-variance objective
 python scripts/train.py
 ```
 
@@ -317,7 +327,7 @@ training:
   use_amp: true             # Mixed precision (strongly recommended)
 
 loss:
-  type: "mean_variance"     # mean_variance | l1
+  type: "l1_mean_variance"  # mean_variance alias | l1
 ```
 
 ### TensorBoard
@@ -387,7 +397,7 @@ python demo/app.py --checkpoint checkpoints/best_*.pt
 python demo/app.py --checkpoint checkpoints/best_*.pt --share
 ```
 
-The demo shows both the **predicted age** and the **full probability distribution** over all 101 age classes, giving you insight into model confidence.
+The demo shows the **predicted age** and the distribution over the checkpoint's age support. This distribution is not calibrated confidence; regression displays a scalar age.
 
 > 🚀 A live demo on **Hugging Face Spaces** is coming soon!
 
@@ -417,7 +427,7 @@ python scripts/export_model.py --checkpoint checkpoints/best_*.pt --format onnx
 | **MiVOLO** (2023) | ViT-based age + gender; works on occluded faces | Uses body context, not just face | [GitHub](https://github.com/WildChlamydia/MiVOLO) |
 | **CORAL** (2020) | Ordinal regression for age estimation | Rank-consistent binary subtasks | [GitHub](https://github.com/Raschka-research-group/coral-cnn) |
 | **Deep Regression Forests** (2018) | End-to-end DRF for heterogeneous age features | Joint data partition + abstraction | [GitHub](https://github.com/Sumching/Deep_Regression_Forests) |
-| **Mean-Variance Loss** ★ (2018) | Distribution learning for age estimation | **Used in this repo** | [Paper](https://openaccess.thecvf.com/content_cvpr_2018/papers/Pan_Mean-Variance_Loss_for_CVPR_2018_paper.pdf) |
+| **Mean-Variance Loss** (2018) | Distribution learning for age estimation | Inspires our L1 + variance variant; not a reproduction | [Paper](https://openaccess.thecvf.com/content_cvpr_2018/papers/Pan_Mean-Variance_Loss_for_CVPR_2018_paper.pdf) |
 | **FaceXFormer** (2024) | Unified transformer for all face analysis tasks | Token-based multi-task decoder | [GitHub](https://github.com/Kartik-3004/facexformer) |
 
 </details>
@@ -444,10 +454,10 @@ python scripts/export_model.py --checkpoint checkpoints/best_*.pt --format onnx
 - [x] **Professional package structure** — `src/`, `scripts/`, `demo/`, `tests/`, `configs/`
 - [x] **OmegaConf YAML config** — all hyperparameters in one file, CLI overrides
 - [x] **5 backbone support** — MobileNetV3-Large, EfficientNet-B0/B3, ResNet-50, ViT-S/14 DINOv2
-- [x] **Mean-Variance Loss** (CVPR 2018) — distribution-based age estimation
+- [x] **L1 + central variance** — explicit variant, float32 moments, raw regression gradients and bounded modern inference
 - [x] **Modern training pipeline** — AMP, AdamW with differential LRs, OneCycleLR, gradient clipping
 - [x] **Stratified data splits** — stratified train/val/test CSV generation
-- [x] **159 tests** — including checkpoint contracts, legacy compatibility, inference parity, and installed packaging
+- [x] **179 tests** — including regression gradients, numerical loss checks, checkpoint contracts, and installed packaging
 - [x] **GitHub Actions CI** — automated lint + test on every push
 - [x] **Gradio demo** — with age probability distribution visualisation
 - [x] **TorchScript + ONNX export**
@@ -487,7 +497,7 @@ If you use this repository in your research, please cite:
 }
 ```
 
-The Mean-Variance Loss implemented in this repo:
+Related mean-variance reference (the implemented L1 variant differs; see docs/LOSSES.md):
 ```bibtex
 @inproceedings{pan2018mean,
   title     = {Mean-Variance Loss for Deep Age Estimation from a Face},

@@ -3,7 +3,7 @@
 
 Usage
 -----
-# Train with defaults (efficientnet_b3, mean_variance loss, 100 epochs):
+# Train with defaults (efficientnet_b3, l1_mean_variance loss, 100 epochs):
   python scripts/train.py
 
 # Override any config key with dotlist syntax:

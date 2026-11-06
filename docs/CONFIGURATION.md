@@ -70,7 +70,7 @@ Checkpoint schema v1 and shared inference restoration are now implemented; see
 | Setting | Contract |
 |---|---|
 | Backbone | `mobilenet_v3`, `efficientnet_b0`, `efficientnet_b3`, `resnet50`, `vit_small` |
-| Distribution mode | `loss.type=mean_variance`; output width equals `end_age-start_age+1`; at least two classes |
+| Distribution mode | `loss.type=l1_mean_variance` (`mean_variance` alias); output width equals `end_age-start_age+1`; at least two classes |
 | Regression mode | `loss.type=l1`; exactly one output; current supported bounds are fixed at `[0,100]` |
 | Age support | Inclusive, nonnegative integer `start_age <= end_age` |
 | Loss weights | Finite and nonnegative; at least one positive weight in distribution mode |
@@ -93,10 +93,10 @@ train-age --print-config loss.start_age=10 loss.end_age=20 \
 Losses check logit width and target batch shape. A one-column regression tensor
 cannot silently broadcast across the distribution's age classes. Targets must be
 finite, match the batch size, and lie inside the inclusive support. Training and
-evaluation also validate CSV ages before image I/O. Regression forward clamping
-and the mean-variance variant's mathematics are unchanged in P1.2; P1.4 addresses
-those separately. Demo plots now use the checkpoint's saved support, and all
-checkpoint-backed commands restore the same preprocessing/decoder.
+evaluation also validate CSV ages before image I/O. P1.4 removes forward clamping
+for regression training and uses float32 central variance for the L1 distribution variant; modern decoded ages stay bounded. See
+[losses and numerical policy](LOSSES.md). Demo plots now use the checkpoint's saved
+support, and all checkpoint-backed commands restore the same preprocessing/decoder.
 
 ## Training and loader checks
 

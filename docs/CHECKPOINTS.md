@@ -20,6 +20,7 @@ New Trainer checkpoints are created through `create_checkpoint`:
 | `model_state_dict` | Weights matching the declared architecture exactly |
 | `epoch`, `val_mae` | Optional training metadata; not inferred from filenames |
 | `optimizer_state_dict` | Optional training state, retained when Trainer saves |
+| `training_objective` | Optional declared objective name/revision/dtype, recorded by new Trainer runs; absent metadata is unknown |
 
 The explicit contract must agree with the saved config. Missing inference metadata,
 unsupported architecture/version, or incompatible state shapes fail clearly.
@@ -91,8 +92,8 @@ python demo/app.py --checkpoint checkpoints/epoch-16-loss_valid-4.73.pt \
 The profile is recovered from repository commit `432569f`, which introduced that
 weight: ResNet50, `Dropout(0.2) → Linear(2048,256) → Linear(256,1)` with no hidden
 activation, resize 128×128 and ImageNet mean/std. The historical model and decoder
-return raw scalar predictions, including values outside [0,100]. Loading it through
-the new clamped regression head would change its behavior, so that is not done.
+return raw scalar predictions, including values outside [0,100]. Its distinct head and raw decoder are preserved. Modern regression bounding is
+applied by the decoder, outside the model training graph.
 
 This is an explicit repository-history compatibility profile, not an embedded
 training manifest. Do not apply it to arbitrary shape-compatible weights with
@@ -157,3 +158,13 @@ The Gradio comparison is an optional-extra test and skips when Gradio is absent.
 The real tracked legacy weight was also loaded locally on CPU and used for one
 image prediction. This does not measure test-set accuracy, fairness, speed or GPU
 behavior. No new pretrained weights or datasets were downloaded.
+
+## P1.4 loss and export update
+
+New regression models return raw logits; the modern decoder still applies
+`clamp_0_100`, so old schema-v1 artifacts retain their final-age policy. Distribution
+moments and modern decoding now use float32. Both `l1_mean_variance` and its old
+`mean_variance` alias are supported without rewriting old artifact labels.
+Exports contain raw regression logits and must be decoded using their sidecar.
+New training runs record objective revision 2; generic old-weight repackaging does
+not guess a training revision. See [LOSSES.md](LOSSES.md).
