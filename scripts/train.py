@@ -42,6 +42,7 @@ from src.data import (
 from src.models import build_model
 from src.training import Trainer, get_loss_fn
 from src.utils import set_seed
+from src.utils.config import validate_training_steps
 
 
 def parse_args() -> argparse.Namespace:
@@ -49,6 +50,9 @@ def parse_args() -> argparse.Namespace:
         description="Train a facial age estimation model",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
+    )
+    p.add_argument(
+        "--print-config", action="store_true", help="Print resolved validated config and exit without data/model I/O",
     )
     p.add_argument(
         "--config",
@@ -68,9 +72,10 @@ def main() -> None:
     args = parse_args()
 
     # ── Load & merge config ───────────────────────────────────────────────
-    cfg = load_config(args.config)
-    if args.overrides:
-        cfg = OmegaConf.merge(cfg, OmegaConf.from_dotlist(args.overrides))
+    cfg = load_config(args.config, overrides=args.overrides)
+    if args.print_config:
+        print(OmegaConf.to_yaml(cfg, resolve=True))
+        return
 
     # ── Reproducibility ───────────────────────────────────────────────────
     set_seed(cfg.training.seed)
@@ -82,7 +87,9 @@ def main() -> None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
     if device.type == "cuda":
-        print(f"  GPU: {torch.cuda.get_device_name(0)}")
+        if not torch.cuda.is_available():
+            raise ValueError("device requests CUDA, but CUDA is unavailable; use device=cpu")
+        print(f"  GPU: {torch.cuda.get_device_name(device)}")
 
     # ── Data ──────────────────────────────────────────────────────────────
     mean = list(cfg.data.mean)
@@ -99,7 +106,9 @@ def main() -> None:
         eval_batch_size=cfg.training.eval_batch_size,
         num_workers=cfg.data.num_workers,
         pin_memory=(device.type == "cuda"),
+        age_range=(cfg.loss.start_age, cfg.loss.end_age),
     )
+    validate_training_steps(cfg, len(train_loader))
 
     print(
         f"Dataset split sizes → "

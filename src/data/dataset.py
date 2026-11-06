@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import torch
 from PIL import Image
@@ -27,6 +28,7 @@ class UTKDataset(Dataset):
         root_dir:  Path to the folder containing UTKFace images.
         csv_file:  Path to the CSV with columns [image_name, age, gender, ethnicity].
         transform: torchvision transform pipeline applied to each image.
+        age_range: Optional inclusive target support, checked before image I/O.
     """
 
     GENDER_MAP = {0: "Male", 1: "Female"}
@@ -37,6 +39,7 @@ class UTKDataset(Dataset):
         root_dir: str | Path,
         csv_file: str | Path,
         transform: Compose | None = None,
+        age_range: tuple[int, int] | None = None,
     ) -> None:
         self.root_dir = Path(root_dir)
         self.transform = transform
@@ -47,6 +50,11 @@ class UTKDataset(Dataset):
         missing = required - set(self.data.columns)
         if missing:
             raise ValueError(f"CSV is missing columns: {missing}")
+        if age_range is not None:
+            ages = pd.to_numeric(self.data["age"], errors="coerce")
+            if not (np.isfinite(ages) & ages.between(*age_range)).all():
+                raise ValueError(f"{csv_file}: age targets must be finite and inside {age_range}")
+            self.data["age"] = ages
 
     def __len__(self) -> int:
         return len(self.data)
@@ -80,6 +88,7 @@ def build_dataloaders(
     eval_batch_size: int = 128,
     num_workers: int = 4,
     pin_memory: bool = True,
+    age_range: tuple[int, int] | None = None,
 ) -> tuple[DataLoader, DataLoader, DataLoader]:
     """Construct train / val / test DataLoaders from pre-split CSVs.
 
@@ -93,15 +102,21 @@ def build_dataloaders(
         eval_batch_size: Batch size for validation/testing.
         num_workers:     DataLoader worker processes.
         pin_memory:      Pin memory for GPU transfers (recommended when using CUDA).
+        age_range:       Optional inclusive target support for every split CSV.
 
     Returns:
         Tuple of (train_loader, val_loader, test_loader).
     """
     csv_dir = Path(csv_dir)
 
-    train_ds = UTKDataset(root_dir, csv_dir / "train_set.csv", train_transform)
-    val_ds = UTKDataset(root_dir, csv_dir / "valid_set.csv", val_transform)
-    test_ds = UTKDataset(root_dir, csv_dir / "test_set.csv", test_transform)
+    train_ds = UTKDataset(root_dir, csv_dir / "train_set.csv", train_transform, age_range)
+    val_ds = UTKDataset(root_dir, csv_dir / "valid_set.csv", val_transform, age_range)
+    test_ds = UTKDataset(root_dir, csv_dir / "test_set.csv", test_transform, age_range)
+    for name, dataset in [("train", train_ds), ("val", val_ds), ("test", test_ds)]:
+        if len(dataset) == 0:
+            raise ValueError(f"{name} split is empty; prepare nonempty split CSVs before training")
+    if len(train_ds) < batch_size:
+        raise ValueError("Training loader would have zero batches with drop_last=True; reduce training.batch_size")
 
     train_loader = DataLoader(
         train_ds,

@@ -21,11 +21,20 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
+import sys
 from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from omegaconf import OmegaConf
 from sklearn.model_selection import train_test_split
+
+from src.configs import load_config
+from src.utils.config import to_plain_config, validate_split_options
 
 # ── Label maps ───────────────────────────────────────────────────────────────
 GENDER_MAP = {0: "Male", 1: "Female"}
@@ -34,40 +43,42 @@ ETHNICITY_MAP = {0: "White", 1: "Black", 2: "Asian", 3: "Indian", 4: "Others"}
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Prepare UTKFace CSV splits")
+    p.add_argument("--config", default=None, help="YAML defaults; explicit preparation flags take precedence")
+    p.add_argument("--print-config", action="store_true", help="Print resolved config without writing CSVs")
     p.add_argument(
         "--dataset-dir",
         type=str,
-        default="dataset/utkcropped",
+        default=None,
         help="Path to the folder containing UTKFace images",
     )
     p.add_argument(
         "--csv-dir",
         type=str,
-        default="csv_dataset",
+        default=None,
         help="Output folder for generated CSV files",
     )
     p.add_argument(
         "--max-age",
         type=int,
-        default=85,
+        default=None,
         help="Exclude images with age >= max_age (default: 85)",
     )
     p.add_argument(
         "--train-ratio",
         type=float,
-        default=0.80,
+        default=None,
         help="Fraction of data used for training (default: 0.80)",
     )
     p.add_argument(
         "--val-ratio",
         type=float,
-        default=0.10,
+        default=None,
         help="Fraction of data used for validation (default: 0.10)",
     )
     p.add_argument(
         "--seed",
         type=int,
-        default=42,
+        default=None,
         help="Random seed for reproducibility",
     )
     p.add_argument(
@@ -78,13 +89,16 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def create_master_csv(dataset_dir: Path, csv_path: Path, max_age: int) -> pd.DataFrame:
+def create_master_csv(
+    dataset_dir: Path, csv_path: Path, max_age: int, min_age: int = 0,
+) -> pd.DataFrame:
     """Scan image files and write master CSV with labels.
 
     Args:
         dataset_dir: Folder containing UTKFace images.
         csv_path:    Output CSV path.
         max_age:     Exclude images with age >= max_age.
+        min_age:     Inclusive lower bound from the configured age support.
 
     Returns:
         DataFrame with columns [image_name, age, gender, ethnicity].
@@ -106,7 +120,7 @@ def create_master_csv(dataset_dir: Path, csv_path: Path, max_age: int) -> pd.Dat
             skipped += 1
             continue
 
-        if age >= max_age:
+        if age < min_age or age >= max_age:
             continue
 
         rows.append(
@@ -144,8 +158,8 @@ def stratified_split(
     Stratification ensures each split has the same age distribution,
     which is critical given the long-tailed age distribution in UTKFace.
     """
+    validate_split_options(train_ratio, val_ratio, seed)
     test_ratio = round(1.0 - train_ratio - val_ratio, 4)
-    assert test_ratio > 0, "train_ratio + val_ratio must be < 1.0"
 
     # Step 1: hold out test set
     df_train_val, df_test = train_test_split(
@@ -208,8 +222,19 @@ def plot_distributions(
 
 def main() -> None:
     args = parse_args()
-    dataset_dir = Path(args.dataset_dir)
-    csv_dir = Path(args.csv_dir)
+    updates = {"data": {}, "training": {}}
+    for argument, key in {"dataset_dir": "root_dir", "csv_dir": "csv_dir", "max_age": "max_age",
+                          "train_ratio": "train_ratio", "val_ratio": "val_ratio"}.items():
+        if getattr(args, argument) is not None:
+            updates["data"][key] = getattr(args, argument)
+    if args.seed is not None:
+        updates["training"]["seed"] = args.seed
+    cfg = load_config(args.config, updates=updates)
+    if args.print_config:
+        print(OmegaConf.to_yaml(cfg, resolve=True))
+        return
+    dataset_dir = Path(cfg.data.root_dir)
+    csv_dir = Path(cfg.data.csv_dir)
 
     if not dataset_dir.exists():
         raise FileNotFoundError(
@@ -220,18 +245,28 @@ def main() -> None:
 
     # 1. Build master CSV
     master_csv = csv_dir / "utkface_dataset.csv"
-    df = create_master_csv(dataset_dir, master_csv, max_age=args.max_age)
+    df = create_master_csv(dataset_dir, master_csv, max_age=cfg.data.max_age, min_age=cfg.loss.start_age)
 
     # 2. Split
     df_train, df_val, df_test = stratified_split(
         df,
-        train_ratio=args.train_ratio,
-        val_ratio=args.val_ratio,
-        seed=args.seed,
+        train_ratio=cfg.data.train_ratio,
+        val_ratio=cfg.data.val_ratio,
+        seed=cfg.training.seed,
     )
 
     # 3. Save
     save_splits(df_train, df_val, df_test, csv_dir)
+    manifest = {
+        "kind": "preparation_parameters", "schema_version": 1,
+        "parameters": {"min_age": cfg.loss.start_age, "max_age_exclusive": cfg.data.max_age,
+                       "train_ratio": cfg.data.train_ratio, "val_ratio": cfg.data.val_ratio,
+                       "test_ratio": round(1 - cfg.data.train_ratio - cfg.data.val_ratio, 4),
+                       "seed": cfg.training.seed},
+        "counts": {"master": len(df), "train": len(df_train), "val": len(df_val), "test": len(df_test)},
+        "config": to_plain_config(cfg),
+    }
+    (csv_dir / "preparation_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
     # 4. Optional plot
     if args.plot:

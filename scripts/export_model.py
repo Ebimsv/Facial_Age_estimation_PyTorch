@@ -26,6 +26,7 @@ import torch
 
 from src.configs import load_config
 from src.models import AgeEstimationModel
+from src.utils.config import validate_mode
 
 
 def parse_args() -> argparse.Namespace:
@@ -43,7 +44,7 @@ def parse_args() -> argparse.Namespace:
         help="Export format (default: torchscript)",
     )
     p.add_argument("--output", type=str, default=None, help="Output file path")
-    p.add_argument("--img-size", type=int, default=224, help="Input image size (default: 224)")
+    p.add_argument("--img-size", type=int, default=None, help="Input image size (default: config data.img_size)")
     return p.parse_args()
 
 
@@ -58,17 +59,20 @@ def main() -> None:
 
     model_name = ckpt.get("model_name", cfg.model.name)
     output_dim = ckpt.get("output_dim", cfg.model.output_dim)
+    validate_mode(output_dim, cfg.loss.type, cfg.loss.start_age, cfg.loss.end_age)
+    img_size = args.img_size if args.img_size is not None else cfg.data.img_size
 
     model = AgeEstimationModel(
         model_name=model_name,
         pretrained=False,
         output_dim=output_dim,
         dropout=0.0,
+        img_size=img_size,
     )
     model.load_state_dict(ckpt["model_state_dict"])
     model.eval()
 
-    dummy = torch.zeros(1, 3, args.img_size, args.img_size)
+    dummy = torch.zeros(1, 3, img_size, img_size)
 
     if args.format == "torchscript":
         out_path = args.output or str(ckpt_path.with_suffix(".jit"))

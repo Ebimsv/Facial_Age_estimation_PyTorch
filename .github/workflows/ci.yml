@@ -104,5 +104,8 @@ jobs:
         run: |
           pytest tests/test_dataset.py -v --tb=short
 
+      - name: Validate configuration and preparation contracts (offline)
+        run: pytest tests/test_config.py -v --tb=short
+
       - name: Build and test installed distributions (no downloads)
         run: pytest tests/test_packaging.py -v --tb=short

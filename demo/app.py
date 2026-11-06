@@ -35,6 +35,7 @@ from PIL import Image
 from src.configs import load_config
 from src.models import AgeEstimationModel
 from src.training import get_loss_fn
+from src.utils.config import validate_mode
 
 matplotlib.use("Agg")  # non-interactive backend — needed for Gradio
 
@@ -49,18 +50,20 @@ def load_model(checkpoint_path: str, config_path: str | None = None) -> None:
     """Load model and loss function into global state."""
     global _model, _loss_fn, _transform, _device
 
-    _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     cfg = load_config(config_path)
+    _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     model_name = ckpt.get("model_name", cfg.model.name)
     output_dim = ckpt.get("output_dim", cfg.model.output_dim)
+    validate_mode(output_dim, cfg.loss.type, cfg.loss.start_age, cfg.loss.end_age)
 
     _model = AgeEstimationModel(
         model_name=model_name,
         pretrained=False,
         output_dim=output_dim,
         dropout=0.0,
+        img_size=cfg.data.img_size,
     ).to(_device)
     _model.load_state_dict(ckpt["model_state_dict"])
     _model.eval()

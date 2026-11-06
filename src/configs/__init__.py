@@ -7,23 +7,30 @@ from pathlib import Path
 
 from omegaconf import DictConfig, OmegaConf
 
+from src.utils.config import merge_config
 
-def load_config(path: str | Path | None = None) -> DictConfig:
+
+def load_config(
+    path: str | Path | None = None, overrides: list[str] | None = None,
+    *, updates: dict | None = None,
+) -> DictConfig:
     """Load a custom YAML file or the defaults distributed with the package.
 
     Args:
         path: Explicit config file. None selects checkout defaults when running
             from source, or packaged defaults when installed.
+        overrides: CLI key=value updates applied before contract validation.
+        updates: Typed CLI values (e.g. prepare_data flags), applied before overrides.
 
     Returns:
         Configuration available independently of the current working directory.
     """
-    if path is not None:
-        return OmegaConf.load(path)
+    defaults = OmegaConf.create(files(__package__).joinpath("default.yaml").read_text(encoding="utf-8"))
     checkout = _checkout_root()
-    if checkout is not None and (checkout / "configs" / "default.yaml").is_file():
-        return OmegaConf.load(checkout / "configs" / "default.yaml")
-    return OmegaConf.create(files(__package__).joinpath("default.yaml").read_text(encoding="utf-8"))
+    if path is None and checkout is not None and (checkout / "configs/default.yaml").is_file():
+        path = checkout / "configs/default.yaml"
+    return merge_config(defaults, OmegaConf.load(path) if path is not None else {},
+                        updates or {}, overrides=overrides)
 
 
 def _checkout_root() -> Path | None:

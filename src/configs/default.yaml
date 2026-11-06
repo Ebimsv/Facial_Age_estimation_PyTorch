@@ -11,7 +11,7 @@ model:
   name: "efficientnet_b3"
   pretrained: true
   # 101 → Mean-Variance Loss over ages [0-100]
-  # 1   → plain L1 regression (for fine-tuning from old checkpoints)
+  # 1   → plain L1 regression (legacy checkpoint migration is a separate step)
   output_dim: 101
   dropout: 0.3
 
@@ -24,7 +24,8 @@ data:
   num_workers: 4
   mean: [0.485, 0.456, 0.406]
   std:  [0.229, 0.224, 0.225]
-  max_age: 85                         # filter images with age >= max_age
+  # Preparation-only settings below: train reads existing CSVs and never re-splits.
+  max_age: 85                         # prepare_data excludes ages >= max_age
   train_ratio: 0.80
   val_ratio:   0.10
   # test_ratio is implicit: 1 - train_ratio - val_ratio = 0.10
@@ -64,14 +65,7 @@ logging:
   use_tensorboard: true
   log_dir:         "runs"
   save_dir:        "checkpoints"
-  save_best_only:  true
   log_every_n_steps: 50
-
-# ── Inference ────────────────────────────────────────────────
-inference:
-  checkpoint_path: null               # path to .pt checkpoint
-  image_path:      null
-  output_path:     null
 
 # ── System ───────────────────────────────────────────────────
 device: null                          # null → auto-detect (cuda if available, else cpu)

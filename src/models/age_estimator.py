@@ -34,6 +34,8 @@ from torchvision.models import (
     resnet50,
 )
 
+from src.utils.config import validate_mode, validate_model_options
+
 try:
     import timm
 
@@ -72,6 +74,7 @@ class AgeEstimationModel(nn.Module):
         pretrained:  Load ImageNet pretrained weights.
         output_dim:  101 for Mean-Variance Loss; 1 for regression.
         dropout:     Dropout rate applied before the first head linear layer.
+        img_size:    Input resolution; ViT requires a multiple of its 14-pixel patch size.
     """
 
     def __init__(
@@ -80,14 +83,11 @@ class AgeEstimationModel(nn.Module):
         pretrained: bool = True,
         output_dim: int = 101,
         dropout: float = 0.3,
+        img_size: int = 224,
     ) -> None:
         super().__init__()
 
-        if model_name not in _BACKBONE_DIMS:
-            raise ValueError(
-                f"Unknown backbone '{model_name}'. "
-                f"Choose from: {list(_BACKBONE_DIMS.keys())}"
-            )
+        validate_model_options(model_name, pretrained, output_dim, dropout, img_size)
 
         self.model_name = model_name
         self.output_dim = output_dim
@@ -128,7 +128,7 @@ class AgeEstimationModel(nn.Module):
             backbone = timm.create_model(
                 "vit_small_patch14_dinov2.lvd142m",
                 pretrained=pretrained,
-                img_size=224,
+                img_size=img_size,
             )
             backbone.head = _make_head(in_features, output_dim, dropout)
             self.model = backbone
@@ -165,9 +165,12 @@ def build_model(cfg) -> AgeEstimationModel:
     Returns:
         Instantiated model (not yet moved to a device).
     """
+    if "loss" in cfg:
+        validate_mode(cfg.model.output_dim, cfg.loss.type, cfg.loss.start_age, cfg.loss.end_age)
     return AgeEstimationModel(
         model_name=cfg.model.name,
         pretrained=cfg.model.pretrained,
         output_dim=cfg.model.output_dim,
         dropout=cfg.model.dropout,
+        img_size=cfg.data.img_size if "data" in cfg else 224,
     )

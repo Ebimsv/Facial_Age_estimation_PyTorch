@@ -23,6 +23,7 @@ from torch.amp import GradScaler, autocast
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from src.utils.config import to_plain_config
 from src.utils.metrics import AverageMeter, compute_cumulative_score, compute_mae
 
 if TYPE_CHECKING:
@@ -83,7 +84,7 @@ class Trainer:
             import wandb
             self.wandb_run = wandb.init(
                 project=cfg.logging.wandb_project,
-                config=dict(cfg),
+                config=to_plain_config(cfg),
                 name=cfg.model.name,
             )
 
@@ -300,7 +301,7 @@ class Trainer:
                 "val_mae": val_mae,
                 "model_state_dict": self.model.state_dict(),
                 "optimizer_state_dict": self.optimizer.state_dict(),
-                "cfg": dict(self.cfg),
+                "cfg": to_plain_config(self.cfg),
             },
             fname,
         )

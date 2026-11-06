@@ -30,24 +30,27 @@ from PIL import Image, ImageDraw
 from src.configs import load_config
 from src.models import AgeEstimationModel
 from src.training import get_loss_fn
+from src.utils.config import validate_mode
 
 SUPPORTED_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 
 def load_model_and_pipeline(checkpoint_path: str, config_path: str | None = None):
     """Load model, loss function, and preprocessing transform from a checkpoint."""
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     cfg = load_config(config_path)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
 
     model_name = ckpt.get("model_name", cfg.model.name)
     output_dim = ckpt.get("output_dim", cfg.model.output_dim)
+    validate_mode(output_dim, cfg.loss.type, cfg.loss.start_age, cfg.loss.end_age)
 
     model = AgeEstimationModel(
         model_name=model_name,
         pretrained=False,
         output_dim=output_dim,
         dropout=0.0,
+        img_size=cfg.data.img_size,
     ).to(device)
     model.load_state_dict(ckpt["model_state_dict"])
     model.eval()

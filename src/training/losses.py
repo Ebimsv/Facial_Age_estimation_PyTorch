@@ -27,6 +27,17 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
+from src.utils.config import validate_age_support, validate_loss_weights, validate_mode
+
+
+def _validate_targets(targets: torch.Tensor, batch: int, start_age: float, end_age: float) -> None:
+    if targets.ndim not in (1, 2) or (targets.ndim == 2 and targets.shape[1] != 1):
+        raise ValueError("Age targets must have shape [B] or [B, 1]")
+    if targets.shape[0] != batch or batch == 0:
+        raise ValueError("Age targets and logits must have the same nonempty batch size")
+    if not (torch.isfinite(targets) & (targets >= start_age) & (targets <= end_age)).all():
+        raise ValueError(f"Age targets must be finite and inside [{start_age}, {end_age}]")
+
 
 class MeanVarianceLoss(nn.Module):
     """Mean-Variance Loss for distribution-based age estimation.
@@ -46,6 +57,11 @@ class MeanVarianceLoss(nn.Module):
         end_age: int = 100,
     ) -> None:
         super().__init__()
+        validate_age_support(start_age, end_age)
+        validate_loss_weights(lambda_mean, lambda_variance)
+        if start_age == end_age:
+            raise ValueError("MeanVarianceLoss requires at least two age classes")
+        self.start_age, self.end_age = start_age, end_age
         self.lambda_mean = lambda_mean
         self.lambda_variance = lambda_variance
 
@@ -69,6 +85,8 @@ class MeanVarianceLoss(nn.Module):
         Returns:
             (total_loss, mean_loss, variance_loss) — all scalar tensors.
         """
+        self._validate_logits(logits)
+        _validate_targets(targets, logits.shape[0], self.start_age, self.end_age)
         targets = targets.view(-1, 1)  # [B, 1]
 
         # Probability distribution over ages
@@ -97,8 +115,13 @@ class MeanVarianceLoss(nn.Module):
         Returns:
             Predicted ages, shape [B].
         """
+        self._validate_logits(logits)
         probs = torch.softmax(logits, dim=1)
         return (probs * self.ages).sum(dim=1)
+
+    def _validate_logits(self, logits: torch.Tensor) -> None:
+        if logits.ndim != 2 or logits.shape[1] != self.ages.numel() or logits.shape[0] == 0:
+            raise ValueError(f"Distribution logits must have shape [B, {self.ages.numel()}] with B > 0")
 
 
 class L1AgeLoss(nn.Module):
@@ -117,6 +140,8 @@ class L1AgeLoss(nn.Module):
         logits: torch.Tensor,
         targets: torch.Tensor,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        self._validate_logits(logits)
+        _validate_targets(targets, logits.shape[0], 0, 100)
         loss = self._l1(logits.view(-1), targets.view(-1))
         zero = torch.zeros_like(loss)
         return loss, loss, zero
@@ -124,7 +149,13 @@ class L1AgeLoss(nn.Module):
     @torch.no_grad()
     def predict_age(self, logits: torch.Tensor) -> torch.Tensor:
         """Return logits clamped to [0, 100] (already done in model.forward)."""
+        self._validate_logits(logits)
         return logits.view(-1).clamp(0.0, 100.0)
+
+    @staticmethod
+    def _validate_logits(logits: torch.Tensor) -> None:
+        if logits.ndim not in (1, 2) or (logits.ndim == 2 and logits.shape[1] != 1) or logits.shape[0] == 0:
+            raise ValueError("Regression logits must have shape [B] or [B, 1] with B > 0")
 
 
 def get_loss_fn(cfg) -> MeanVarianceLoss | L1AgeLoss:
@@ -137,6 +168,8 @@ def get_loss_fn(cfg) -> MeanVarianceLoss | L1AgeLoss:
         Instantiated loss module.
     """
     loss_type = cfg.loss.type.lower()
+    if "model" in cfg:
+        validate_mode(cfg.model.output_dim, loss_type, cfg.loss.start_age, cfg.loss.end_age)
     if loss_type == "mean_variance":
         return MeanVarianceLoss(
             lambda_mean=cfg.loss.lambda_mean,

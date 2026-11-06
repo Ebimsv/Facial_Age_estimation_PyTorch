@@ -24,7 +24,6 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 import pandas as pd
 import torch
-from omegaconf import OmegaConf
 from tqdm import tqdm
 
 from src.configs import get_runtime_root, load_config
@@ -37,6 +36,7 @@ from src.data import (
 from src.models import AgeEstimationModel
 from src.training import get_loss_fn
 from src.utils import compute_cumulative_score, compute_mae, set_seed
+from src.utils.config import merge_config, validate_mode
 
 
 def parse_args() -> argparse.Namespace:
@@ -84,6 +84,7 @@ def run_evaluation(
 
 def main() -> None:
     args = parse_args()
+    cfg = load_config(args.config)
     ckpt_path = Path(args.checkpoint)
     if not ckpt_path.exists():
         raise FileNotFoundError(f"Checkpoint not found: {ckpt_path}")
@@ -95,11 +96,11 @@ def main() -> None:
     print(f"  Best val MAE: {ckpt.get('val_mae', '?'):.3f}y")
 
     # ── Config ────────────────────────────────────────────────────────────
-    cfg = load_config(args.config)
     # Restore model settings from checkpoint if available
     if "cfg" in ckpt:
-        saved_cfg = OmegaConf.create(ckpt["cfg"])
-        cfg = OmegaConf.merge(cfg, saved_cfg)
+        cfg = merge_config(cfg, ckpt["cfg"])
+    validate_mode(ckpt.get("output_dim", cfg.model.output_dim), cfg.loss.type,
+                  cfg.loss.start_age, cfg.loss.end_age)
 
     set_seed(cfg.training.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -111,6 +112,7 @@ def main() -> None:
         pretrained=False,
         output_dim=ckpt.get("output_dim", cfg.model.output_dim),
         dropout=0.0,  # disable dropout at test time
+        img_size=cfg.data.img_size,
     ).to(device)
     model.load_state_dict(ckpt["model_state_dict"])
     print(f"Model: {model.model_name}  (output_dim={model.output_dim})")
@@ -132,6 +134,7 @@ def main() -> None:
         eval_batch_size=cfg.training.eval_batch_size,
         num_workers=cfg.data.num_workers,
         pin_memory=(device.type == "cuda"),
+        age_range=(cfg.loss.start_age, cfg.loss.end_age),
     )
 
     loader = {"train": train_loader, "val": val_loader, "test": test_loader}[args.split]

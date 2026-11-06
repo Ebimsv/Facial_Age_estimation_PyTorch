@@ -177,3 +177,25 @@ print(json.dumps({
     assert result["custom_model"] == "resnet50"
     assert Path(result["runtime_root"]) == outside
     assert result["scaler_disabled"] and result["trainer"] == "Trainer"
+
+
+def test_installed_train_prints_validated_custom_config(installed):
+    _, binaries, outside = installed
+    custom = outside / "cli.yaml"
+    custom.write_text("training:\n  epochs: 2\n", encoding="utf-8")
+    executable = binaries / ("train-age.exe" if os.name == "nt" else "train-age")
+    output = _run([str(executable), "--config", str(custom), "--print-config",
+                   "loss.type=l1", "model.output_dim=1"], outside)
+    assert "epochs: 2" in output and "output_dim: 1" in output and "type: l1" in output
+    assert "Using device" not in output
+
+
+def test_installed_train_rejects_invalid_mode_before_data_io(installed):
+    _, binaries, outside = installed
+    env = os.environ.copy()
+    env.pop("PYTHONPATH", None)
+    executable = binaries / ("train-age.exe" if os.name == "nt" else "train-age")
+    result = subprocess.run([str(executable), "--print-config", "model.output_dim=1"],
+                            cwd=outside, env=env, capture_output=True, text=True, timeout=60)
+    assert result.returncode != 0 and "model.output_dim must be 101" in result.stderr
+    assert "Using device" not in result.stdout
