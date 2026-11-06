@@ -6,11 +6,39 @@
 
 مبنای تاریخچه: `a2c3a4e7b57390b12c4b43e9c53b15a10ec557e4`
 
-این سند snapshot ممیزی پیش از پیاده‌سازی است. پس از تأیید کاربر، P1.1 تا P1.4 اجرا شدند؛
+این سند snapshot ممیزی پیش از پیاده‌سازی است. پس از تأیید کاربر، P1.1 تا P1.5 اجرا شدند؛
 وضعیت فعلی و شواهد اجرای آن در [ثبت پیشرفت نقشهٔ راه](IMPLEMENTATION_ROADMAP.md)
 آمده است. یافته‌های تاریخی این سند به‌عنوان باگ‌های بازِ نسخهٔ جدید تفسیر نشوند.
 
-## وضعیت جاری پس از P1.4 — ۲۰۲۶-۱۱-۰۶
+## وضعیت جاری پس از P1.5 — ۲۰۲۶-۱۱-۰۶
+
+| یافته | وضعیت جاری | شاهد و کار باقی‌مانده |
+|---|---|---|
+| F06 | Complete در پیاده‌سازی و تست مصنوعی | `src/data/validation.py`، `scan_images`، `stratified_split` و `UTKDataset` ستون/label/path/file/decode و strata ناممکن را بررسی می‌کنند؛ guard باقی‌ماندن همهٔ سن‌ها از حذف بی‌خطای کلاس جلوگیری می‌کند. اجرای آماده‌سازی واقعی تأیید نشده است |
+| F07 | Complete برای protocol جدید؛ سابقه و leakage همچنان Partial | خروجی جدید محافظت‌شده، manifest source/version/seed/CSV+image hashes، reject/duplicate report و verification در loader؛ بدون annotation هویتی، near-duplicate و منشأ legacy هنوز unknown هستند |
+| F14 | Partial | generator مستقل، worker RNG، strict algorithms اختیاری و محیط/Git/device/flags در `experiment_metadata` ثبت می‌شوند؛ fixed-environment repeatability تست شد. RNG restore/resume و محیط مرجع چندنسخه‌ای باقی‌اند |
+| F28 | Partial | empty/zero-batch موجود حفظ شد؛ sparse age و partition خراب رد می‌شوند. edge-case عمومی metrics و ارزیابی مستقل split هنوز P2.2 هستند |
+| F19 | Partial | suite به ۲۲۴ تست رسید؛ دادهٔ مصنوعی، tamper، repeat split، spawn، CUDA و checkpoint metadata پوشش دارند. train/resume end-to-end کامل همچنان باز است |
+
+**۲۲۴ تست کامل موفق**؛ Ruff و whitespace موفق. همان Conda موجود با Python 3.13.9 /
+torch 2.9.0+cu128، بدون نصب یا دانلود. suite کامل با دسترسی حافظهٔ اشتراکی اجرا شد و
+GPU RTX 5070 Laptop قابل مشاهده بود؛ دو تست AMP/CUDA واقعاً موفق شدند. فرض scale در
+تست قدیمی L1 اصلاح شد (۱۲۸ برای گرادیان قابل‌نمایش، سپس optimizer step)؛ scale یا
+backoff خود Trainer تغییر نکرد. نتایج skip قبلی مربوط به sandbox محدود بودند؛ این شاهد
+عدد/گرادیان CUDA است، نه آموزش GPU کامل یا تکرارپذیری بین سخت‌افزارها.
+نتیجهٔ CI این مرحله پس از push باید جدا ثبت شود.
+
+چهار CSV tracked با hash یکسان باقی ماندند و partition تاریخی بدون تصاویر دوباره
+بررسی شد. `utkface_age_stratified_v2` فقط روی دادهٔ مصنوعی تولید/تأیید شد؛ protocol واقعی
+یا نتایج مدل تغییر نکردند. همهٔ exact-byte duplicateها پیش‌فرض از protocol جدید حذف
+می‌شوند؛ skip hashing صریح و decode اختیاری‌اند. identity/near-duplicate و کیفیت برچسب
+تأیید نشده‌اند؛ hash، احراز اصالت تولیدکنندهٔ manifest نیست.
+
+راهنما: [DATA_PROTOCOL.md](../docs/DATA_PROTOCOL.md). manifest ناقص/تغییریافته رد می‌شود؛
+بدون manifest، metadata تاریخی حدس زده نمی‌شود. ذخیرهٔ transactional پوشه، resume، guardrail
+دانلود و benchmark هنوز باقی‌اند. گام بعدی P1.6 است. متن پایین snapshotهای قبلی است.
+
+## وضعیت تاریخی پس از P1.4 — ۲۰۲۶-۱۱-۰۶
 
 | یافته | وضعیت جاری | شاهد و مرز رفع |
 |---|---|---|

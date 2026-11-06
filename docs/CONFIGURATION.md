@@ -126,17 +126,25 @@ python scripts/prepare_data.py --config experiment.yaml \
 ```
 
 Explicit preparation flags override YAML values. Both ratios must be positive,
-their sum must be < 1, and the remaining test fraction must stay positive under
-the preparer's existing four-decimal rounding. Actual sample counts may differ
-from nominal ratios because scikit-learn rounds the two split stages to integers.
-The existing two-stage split algorithm has not been replaced.
+their sum must be < 1. Stage sizes now use ceilings of exact decimal fractions,
+without four-decimal rounding. Actual sample counts can differ from nominal ratios.
+The new protocol checks that each age remains in each split and fails when a
+stratified allocation is infeasible; it never silently falls back to random splits.
 
 Preparation filters ages to `[loss.start_age, data.max_age)`; the exclusive
 `data.max_age` must be greater than start_age and at most end_age+1. Successful
-preparation writes `preparation_manifest.json` with effective parameters, resolved
-config and actual sample counts. This parameter record does not yet contain
-dataset-content hashes, identity annotations or a complete provenance protocol;
-those are P1.5 work. Existing tracked CSVs have not been regenerated.
+preparation writes `preparation_manifest.json` for parameter compatibility and
+`split_manifest.json` with source/version declarations, CSV/image hashes,
+validation scope, environment and Git revision. A rejection report records invalid
+entries and exact-byte duplicates; all members of duplicate groups are excluded
+unless hashing is explicitly disabled. Nonempty output directories are protected.
+Existing tracked CSVs have not been regenerated. See [DATA_PROTOCOL.md](DATA_PROTOCOL.md)
+for decode/hashing options, training verification and unknown identity leakage.
+
+`training.deterministic=false` is the default. Setting it true requests strict
+PyTorch algorithms; loader/worker seeds and environment metadata are recorded.
+This is a fixed-environment reproducibility policy, not a cross-device guarantee;
+RNG state restoration for resume remains P2.1.
 
 ## Migration of previously ignored settings
 

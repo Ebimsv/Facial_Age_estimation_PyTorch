@@ -20,6 +20,7 @@ New Trainer checkpoints are created through `create_checkpoint`:
 | `model_state_dict` | Weights matching the declared architecture exactly |
 | `epoch`, `val_mae` | Optional training metadata; not inferred from filenames |
 | `optimizer_state_dict` | Optional training state, retained when Trainer saves |
+| `experiment_metadata` | Optional data/manifest hashes, source declarations, runtime/Git/device and randomness policy from new Trainer runs; old conversion leaves provenance unknown |
 | `training_objective` | Optional declared objective name/revision/dtype, recorded by new Trainer runs; absent metadata is unknown |
 
 The explicit contract must agree with the saved config. Missing inference metadata,
@@ -168,3 +169,13 @@ moments and modern decoding now use float32. Both `l1_mean_variance` and its old
 Exports contain raw regression logits and must be decoded using their sidecar.
 New training runs record objective revision 2; generic old-weight repackaging does
 not guess a training revision. See [LOSSES.md](LOSSES.md).
+
+
+## P1.5 experiment provenance
+
+The training entry point verifies split CSVs and a v2 data manifest before model
+construction, then passes provenance to Trainer. `experiment_metadata` is optional
+training metadata and does not alter the schema-v1 inference contract. Loading or
+converting old checkpoints does not infer source/version, split seed or image hashes.
+Reproducing the exact RNG/generator position on resume remains P2.1 work. See
+[DATA_PROTOCOL.md](DATA_PROTOCOL.md) for the recorded fields and verification scope.

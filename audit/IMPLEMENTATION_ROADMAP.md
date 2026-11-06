@@ -6,7 +6,59 @@
 
 وضعیت: برنامهٔ مبنای ممیزی؛ پیشرفت اجرایی پس از تأیید کاربر در بخش زیر ثبت می‌شود.
 
-## ثبت پیشرفت جاری — P1.4
+## ثبت پیشرفت جاری — P1.5
+
+در ۲۰۲۶-۱۱-۰۶، P1.5 پیاده‌سازی شد؛ **۲۲۴ تست کامل موفق**، Ruff و whitespace
+موفق‌اند. Python 3.13.9 / torch 2.9.0+cu128 در همان محیط Conda موجود؛ dependency،
+وزن یا داده‌ای نصب/دانلود نشد. گام بعدی **P1.6** است.
+
+- `src/data/validation.py` قرارداد مشترک ستون‌ها، سن finite/support، labelهای مجاز،
+  نام/پسوند/path، وجود فایل و symlink داخل root را فراهم می‌کند؛ duplicate name/path،
+  overlap splitها و اختلاف اجتماع/label با master رد می‌شوند. Dataset فایل را می‌بندد
+  و خطای decode با نام تصویر می‌دهد. سه CSV فعلاً همچنان برای evaluation لازم‌اند؛ P2.2 باز است.
+- `scan_images` فقط فایل JPG/JPEG/PNG با نام/label UTK معتبر را می‌پذیرد؛ `--check-decode`
+  اختیاری است. hash بایتی پیش‌فرض فعال و همهٔ اعضای گروه تکرار دقیق حذف/گزارش می‌شوند؛
+  با `--skip-content-hash` نبود بررسی محتوا صریح ثبت می‌شود. near-duplicate و identity
+  بررسی نشده‌اند؛ timestamp هویت فرض نمی‌شود. source/version اعلام کاربرند و پیش‌فرض unknown.
+- `stratified_split` ورودی/خروجی مرتب دارد؛ اندازهٔ هر مرحله ceil نسبت decimal دقیق است،
+  نه گردکردن چهاررقمی. علاوه بر حداقل نمونه/ظرفیت، باقی‌ماندن همهٔ سن‌ها در هر خروجی
+  بررسی می‌شود؛ sklearn می‌تواند بدون این guard یک سن کم‌نمونه را بی‌خطا حذف کند.
+  حالت ناممکن fail-fast است؛ fallback تصادفی/تکرار نمونه/age binning پنهان وجود ندارد.
+- خروجی فقط در directory جدید/خالی ایجاد می‌شود؛ CSV تاریخی overwrite نمی‌شود. پس از
+  اثبات امکان split، چهار CSV، `rejected_samples.csv` و `split_manifest.json` ساخته می‌شوند.
+  manifest شامل protocol `utkface_age_stratified_v2`، source/version، seed/filter/ratios،
+  تعداد، hash CSV/تصویر، duplicate groups، دامنهٔ validation و محیط/Git است.
+  `preparation_manifest.json` سازگار قبلی نیز حفظ شد. خطای نوشتن می‌تواند خروجی ناقص بگذارد؛
+  publication تراکنشی پوشه در این گام ادعا نشده است.
+- `build_dataloaders` manifest جدید را با CSV و بایت تصویر تطبیق می‌دهد؛ تغییر فایل پیش
+  از ساخت مدل در train رد می‌شود. بدون manifest، CSVهای فعلی با hash و برچسب
+  `unversioned_csv` پذیرفته می‌شوند؛ منشأ/seed تاریخی حدس زده یا manifest ساخته نمی‌شود.
+- generator مستقل برای train/val/test، `seed_worker` قابل spawn برای Python/NumPy،
+  و `training.deterministic=false` پیش‌فرض اضافه شدند. strict mode اختیاری است؛ محیط
+  و flag واقعی deterministic ثبت می‌شود. تغییر runtime متغیر PYTHONHASHSEED حذف شد؛
+  آن متغیر فقط پیش از شروع Python اثر دارد. RNG/generator restore برای resume هنوز P2.1 است.
+- `experiment_metadata` اختیاری checkpoint و W&B از Trainer، provenance loader، محیط/Git،
+  device و randomness را نگه می‌دارد. generic conversion سابقه جعل نمی‌کند. قرارداد inference
+  schema v1، aliasهای loss و default YAMLهای پیش از گزینهٔ deterministic سازگار ماندند.
+- شواهد: ۳۵ تست preparation، ۶ reproducibility، ۵ dataset، ۲۲ checkpoint، ۸۸ config،
+  ۶ pipeline، ۲۴ loss، ۱۸ model، ۱۱ packaging و ۹ transform؛ در مجموع ۲۲۴ موفق.
+  CI برای دو suite جدید به‌روز شد؛ نتیجهٔ ریموت پس از push جداگانه بررسی می‌شود.
+- اجرای محدود sandbox، GPU را نمی‌دید و multiprocessing کامل نشد؛ suite کامل با دسترسی
+  حافظهٔ اشتراکی اجرا شد و GPU **NVIDIA GeForce RTX 5070 Laptop GPU** را دید. هر دو تست
+  AMP/CUDA واقعاً پاس شدند. در تست قدیمی L1، scale اولیهٔ ۶۵۵۳۶ می‌توانست گرادیان Linear
+  در FP16 را overflow کند؛ تست اکنون scale کنترل‌شدهٔ ۱۲۸ و step واقعی دارد. تنظیم Trainer
+  یا رفتار adaptive backoff تغییر نکرد. این تست عددی است، نه آموزش/benchmark یا GPU repeatability.
+- CSV تاریخی با ۲۳۲۶۹ master و splitهای ۱۵۸۲۲/۲۷۹۳/۴۶۵۴ دوباره از نظر schema/partition
+  بدون تصویر بررسی شد؛ hash هر چهار CSV پیش/پس یکسان است. روی دادهٔ واقعی protocol جدید
+  تولید نشد؛ نبود leakage محتوایی/هویتی در آن داده همچنان unknown است. وزن و credential
+  کاربر دست‌نخورده‌اند؛ benchmark/MAE یا checkpoint آموزش‌دیدهٔ تازه تولید نشده است.
+
+راهنمای اجرایی: [docs/DATA_PROTOCOL.md](../docs/DATA_PROTOCOL.md).
+F06 در دامنهٔ کد/دادهٔ مصنوعی رفع شد؛ F07/F14 از نظر قرارداد و ثبت محیط پیشرفت کردند،
+ولی provenance تاریخی، هویت/near-duplicate، محیط مرجع و resume همچنان محدودیت دارند.
+ثبت مراحل پیشین در ادامه تاریخی است؛ P1.6 یا مراحل بعد به‌طور ضمنی انجام نشده‌اند.
+
+## ثبت پیشرفت تاریخی — P1.4
 
 در ۲۰۲۶-۱۱-۰۶، P1.4 پیاده‌سازی شد: **۱۷۹ تست جمع‌آوری شد؛ ۱۷۷ موفق و ۲ تست
 اختیاری CUDA به‌علت نبود GPU skip شدند**. Ruff و بررسی whitespace موفق بودند.
@@ -244,6 +296,8 @@ P1.1 → P1.2 → P1.3 → P1.4 → P1.5 → P1.6
 
 ### P1.5 — دادهٔ معتبر، split ثابت و provenance
 
+**وضعیت اجرا: انجام‌شده در ۲۰۲۶-۱۱-۰۶؛ شواهد و محدودیت‌ها در ثبت پیشرفت P1.5.**
+
 - **هدف:** هر run بداند دقیقاً با چه نمونه‌ها و فیلترهایی آموزش می‌بیند.
 - **یافته‌ها / اولویت / اندازه:** F06، F07، F14، F28؛ High؛ Medium.
 - **ایجاد:** `src/data/validation.py`، `tests/test_prepare_data.py`؛ در زمان آماده‌سازی `csv_dataset/split_manifest.json` و گزارش rejectها به‌عنوان خروجی تولیدی.
@@ -460,5 +514,5 @@ P1.1 → P1.2 → P1.3 → P1.4 → P1.5 → P1.6
 
 برای بستن هر گام، PR باید مشکل و رفتار جدید، تست‌های واقعاً اجراشده و نتیجه، محدودیت‌های باقی‌مانده و artifact/تغییر قرارداد را ذکر کند. اگر تست اجرا نشد، علت صریح ثبت شود؛ «تست نوشته شد» به معنی «تست سبز است» نیست. هیچ MAE بهتر، latency کمتر یا star بیشتری معیار تضمین‌شدهٔ تکمیل مهندسی نیست.
 
-**گام اجرایی بعدی: P1.5**؛ پیش از ویرایش، وضعیت working tree بررسی و تغییرات کاربر حفظ شود.
-P1.1 تا P1.4 را صرفاً به‌علت وجود شرح برنامه در این سند دوباره از ابتدا اجرا نکنید.
+**گام اجرایی بعدی: P1.6**؛ پیش از ویرایش، وضعیت working tree بررسی و تغییرات کاربر حفظ شود.
+P1.1 تا P1.5 را صرفاً به‌علت وجود شرح برنامه در این سند دوباره از ابتدا اجرا نکنید.

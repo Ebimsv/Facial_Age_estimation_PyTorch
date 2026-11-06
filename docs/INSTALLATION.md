@@ -44,6 +44,8 @@ for model/loss compatibility, preparation-only settings and legacy-key migration
 Use `train-age --print-config` to inspect settings without starting training.
 See [loss definitions and numerical policy](LOSSES.md) for the default L1+variance
 variant, raw regression training and modern inference bounds.
+See [data protocol and reproducibility](DATA_PROTOCOL.md) before preparing a fresh
+split directory; tracked historical CSVs are preserved.
 
 - The packaged default configuration is `src/configs/default.yaml` and is loaded
   through `importlib.resources`; an installed wheel needs no repository checkout.
@@ -85,7 +87,13 @@ them or downloading dependencies:
 
 The full-suite environment also had OmegaConf 2.3.0, TensorBoard 2.20.0,
 setuptools 80.9.0, wheel 0.45.1, build 1.4.0, pytest 9.0.1, and Ruff 0.16.3.
-The CUDA wheel suffix does not imply GPU tests ran. The exact PyTorch 2.3 minimum
+The CUDA wheel suffix alone does not prove GPU testing. In the P1.5 full-suite run,
+all **224 tests passed**, including two CUDA autocast/GradScaler tests on an NVIDIA
+GeForce RTX 5070 Laptop GPU, plus multiworker/spawn data tests. This required access
+to system shared memory/device resources outside the restricted sandbox; earlier
+restricted runs could not see CUDA and skipped those tests. A test-only controlled
+initial scale avoids confusing FP16 startup overflow with objective instability.
+This is not an accuracy benchmark or full GPU training/repeatability experiment. The exact PyTorch 2.3 minimum
 was verified against the upstream API source, but not executed locally: no existing
 2.3 environment was found. A minimum-version runtime CI job remains P3.2 work.
 The current CI matrix covers Python 3.10, 3.11, and 3.12; its remote result must be
@@ -125,5 +133,5 @@ be included. Distribution tests check metadata alignment with `requirements.txt`
 This packaging step does not report model accuracy, throughput, or GPU training
 results. Verification consists of the existing unit suite plus packaging regression
 tests, metadata validation, artifact content inspection, and Ruff. See the P1.1
-through P1.4 completion notes in [the implementation roadmap](../audit/IMPLEMENTATION_ROADMAP.md)
+through P1.5 completion notes in [the implementation roadmap](../audit/IMPLEMENTATION_ROADMAP.md)
 for historical and current test counts and remaining scope.

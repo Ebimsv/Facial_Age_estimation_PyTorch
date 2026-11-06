@@ -6,7 +6,31 @@
 
 ترتیب اجرا: [نقشهٔ راه](IMPLEMENTATION_ROADMAP.md)
 
-## پیشرفت جاری پس از P1.4 — ۲۰۲۶-۱۱-۰۶
+## پیشرفت جاری پس از P1.5 — ۲۰۲۶-۱۱-۰۶
+
+مسیر «آماده‌سازی → آموزش» اکنون protocol قابل‌بررسی دارد: directory تازه، CSV/hash
+ثابت، source/version اعلام‌شده، rejection و duplicate report، محیط/Git و بررسی تغییر
+تصویر/CSV پیش از آموزش. Quick Start برای protocol تازه از `csv_dataset/protocol_v2`
+استفاده می‌کند؛ CSVهای تاریخی دست‌نخورده‌اند و نتیجهٔ آنها به split جدید نسبت داده نمی‌شود.
+[راهنمای داده و reproducibility](../docs/DATA_PROTOCOL.md) تصمیم حذف همهٔ اعضای تکرار
+بایتی، decode اختیاری، opt-out hash و خطای sparse ages را روشن توضیح می‌دهد.
+
+تعداد محلی اکنون **۲۲۴ تست موفق** است، شامل repeatability با صفر/دو worker و spawn،
+manifest tampering، partition legacy و دو تست AMP واقعی روی RTX 5070 Laptop. دسترسی
+sandbox محدود قبلی GPU را پنهان می‌کرد؛ suite کامل با دسترسی لازم برای workerها اجرا شد.
+این شواهد جای benchmark دقت یا آموزش مدل واقعی را نمی‌گیرند. CI پس از push جداگانه
+بررسی می‌شود؛ CUDA/demo روی runner بدون قابلیت مربوط می‌توانند skip شوند.
+
+نام‌گذاری روش، API قدیمی و schema inference حفظ شدند؛ checkpoint جدید provenance
+loader و محیط/flags را در `experiment_metadata` دارد. source/version مجهول صریح می‌ماند؛
+هویت از timestamp حدس زده نمی‌شود و hash بایتی معادل تشخیص near-duplicate یا هویت نیست.
+هنوز data protocol واقعی با تصاویر موجود، مقایسهٔ MAE، وزن تازه یا تضمین star نداریم.
+
+گام اجرایی بعدی **P1.6** است (guardrail دریافت داده/credential). سپس آموزش قابل ادامه،
+ارزیابی مستقل split و benchmark با protocol ثابت ارزش عمومی بعدی را ایجاد می‌کنند.
+ثبت‌های پایین مربوط به مراحل پیشین‌اند؛ انتشار benchmark/دمو به شواهد و مجوز وابسته است.
+
+## پیشرفت تاریخی پس از P1.4 — ۲۰۲۶-۱۱-۰۶
 
 تعریف علمی و عددی روش اکنون روشن است: variant به نام `l1_mean_variance` معرفی
 می‌شود، alias قدیمی سازگار است و [راهنمای loss](../docs/LOSSES.md) فرمول، محدودیت
