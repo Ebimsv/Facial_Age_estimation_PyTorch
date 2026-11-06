@@ -23,7 +23,8 @@
 multiprocessing/spawn و ۴۴ دانلود آفلاین. پس از اصلاح نهایی پیام layout، ۴۴ تست downloader
 دوباره موفق شدند. Python 3.13.9 / torch 2.9.0+cu128 در محیط موجود و بدون نصب dependency.
 source Kaggle 2.2.4 فقط خوانده شد، نه import/auth؛ SDK واقعی/شبکه در تست‌ها استفاده نشد.
-نتیجهٔ CI این مرحله پس از push جداگانه ثبت می‌شود.
+**CI کامیت `d821247` نیز موفق شد**: lint و Python 3.10/3.11/3.12؛
+[شاهد ریموت](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42271622415). CUDA بالا محلی است؛ CI پایه CPU است.
 
 [گزارش یکپارچهٔ فاز اول](PHASE_1_IMPLEMENTATION_REPORT.md) شش گام، کامیت‌ها، تست‌ها و
 دو فلوچارت را توضیح می‌دهد؛ [راهنمای دانلود](../docs/DOWNLOADING.md) حدود validation،

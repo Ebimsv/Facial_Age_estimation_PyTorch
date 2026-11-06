@@ -20,7 +20,8 @@ version/layout، credential، staging و تفاوت sanity check با full prepa
 دستورها به‌عنوان benchmark یا integration موفق واقعی معرفی نشده‌اند.
 
 **۲۶۸ تست محلی موفق**، شامل ۴۴ دانلود با API/ZIP مصنوعی، packaging canary، دو CUDA
-loss test و worker/spawn؛ Ruff موفق. CI پس از push جدا بررسی می‌شود. credentialهای
+loss test و worker/spawn؛ Ruff موفق. **CI کامیت `d821247` هم موفق شد**: lint و
+Python 3.10/3.11/3.12؛ [run تأییدشده](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42271622415). credentialهای
 استاندارد ignore/exclude شدند؛ فایل واقعی خوانده، stage یا rotate نشد و پاکی تاریخچه
 ادعا نمی‌شود. هیچ داده، وزن آموزش‌دیده، MAE یا latency تازه ساخته نشده است.
 

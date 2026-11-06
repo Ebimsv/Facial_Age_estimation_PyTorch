@@ -39,7 +39,8 @@ whitespace موفق‌اند. پس از آخرین اصلاح پیام layout، 
 - `tests/test_download_data.py` با ۴۴ حالت fake API/ZIP و CI جدید، missing dependency،
   network/auth failure، malformed/unsafe ZIP، nested/ambiguous layout، دادهٔ ناقص، write
   failure و حفظ فایل کاربر را بررسی می‌کند. هیچ تماس واقعی Kaggle در تست پایه وجود ندارد.
-  packaging extra اختیاری را در METADATA نیز بررسی می‌کند؛ نتیجهٔ CI پس از push جدا ثبت می‌شود.
+  packaging extra اختیاری را در METADATA نیز بررسی می‌کند؛ **CI کامیت `d821247` موفق شد**:
+  lint و Python 3.10/3.11/3.12؛ [run تأییدشده](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42271622415).
 - راهنمای [DOWNLOADING.md](../docs/DOWNLOADING.md)، README و راهنمای نصب/داده به‌روز شدند.
   گزارش یکپارچهٔ درخواستی کاربر: [PHASE_1_IMPLEMENTATION_REPORT.md](PHASE_1_IMPLEMENTATION_REPORT.md)
   با توضیح P1.1–P1.6، فایل/کامیت/تست، hash CSVهای حفظ‌شده، دو فلوچارت Mermaid و محدودیت‌ها.
