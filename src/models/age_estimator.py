@@ -144,12 +144,10 @@ class AgeEstimationModel(nn.Module):
         Returns:
             Logits of shape [B, output_dim].
             - If output_dim=101: pass through ``MeanVarianceLoss`` to get ages.
-            - If output_dim=1:   clamp to [0, 100] for a valid age range.
+            - If output_dim=1: raw regression values; inference bounding belongs
+              to the checkpoint's age decoder, not the training graph.
         """
-        logits = self.model(x)
-        if self.output_dim == 1:
-            logits = torch.clamp(logits, min=0.0, max=100.0)
-        return logits
+        return self.model(x)
 
     @property
     def num_parameters(self) -> int:

@@ -98,3 +98,24 @@ def test_export_cannot_override_saved_resolution(sample, monkeypatch):
     monkeypatch.setattr("sys.argv", ["export-age", "--checkpoint", str(sample[0]), "--img-size", "224"])
     with pytest.raises(ValueError, match="preprocessing contract"):
         export_model.main()
+
+
+def test_raw_regression_export_preserves_bounded_age_policy(tmp_path, monkeypatch):
+    cfg = load_config(overrides=["model.name=mobilenet_v3", "model.pretrained=false",
+                                 "model.output_dim=1", "loss.type=l1", "data.img_size=64"])
+    model = build_model(cfg).eval()
+    final = [m for m in model.modules() if isinstance(m, torch.nn.Linear)][-1]
+    with torch.no_grad():
+        final.weight.zero_()
+        final.bias.fill_(-7)
+    path, output = tmp_path / "regression.pt", tmp_path / "regression.jit"
+    torch.save(create_checkpoint(model, cfg), path)
+    monkeypatch.setattr("sys.argv", ["export-age", "--checkpoint", str(path), "--output", str(output)])
+    export_model.main()
+    bundle = load_checkpoint(path, device="cpu")
+    with torch.no_grad():
+        raw = torch.jit.load(str(output))(torch.zeros(1, 3, 64, 64))
+    assert raw.item() == -7
+    assert bundle.loss_fn.predict_age(raw).item() == 0
+    metadata = json.loads((tmp_path / "regression.jit.json").read_text())
+    assert metadata["predictor"]["postprocess"] == "clamp_0_100"

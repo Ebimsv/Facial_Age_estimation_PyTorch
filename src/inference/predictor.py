@@ -8,6 +8,7 @@ import torch
 from PIL import Image
 
 from src.utils.checkpoint import LoadedCheckpoint, load_checkpoint
+from src.utils.config import DISTRIBUTION_LOSSES
 
 
 @torch.no_grad()
@@ -43,6 +44,6 @@ class AgePredictor:
         """Return predicted age and optional distribution on its saved age support."""
         bundle = self.checkpoint
         ages, logits = predict_image(bundle.model, bundle.loss_fn, bundle.transform, bundle.device, image)
-        distribution = bundle.cfg.loss.type == "mean_variance"
+        distribution = bundle.cfg.loss.type in DISTRIBUTION_LOSSES
         return Prediction(ages.item(), torch.softmax(logits.float(), dim=1)[0].cpu() if distribution else None,
                           bundle.loss_fn.ages.cpu() if distribution else None)

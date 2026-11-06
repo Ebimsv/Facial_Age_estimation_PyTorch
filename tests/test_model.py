@@ -10,6 +10,7 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.models import AgeEstimationModel
+from src.training.losses import L1AgeLoss
 
 BACKBONES = ["mobilenet_v3", "efficientnet_b0", "efficientnet_b3", "resnet50"]
 # Note: "vit_small" is excluded from fast unit tests because it downloads ~80MB weights.
@@ -32,17 +33,28 @@ def test_forward_shape(model_name: str, output_dim: int) -> None:
 
 
 @pytest.mark.parametrize("model_name", BACKBONES)
-def test_regression_clamped(model_name: str) -> None:
-    """Regression mode (output_dim=1) output must be in [0, 100]."""
+@pytest.mark.parametrize("bias", [-5., 105.])
+def test_raw_regression_gradient_and_bounded_prediction(model_name: str, bias: float) -> None:
+    """Out-of-range heads must learn; only the inference decoder bounds ages."""
     model = AgeEstimationModel(model_name=model_name, pretrained=False, output_dim=1)
     model.eval()
-
-    batch = torch.randn(4, 3, 224, 224) * 10  # extreme inputs
+    final = [module for module in model.modules() if isinstance(module, torch.nn.Linear)][-1]
     with torch.no_grad():
-        out = model(batch)
-
-    assert out.min().item() >= 0.0, "Output below 0"
-    assert out.max().item() <= 100.0, "Output above 100"
+        final.weight.zero_()
+        final.bias.fill_(bias)
+    batch = torch.zeros(2, 3, 64, 64)
+    targets = torch.full((2, 1), 50.)
+    logits = model(batch)
+    torch.testing.assert_close(logits, torch.full_like(logits, bias))
+    loss_fn = L1AgeLoss()
+    total, _, _ = loss_fn(logits, targets)
+    total.backward()
+    assert final.bias.grad.item() == (-1. if bias < 0 else 1.)
+    assert torch.isfinite(final.bias.grad).all()
+    torch.testing.assert_close(loss_fn.predict_age(logits), torch.full((2,), max(0., min(100., bias))))
+    with torch.no_grad():
+        final.bias -= .1 * final.bias.grad
+        assert loss_fn(model(batch), targets)[0] < total
 
 
 def test_num_parameters() -> None:

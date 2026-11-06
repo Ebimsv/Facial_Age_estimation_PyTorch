@@ -8,9 +8,9 @@ This keeps test startup fast and avoids unnecessary import-time side effects.
 
 from __future__ import annotations
 
-from .losses import MeanVarianceLoss, get_loss_fn
+from .losses import L1MeanVarianceLoss, MeanVarianceLoss, get_loss_fn
 
-__all__ = ["MeanVarianceLoss", "get_loss_fn", "Trainer"]
+__all__ = ["L1MeanVarianceLoss", "MeanVarianceLoss", "get_loss_fn", "Trainer"]
 
 
 def __getattr__(name: str):

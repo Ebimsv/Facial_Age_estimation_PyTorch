@@ -10,7 +10,7 @@ model:
   # Options: mobilenet_v3 | efficientnet_b0 | efficientnet_b3 | resnet50 | vit_small
   name: "efficientnet_b3"
   pretrained: true
-  # 101 → Mean-Variance Loss over ages [0-100]
+  # 101 → L1 + central-variance objective over ages [0-100]
   # 1   → plain L1 regression (legacy checkpoint migration is a separate step)
   output_dim: 101
   dropout: 0.3
@@ -51,8 +51,8 @@ scheduler:
 
 # ── Loss ─────────────────────────────────────────────────────
 loss:
-  # Options: mean_variance | l1
-  type: "mean_variance"
+  # Options: l1_mean_variance | mean_variance (compatibility alias) | l1
+  type: "l1_mean_variance"
   lambda_mean:     0.2                # weight for E[age] - true_age term
   lambda_variance: 0.05               # weight for variance penalty term
   start_age: 0

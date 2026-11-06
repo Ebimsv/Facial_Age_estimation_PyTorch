@@ -103,10 +103,13 @@ def test_runtime_yaml_interpolation_resolves_against_saved_cfg(tmp_path, artifac
     assert loaded.cfg.data.root_dir == cfg.data.csv_dir
 
 
-def test_explicit_unmodified_default_yaml_does_not_replace_regression_contract(tmp_path, artifacts):
+@pytest.mark.parametrize("mode", ["l1_mean_variance", "mean_variance"])
+def test_explicit_unmodified_default_yaml_does_not_replace_regression_contract(tmp_path, artifacts, mode):
     path, _, model, _ = artifacts["l1"]
     default_yaml = tmp_path / "external-default.yaml"
-    default_yaml.write_text(files("src.configs").joinpath("default.yaml").read_text(), encoding="utf-8")
+    defaults = OmegaConf.create(files("src.configs").joinpath("default.yaml").read_text())
+    defaults.loss.type = mode
+    default_yaml.write_text(OmegaConf.to_yaml(defaults), encoding="utf-8")
     bundle = load_checkpoint(path, default_yaml, device="cpu")
     assert bundle.cfg.loss.type == "l1" and bundle.cfg.data.img_size == 64
     assert list(bundle.cfg.data.mean) == [.1, .2, .3]
@@ -171,6 +174,7 @@ def test_legacy_profile_is_explicit_and_keeps_raw_head(tmp_path):
     torch.save(create_checkpoint(loaded.model, cfg), converted)
     restored = load_checkpoint(converted, device="cpu")
     assert restored.metadata["predictor"]["postprocess"] == "raw"
+    assert restored.metadata.get("training_objective") is None  # no invented training history
 
 
 def test_trainer_writes_new_schema(tmp_path, artifacts):
@@ -180,5 +184,10 @@ def test_trainer_writes_new_schema(tmp_path, artifacts):
     from src.training.losses import get_loss_fn
     trainer = Trainer(model, get_loss_fn(cfg), cfg, torch.device("cpu"))
     trainer._save_checkpoint(0, 4.0)
-    assert torch.load(trainer.best_ckpt_path, weights_only=True)["schema_version"] == 1
-    assert load_checkpoint(trainer.best_ckpt_path, device="cpu").cfg.loss.type == "l1"
+    saved = torch.load(trainer.best_ckpt_path, weights_only=True)
+    assert saved["schema_version"] == 1
+    assert saved["training_objective"]["name"] == "l1_raw_regression"
+    assert saved["training_objective"]["revision"] == 2
+    loaded = load_checkpoint(trainer.best_ckpt_path, device="cpu")
+    assert loaded.cfg.loss.type == "l1"
+    assert loaded.metadata["training_objective"] == saved["training_objective"]

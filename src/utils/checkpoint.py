@@ -17,7 +17,7 @@ from src.data.transforms import get_test_transforms
 from src.models import AgeEstimationModel
 from src.models.legacy import LegacyResNet50
 from src.training.losses import L1AgeLoss, get_loss_fn
-from src.utils.config import merge_config, to_plain_config
+from src.utils.config import DISTRIBUTION_LOSSES, merge_config, to_plain_config
 
 SCHEMA_VERSION = 1
 RUNTIME_KEYS = {
@@ -45,11 +45,12 @@ def _contract(cfg, architecture: str = "current") -> dict[str, Any]:
         "predictor": {"mode": cfg.loss.type, "start_age": cfg.loss.start_age,
                       "end_age": cfg.loss.end_age,
                       "postprocess": "raw" if architecture == "legacy_resnet50_v1" else
-                      "expected_age" if cfg.loss.type == "mean_variance" else "clamp_0_100"},
+                      "expected_age" if cfg.loss.type in DISTRIBUTION_LOSSES else "clamp_0_100"},
     }
 
 
-def create_checkpoint(model, cfg, *, epoch=None, val_mae=None, optimizer_state_dict=None) -> dict:
+def create_checkpoint(model, cfg, *, epoch=None, val_mae=None, optimizer_state_dict=None,
+                      training_objective=None) -> dict:
     """Build a plain versioned artifact; training/resume state is optional."""
     cfg = merge_config(cfg)
     architecture = "legacy_resnet50_v1" if isinstance(model, LegacyResNet50) else "current"
@@ -62,6 +63,8 @@ def create_checkpoint(model, cfg, *, epoch=None, val_mae=None, optimizer_state_d
     artifact = {"schema_version": SCHEMA_VERSION, **_contract(cfg, architecture),
                 "cfg": to_plain_config(cfg), "model_state_dict": model.state_dict(),
                 "epoch": epoch, "val_mae": val_mae}
+    if training_objective is not None:
+        artifact["training_objective"] = training_objective
     if optimizer_state_dict is not None:
         artifact["optimizer_state_dict"] = optimizer_state_dict
     return artifact
@@ -91,7 +94,12 @@ def _runtime_config(cfg, config_path, runtime_overrides):
         if not OmegaConf.is_dict(patch):
             raise ValueError("Runtime --config must be a YAML mapping")
         defaults = OmegaConf.create(files("src.configs").joinpath("default.yaml").read_text(encoding="utf-8"))
-        if OmegaConf.to_container(patch, resolve=False) == OmegaConf.to_container(defaults, resolve=False):
+        template = OmegaConf.to_container(patch, resolve=False)
+        reference = OmegaConf.to_container(defaults, resolve=False)
+        for candidate_template in (template, reference):
+            if isinstance(candidate_template.get("loss"), dict) and candidate_template["loss"].get("type") in DISTRIBUTION_LOSSES:
+                candidate_template["loss"]["type"] = "l1_mean_variance"
+        if template == reference:
             # Preserve callers that explicitly supplied the default YAML before
             # checkpoints became authoritative. Custom contract conflicts still fail.
             patch = OmegaConf.create({})
@@ -101,6 +109,8 @@ def _runtime_config(cfg, config_path, runtime_overrides):
         candidate = merge_config(cfg, patch)
         for key, value in _leaves(OmegaConf.to_container(patch, resolve=False)):
             actual = OmegaConf.select(candidate, key)
+            if key == "loss.type" and actual in DISTRIBUTION_LOSSES and cfg.loss.type in DISTRIBUTION_LOSSES:
+                continue  # compatible spelling; the artifact retains its own label
             if key not in RUNTIME_KEYS and actual != OmegaConf.select(cfg, key):
                 raise ValueError(f"Checkpoint contract is immutable: cannot override {key}")
             if key in RUNTIME_KEYS:
@@ -189,7 +199,8 @@ def load_checkpoint(
                     raise ValueError(f"Unversioned checkpoint {key} disagrees with cfg")
         metadata = {"schema_version": SCHEMA_VERSION, **expected,
                     "source_format": "v1" if version is not None else "unversioned",
-                    "epoch": artifact.get("epoch"), "val_mae": artifact.get("val_mae")}
+                    "epoch": artifact.get("epoch"), "val_mae": artifact.get("val_mae"),
+                    "training_objective": artifact.get("training_objective")}
     if architecture == "legacy_resnet50_v1":
         expected = _contract(_legacy_config(), architecture)
         if any(metadata[key] != expected[key] for key in expected):

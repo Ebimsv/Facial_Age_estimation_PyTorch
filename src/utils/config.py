@@ -14,6 +14,7 @@ from omegaconf.errors import OmegaConfBaseException
 SUPPORTED_BACKBONES = (
     "mobilenet_v3", "efficientnet_b0", "efficientnet_b3", "resnet50", "vit_small",
 )
+DISTRIBUTION_LOSSES = {"l1_mean_variance", "mean_variance"}
 
 
 @dataclass
@@ -139,11 +140,11 @@ def validate_loss_weights(lambda_mean: float, lambda_variance: float) -> None:
 def validate_mode(output_dim: int, loss_type: str, start_age: int, end_age: int) -> None:
     """Check that model output and age decoder describe the same mode."""
     validate_age_support(start_age, end_age)
-    if loss_type not in {"mean_variance", "l1"}:
-        raise ValueError(f"Unknown loss type '{loss_type}'. Choose from: mean_variance | l1")
-    if loss_type == "mean_variance" and start_age == end_age:
-        raise ValueError("mean_variance requires at least two age classes")
-    expected = end_age - start_age + 1 if loss_type == "mean_variance" else 1
+    if loss_type not in DISTRIBUTION_LOSSES | {"l1"}:
+        raise ValueError(f"Unknown loss type '{loss_type}'. Choose from: l1_mean_variance | mean_variance (alias) | l1")
+    if loss_type in DISTRIBUTION_LOSSES and start_age == end_age:
+        raise ValueError("l1_mean_variance requires at least two age classes")
+    expected = end_age - start_age + 1 if loss_type in DISTRIBUTION_LOSSES else 1
     if output_dim != expected:
         raise ValueError(
             f"model.output_dim must be {expected} for loss.type={loss_type!r}; got {output_dim}"
@@ -246,7 +247,7 @@ def _validate_values(cfg: DictConfig) -> None:
     validate_model_options(cfg.model.name, cfg.model.pretrained, cfg.model.output_dim,
                            cfg.model.dropout, cfg.data.img_size)
     validate_mode(cfg.model.output_dim, cfg.loss.type, cfg.loss.start_age, cfg.loss.end_age)
-    if cfg.loss.type == "mean_variance":
+    if cfg.loss.type in DISTRIBUTION_LOSSES:
         validate_loss_weights(cfg.loss.lambda_mean, cfg.loss.lambda_variance)
     else:
         _finite(cfg.loss.lambda_mean, "loss.lambda_mean", 0)

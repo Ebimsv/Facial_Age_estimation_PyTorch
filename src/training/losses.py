@@ -1,25 +1,9 @@
-"""Loss functions for facial age estimation.
+"""Age objectives with explicit inference policies.
 
-Mean-Variance Loss
-------------------
-Reference: Pan et al., "Mean-Variance Loss for Deep Age Estimation from a
-Face", CVPR 2018.  https://openaccess.thecvf.com/content_cvpr_2018/papers/
-Pan_Mean-Variance_Loss_for_CVPR_2018_paper.pdf
-
-The model outputs a vector of 101 logits (one per age class 0–100).
-After softmax, this becomes a probability distribution over ages.
-
-  mean_loss     = λ_mean     × |E[age] − true_age|      (L1 on expected age)
-  variance_loss = λ_variance × Var[age]                  (penalise spread)
-  total_loss    = mean_loss + variance_loss
-
-At inference, the predicted age is simply E[age] = Σ p_i × i.
-
-This consistently outperforms plain L1/MSE regression by 0.3–0.5 MAE on
-UTKFace because it:
-  1. Encodes label ambiguity (nearby ages share probability mass).
-  2. Provides a richer training signal than a single scalar target.
-  3. Penalises overconfident wrong predictions via the variance term.
+The repository's distribution objective is L1 on expected age plus a central
+variance penalty, computed in float32. It is inspired by mean-variance methods,
+but is not a reproduction of the squared-mean + softmax joint objective in
+Pan et al., CVPR 2018. No UTKFace performance advantage has been established.
 """
 
 from __future__ import annotations
@@ -27,7 +11,12 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
-from src.utils.config import validate_age_support, validate_loss_weights, validate_mode
+from src.utils.config import (
+    DISTRIBUTION_LOSSES,
+    validate_age_support,
+    validate_loss_weights,
+    validate_mode,
+)
 
 
 def _validate_targets(targets: torch.Tensor, batch: int, start_age: float, end_age: float) -> None:
@@ -39,8 +28,11 @@ def _validate_targets(targets: torch.Tensor, batch: int, start_age: float, end_a
         raise ValueError(f"Age targets must be finite and inside [{start_age}, {end_age}]")
 
 
-class MeanVarianceLoss(nn.Module):
-    """Mean-Variance Loss for distribution-based age estimation.
+class L1MeanVarianceLoss(nn.Module):
+    """Repository variant: L1 on expected age plus central age variance.
+
+    This is not the full joint loss of Pan et al. (CVPR 2018). Moments and
+    expected-age decoding always use float32, including under autocast.
 
     Args:
         lambda_mean:     Weight for the mean (expected age) loss term.
@@ -68,6 +60,7 @@ class MeanVarianceLoss(nn.Module):
         # Age index tensor — registered as a buffer so it moves with the model
         ages = torch.arange(start_age, end_age + 1, dtype=torch.float32)
         self.register_buffer("ages", ages)          # shape: [num_classes]
+        # Retained for compatibility with existing loss.state_dict() consumers.
         ages_sq = ages ** 2
         self.register_buffer("ages_sq", ages_sq)   # shape: [num_classes]
 
@@ -90,17 +83,17 @@ class MeanVarianceLoss(nn.Module):
         targets = targets.view(-1, 1)  # [B, 1]
 
         # Probability distribution over ages
-        probs = torch.softmax(logits, dim=1)  # [B, num_classes]
+        probs = torch.softmax(logits, dim=1, dtype=torch.float32)  # [B, num_classes]
+        ages = self.ages.float()
 
         # Expected age  E[age] = Σ p_i × i
-        expected_age = (probs * self.ages).sum(dim=1, keepdim=True)  # [B, 1]
+        expected_age = (probs * ages).sum(dim=1, keepdim=True)  # [B, 1]
 
         # Mean loss: L1 between expected age and ground-truth
-        mean_loss = torch.abs(expected_age - targets).mean()
+        mean_loss = torch.abs(expected_age - targets.float()).mean()
 
-        # Variance: Var[age] = E[age²] - E[age]²
-        expected_sq = (probs * self.ages_sq).sum(dim=1, keepdim=True)  # [B, 1]
-        variance = (expected_sq - expected_age**2).mean()
+        # Central variance avoids cancellation between two large nearly equal moments.
+        variance = (probs * (ages - expected_age).square()).sum(dim=1).mean()
 
         total_loss = self.lambda_mean * mean_loss + self.lambda_variance * variance
         return total_loss, mean_loss, variance
@@ -116,8 +109,8 @@ class MeanVarianceLoss(nn.Module):
             Predicted ages, shape [B].
         """
         self._validate_logits(logits)
-        probs = torch.softmax(logits, dim=1)
-        return (probs * self.ages).sum(dim=1)
+        probs = torch.softmax(logits, dim=1, dtype=torch.float32)
+        return (probs * self.ages.float()).sum(dim=1)
 
     def _validate_logits(self, logits: torch.Tensor) -> None:
         if logits.ndim != 2 or logits.shape[1] != self.ages.numel() or logits.shape[0] == 0:
@@ -142,15 +135,15 @@ class L1AgeLoss(nn.Module):
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         self._validate_logits(logits)
         _validate_targets(targets, logits.shape[0], 0, 100)
-        loss = self._l1(logits.view(-1), targets.view(-1))
+        loss = self._l1(logits.float().view(-1), targets.float().view(-1))
         zero = torch.zeros_like(loss)
         return loss, loss, zero
 
     @torch.no_grad()
     def predict_age(self, logits: torch.Tensor) -> torch.Tensor:
-        """Return logits clamped to [0, 100] (already done in model.forward)."""
+        """Apply the modern checkpoint's bounded inference policy, outside training."""
         self._validate_logits(logits)
-        return logits.view(-1).clamp(0.0, 100.0)
+        return logits.float().view(-1).clamp(0.0, 100.0)
 
     @staticmethod
     def _validate_logits(logits: torch.Tensor) -> None:
@@ -158,7 +151,21 @@ class L1AgeLoss(nn.Module):
             raise ValueError("Regression logits must have shape [B] or [B, 1] with B > 0")
 
 
-def get_loss_fn(cfg) -> MeanVarianceLoss | L1AgeLoss:
+# Historical import/API compatibility; both names denote the same L1 variant.
+MeanVarianceLoss = L1MeanVarianceLoss
+
+
+def training_objective_spec(loss_type: str) -> dict:
+    """Identify this training implementation; do not infer old weights' provenance."""
+    if loss_type in DISTRIBUTION_LOSSES:
+        return {"name": "l1_mean_variance", "revision": 2, "mean_term": "absolute_expected_age_error",
+                "variance": "central", "compute_dtype": "float32"}
+    if loss_type == "l1":
+        return {"name": "l1_raw_regression", "revision": 2, "compute_dtype": "float32"}
+    raise ValueError(f"Unknown loss type: {loss_type}")
+
+
+def get_loss_fn(cfg) -> L1MeanVarianceLoss | L1AgeLoss:
     """Factory that creates the appropriate loss from an OmegaConf config.
 
     Args:
@@ -170,8 +177,8 @@ def get_loss_fn(cfg) -> MeanVarianceLoss | L1AgeLoss:
     loss_type = cfg.loss.type.lower()
     if "model" in cfg:
         validate_mode(cfg.model.output_dim, loss_type, cfg.loss.start_age, cfg.loss.end_age)
-    if loss_type == "mean_variance":
-        return MeanVarianceLoss(
+    if loss_type in DISTRIBUTION_LOSSES:
+        return L1MeanVarianceLoss(
             lambda_mean=cfg.loss.lambda_mean,
             lambda_variance=cfg.loss.lambda_variance,
             start_age=cfg.loss.start_age,
@@ -181,5 +188,5 @@ def get_loss_fn(cfg) -> MeanVarianceLoss | L1AgeLoss:
         return L1AgeLoss()
     else:
         raise ValueError(
-            f"Unknown loss type '{loss_type}'. Choose from: mean_variance | l1"
+            f"Unknown loss type '{loss_type}'. Choose from: l1_mean_variance | mean_variance (alias) | l1"
         )

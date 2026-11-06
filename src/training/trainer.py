@@ -23,6 +23,7 @@ from torch.amp import GradScaler, autocast
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from src.training.losses import training_objective_spec
 from src.utils.checkpoint import create_checkpoint
 from src.utils.config import to_plain_config
 from src.utils.metrics import AverageMeter, compute_cumulative_score, compute_mae
@@ -85,7 +86,7 @@ class Trainer:
             import wandb
             self.wandb_run = wandb.init(
                 project=cfg.logging.wandb_project,
-                config=to_plain_config(cfg),
+                config={**to_plain_config(cfg), "training_objective": training_objective_spec(cfg.loss.type)},
                 name=cfg.model.name,
             )
 
@@ -296,7 +297,8 @@ class Trainer:
         fname = self.save_dir / f"best_{self.cfg.model.name}_epoch{epoch:03d}_mae{val_mae:.3f}.pt"
         torch.save(
             create_checkpoint(self.model, self.cfg, epoch=epoch, val_mae=val_mae,
-                              optimizer_state_dict=self.optimizer.state_dict()),
+                              optimizer_state_dict=self.optimizer.state_dict(),
+                              training_objective=training_objective_spec(self.cfg.loss.type)),
             fname,
         )
         self.best_ckpt_path = fname
