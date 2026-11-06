@@ -26,7 +26,8 @@ GPU RTX 5070 Laptop قابل مشاهده بود؛ دو تست AMP/CUDA واقع
 تست قدیمی L1 اصلاح شد (۱۲۸ برای گرادیان قابل‌نمایش، سپس optimizer step)؛ scale یا
 backoff خود Trainer تغییر نکرد. نتایج skip قبلی مربوط به sandbox محدود بودند؛ این شاهد
 عدد/گرادیان CUDA است، نه آموزش GPU کامل یا تکرارپذیری بین سخت‌افزارها.
-نتیجهٔ CI این مرحله پس از push باید جدا ثبت شود.
+**CI کامیت `ba4cf39` نیز موفق شد**: lint و Python 3.10/3.11/3.12؛
+[شاهد ریموت](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42267465335). اجرای CUDA ذکرشده محلی است؛ runnerهای CI مبتنی بر CPU هستند.
 
 چهار CSV tracked با hash یکسان باقی ماندند و partition تاریخی بدون تصاویر دوباره
 بررسی شد. `utkface_age_stratified_v2` فقط روی دادهٔ مصنوعی تولید/تأیید شد؛ protocol واقعی

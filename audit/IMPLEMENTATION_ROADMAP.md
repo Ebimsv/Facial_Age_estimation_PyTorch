@@ -42,7 +42,9 @@
   schema v1، aliasهای loss و default YAMLهای پیش از گزینهٔ deterministic سازگار ماندند.
 - شواهد: ۳۵ تست preparation، ۶ reproducibility، ۵ dataset، ۲۲ checkpoint، ۸۸ config،
   ۶ pipeline، ۲۴ loss، ۱۸ model، ۱۱ packaging و ۹ transform؛ در مجموع ۲۲۴ موفق.
-  CI برای دو suite جدید به‌روز شد؛ نتیجهٔ ریموت پس از push جداگانه بررسی می‌شود.
+  CI برای دو suite جدید به‌روز شد. **CI کامیت `ba4cf39` موفق شد**: lint و Python
+  3.10/3.11/3.12؛ [run تأییدشده](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42267465335).
+  اجرای CUDA محلی از CI مبتنی بر CPU مستقل است. کامیت اصلی پیاده‌سازی: `0cdc255`.
 - اجرای محدود sandbox، GPU را نمی‌دید و multiprocessing کامل نشد؛ suite کامل با دسترسی
   حافظهٔ اشتراکی اجرا شد و GPU **NVIDIA GeForce RTX 5070 Laptop GPU** را دید. هر دو تست
   AMP/CUDA واقعاً پاس شدند. در تست قدیمی L1، scale اولیهٔ ۶۵۵۳۶ می‌توانست گرادیان Linear

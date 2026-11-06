@@ -18,8 +18,9 @@
 تعداد محلی اکنون **۲۲۴ تست موفق** است، شامل repeatability با صفر/دو worker و spawn،
 manifest tampering، partition legacy و دو تست AMP واقعی روی RTX 5070 Laptop. دسترسی
 sandbox محدود قبلی GPU را پنهان می‌کرد؛ suite کامل با دسترسی لازم برای workerها اجرا شد.
-این شواهد جای benchmark دقت یا آموزش مدل واقعی را نمی‌گیرند. CI پس از push جداگانه
-بررسی می‌شود؛ CUDA/demo روی runner بدون قابلیت مربوط می‌توانند skip شوند.
+این شواهد جای benchmark دقت یا آموزش مدل واقعی را نمی‌گیرند. **CI کامیت `ba4cf39`
+موفق شد**: lint و Python 3.10/3.11/3.12؛ [run تأییدشده](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/actions/runs/42267465335).
+CUDA/demo روی runner بدون قابلیت مربوط می‌توانند skip شوند؛ شاهد CUDA بالا محلی است.
 
 نام‌گذاری روش، API قدیمی و schema inference حفظ شدند؛ checkpoint جدید provenance
 loader و محیط/flags را در `experiment_metadata` دارد. source/version مجهول صریح می‌ماند؛
