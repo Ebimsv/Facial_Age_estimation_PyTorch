@@ -12,7 +12,7 @@ python -m pip install .
 
 # Optional components:
 python -m pip install ".[dev]"          # pytest, build, linting tools
-python -m pip install ".[data]"         # optional Kaggle SDK; never installed by downloader
+python -m pip install ".[data]"         # optional Kaggle alternative; default Hugging Face needs no extra
 python -m pip install ".[demo,wandb]"   # Gradio and W&B
 ```
 
@@ -47,7 +47,9 @@ Use `train-age --print-config` to inspect settings without starting training.
 See [loss definitions and numerical policy](LOSSES.md) for the default L1+variance
 variant, raw regression training and modern inference bounds.
 See [data protocol and reproducibility](DATA_PROTOCOL.md) before preparing a fresh
-split directory; tracked historical CSVs are preserved.
+split directory; tracked historical CSVs are preserved. The default Hugging Face
+download uses separate typed `configs/download.yaml` settings, also bundled in
+wheels. No Hugging Face SDK or token is required.
 
 - The packaged default configuration is `src/configs/default.yaml` and is loaded
   through `importlib.resources`; an installed wheel needs no repository checkout.
@@ -140,3 +142,16 @@ results. Verification consists of the existing unit suite plus packaging regress
 tests, metadata validation, artifact content inspection, and Ruff. See the P1.1
 through P1.6 completion notes in [the implementation roadmap](../audit/IMPLEMENTATION_ROADMAP.md)
 for historical and current test counts and remaining scope.
+
+
+## Pinned Hugging Face download extension
+
+The default downloader now needs no optional SDK: `configs/download.yaml` pins a
+public mirror's repo/revision/file/size/SHA-256 separately from experiment configs.
+Its packaged copy is verified through an installed wheel outside checkout. The
+complete local suite now has **319 passing tests**; HTTP/TAR unit tests stay offline.
+A separate real 106,634,631-byte download passed its digest and produced 23,705
+valid-name images; fresh preparation and loader verification also succeeded locally.
+See [DOWNLOADING.md](DOWNLOADING.md) for the exact source, local protocol and limits.
+Kaggle remains explicitly selectable with `--source kaggle` and the optional `data`
+extra. No dependency install or model training occurred in this extension.

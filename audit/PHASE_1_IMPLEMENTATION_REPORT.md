@@ -3,14 +3,16 @@
 - تاریخ: ۲۰۲۶-۱۱-۰۶، Asia/Tehran
 - مخزن: [Facial_Age_estimation_PyTorch](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch)
 - دامنه: P1.1 تا P1.6 از [نقشهٔ راه](IMPLEMENTATION_ROADMAP.md)؛ مبنای ممیزی `a2c3a4e`
-- آخرین کامیت پیاده‌سازی این فاز: [`31216d5`](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/commit/31216d5)
+- کامیت پایان اولیهٔ P1.6: [`31216d5`](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/commit/31216d5)
+
+- تکمیل دانلود Hugging Face پیش از فاز دوم: [`b09a79a`](https://github.com/Ebimsv/Facial_Age_estimation_PyTorch/commit/b09a79a)؛ جزئیات جاری در بخش ۹.
 
 ## ۱. نتیجهٔ فاز اول
 
 هر شش گام برنامهٔ فاز اول در کد و تست پیاده‌سازی شدند. پروژه اکنون بستهٔ قابل نصب،
 config معتبر، قرارداد مشترک checkpoint/inference، گرادیان صحیح رگرسیون، loss با تعریف
 دقیق و محاسبات FP32، protocol قابل پیگیری داده و downloader با مقصد محافظت‌شده دارد.
-**۲۶۸ تست محلی موفق‌اند**؛ این تعداد شامل دو تست واقعی AMP/CUDA است. وضعیت CI گام
+در پایان اولیهٔ P1.6، **۲۶۸ تست محلی موفق بودند**؛ شامل دو تست واقعی AMP/CUDA. CI آن گام
 نهایی نیز برای کامیت `d821247` موفق شد؛ شاهد ریموت در انتهای سند آمده است.
 
 این فاز مدل تازه‌ای آموزش نداده، MAE یا latency جدیدی اندازه نگرفته و split تاریخی
@@ -168,8 +170,10 @@ flowchart LR
 flowchart TD
     START["Start"] --> MODE{"Local check or download?"}
     MODE -->|check-only| LOCAL["Local sanity check<br/>no SDK / no writes"]
-    MODE -->|download if absent| SDK["Optional Kaggle SDK<br/>authentication delegated"]
-    SDK --> STAGE["Private staging<br/>exact archive and layout validation"]
+    MODE -->|default download| HF["Pinned Hugging Face<br/>download.yaml + size + SHA-256"]
+    MODE -->|explicit alternative| SDK["Optional Kaggle SDK<br/>authentication delegated"]
+    HF --> STAGE["Private staging<br/>archive and layout validation"]
+    SDK --> STAGE
     STAGE --> READY["Reserve new image directory<br/>publish selected crops"]
     MANUAL["Existing/manual images"] --> PREP
     READY --> PREP["Prepare into NEW CSV directory<br/>labels, paths, decode option, byte hashes"]
@@ -203,8 +207,9 @@ checkpoint تاریخی هم مسیر profile صریح خودش را دارد؛ 
 
 محیط فعلی: Python 3.13.9، torch 2.9.0+cu128، torchvision 0.24.0+cu128، timm 1.0.28،
 GPU: NVIDIA GeForce RTX 5070 Laptop GPU؛ محیط Conda موجود تغییر نکرد. اجرای کامل برای
-shared memory و دسترسی device بیرون sandbox محدود انجام شد. هیچ dependency، وزن یا
-دیتاست نصب/دانلود نشد. metadata عمومی/source کد سرویس‌ها جدا از دریافت تصاویر بررسی شد.
+shared memory و دسترسی device بیرون sandbox محدود انجام شد. تا آن مقطع dependency، وزن یا
+دیتاست نصب/دانلود نشد. در تکمیل بخش ۹، دادهٔ واقعی Hugging Face دریافت و آماده شد؛
+dependency/وزن جدید نصب یا دانلود نشد و آموزش آغاز نشد.
 
 در P1.5، تست قدیمی CUDA فرض می‌کرد scale اولیهٔ ۶۵۵۳۶ همواره finite است؛ در Linear
 FP16 گرادیان می‌تواند overflow شود و خود GradScaler معمولاً backoff می‌کند. تست با
@@ -268,3 +273,45 @@ model card/مجوز انتشار وزن. اینها فاز اول را دوبا�
 این اجرا کد `31216d5` و گزارش همراه آن را پوشش می‌دهد؛ ثبت شاهد در کامیت مستندات
 پس از آن انجام می‌شود. runnerهای CI مبتنی بر CPU هستند؛ دو CUDA test ذکرشده در
 این گزارش محلی‌اند. دادهٔ واقعی یا اعتبارسنجی زندهٔ Kaggle از این نتیجه استنتاج نمی‌شود.
+
+
+## ۹. تکمیل پیش از فاز دوم — دانلود واقعی بدون Kaggle
+
+به درخواست کاربر، source `py97/UTKFace-Cropped` در کد و تنظیمات ثبت شد. کامیت
+`b09a79a`، `configs/download.yaml` و copy بسته‌شدهٔ آن، schema/loader مستقل دانلود،
+source پیش‌فرض Hugging Face، revision کامل ثابت و size/SHA-256 را اضافه می‌کند.
+تنظیمات دانلود وارد schema آزمایش یا checkpoint نمی‌شوند؛ سازگاری قبلی حفظ شد.
+`--config`، `--source`، `--print-config` و override صریح CLI موجودند؛ Kaggle اکنون opt-in است.
+
+دانلود با کتابخانهٔ استاندارد Python، بدون SDK/توکن/نصب انجام می‌شود. پاسخ کامل، تعداد
+بایت و digest پیش از extract کنترل می‌شوند؛ retry محدود برای خطای موقت، فایل partial
+همین run را از ابتدا می‌گیرد. fallback پنهان به Kaggle وجود ندارد. TAR path/type/size
+بررسی و فقط image منظم کپی می‌شود؛ لینک، sparse/device/FIFO و duplicate member رد می‌شوند.
+ترتیب offsetها هنگام استخراج حفظ می‌شود تا gzip هزاران بار از ابتدا بازخوانی نشود.
+حفاظت مقصد و cleanup P1.6 برای هر دو source حفظ شدند.
+
+**۳۱۹ تست کامل موفق**؛ ۵۰ تست جدید HF/HTTP/TAR/config و ۱۲ تست packaging در کل suite
+حاضرند. نصب wheel مستقل، bundled config، checkpointهای قبلی، CUDA و worker/spawn نیز
+پاس شدند. این تست‌های شبکه مصنوعی‌اند؛ CI توسعهٔ جدید پس از push جداگانه ثبت می‌شود.
+
+دانلود واقعی این بار اجرا شد: **۱۰۶۶۳۴۶۳۱ بایت** با SHA-256
+`2c0655397b498e81b82d685ee74bee8c2e4364a5897caf3afec6ea48929024a7` تطبیق یافت و
+**۲۳۷۰۵ تصویر با نام معتبر** در `dataset/utkcropped` باقی ماند. revision:
+`e80f21fb21fa3631380c3cb634b79be3ac2f4cba`. همهٔ فایل‌های لازم CSVهای تاریخی موجودند.
+
+آماده‌سازی واقعی با seed=42، فیلتر سن <85، decode کامل در بازه و hash بایتی در مسیر
+جدید و ignoredِ `dataset/protocol_hf_v1` انجام شد: ۴۳۶ age exclusion، ۷۵۰ duplicate
+exclusion در ۳۶۸ گروه و **۲۲۵۱۹ نمونهٔ پذیرفته**؛ train=۱۸۰۱۵، val=۲۲۵۲، test=۲۲۵۲.
+loader مشترک hash تصاویر/CSV و قرارداد اجتماع/master را دوباره تأیید کرد. manifest
+همین run، SHA-256 برابر `9d2d6f8dfd7b6127124ba88b2da3f5dc5b4183b1c2389ee8887cd25a01d3ce46`
+دارد؛ محیط/Git آن متعلق به این run است، نه hash جهانی همهٔ اجراهای آینده.
+
+**یافتهٔ واقعی تازه:** ۱۷۴ گروه تکرار بایتی بین splitهای تاریخی مشترک‌اند: ۹۰ train/test،
+۶۶ train/val و ۱۸ val/test. بنابراین CSV قدیمی فقط reference تاریخی می‌ماند و برای
+benchmark مستقل تازه مناسب نیست. protocol جدید اعضای همهٔ این گروه‌ها را حذف می‌کند؛
+near-duplicate/identity و صحت annotation هنوز unknown هستند. CSVهای تاریخی و وزن‌ها
+تغییر نکردند. تصاویر و protocol محلی در Git قرار نگرفتند و مدل تازه آموزش داده نشد.
+
+برای انتخاب همین داده در کار بعد، `data.csv_dir=dataset/protocol_hf_v1` و
+`data.root_dir=dataset/utkcropped` مصرف می‌شوند. گام برنامه همچنان **P2.1** برای atomic
+checkpoint/resume است؛ آماده‌بودن داده مجوز ادعای MAE یا تکمیل فاز دوم نیست.

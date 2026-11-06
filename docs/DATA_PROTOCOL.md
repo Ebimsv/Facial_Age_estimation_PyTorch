@@ -2,7 +2,8 @@
 
 ## Prepare a new protocol
 
-For an optional managed download or a read-only local dataset check, see
+For the default pinned Hugging Face download, the optional Kaggle alternative,
+or a read-only local dataset check, see
 [DOWNLOADING.md](DOWNLOADING.md). That check is a sanity check, separate from this
 preparation/split protocol; it does not regenerate CSVs.
 
@@ -157,3 +158,24 @@ P1.5 local verification on 2026-11-06: 224 tests passed in the existing Python
 3.13.9 / torch 2.9.0+cu128 environment, including both CUDA loss tests on an RTX
 5070 Laptop GPU. Reproducibility tests exercise CPU workers/spawn; they do not
 establish deterministic full GPU training. No dependencies or dataset were downloaded.
+
+
+## Real pinned-mirror preparation (Hugging Face extension)
+
+A complete local download of `py97/UTKFace-Cropped` at revision
+`e80f21fb21fa3631380c3cb634b79be3ac2f4cba` passed the configured archive size/SHA-256
+checks. Preparation in `dataset/protocol_hf_v1` used the existing policy: seed 42,
+age <85, full decode for in-range candidates, and exclusion of every member of
+exact-byte duplicate groups. Counts were 23,705 valid-name images at download,
+436 age exclusions, 750 duplicate exclusions in 368 groups, and 22,519 accepted
+samples (18,015 / 2,252 / 2,252). These outputs stay local under ignored `dataset/`.
+The common loader reverified all accepted image hashes and CSV/partition contracts.
+
+This newly available image evidence confirms **174 exact-byte duplicate groups
+span the committed historical CSV splits**: train/test 90, train/validation 66,
+validation/test 18. All historical CSV image paths exist in this mirror, and the
+CSV bytes remain unchanged. Their label/filename disjointness alone did not rule
+out image-content leakage. Use a fresh deduplicated protocol for new experiments;
+near-duplicate, identity, annotation accuracy and model performance are still
+unverified. The earlier P1.5 note about unverified real-data preparation is a
+historical record, superseded by this local preparation evidence only.

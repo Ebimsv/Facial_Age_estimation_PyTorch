@@ -6,7 +6,48 @@
 
 وضعیت: برنامهٔ مبنای ممیزی؛ پیشرفت اجرایی پس از تأیید کاربر در بخش زیر ثبت می‌شود.
 
-## ثبت پیشرفت جاری — P1.6 و پایان پیاده‌سازی فاز اول
+## ثبت پیشرفت جاری — تکمیل P1.6 با Hugging Face و دادهٔ واقعی
+
+در ۲۰۲۶-۱۱-۰۶، به درخواست کاربر و پیش از ورود به فاز دوم، کامیت `b09a79a` دانلود
+بدون Kaggle را اضافه کرد. **۳۱۹ تست کامل محلی موفق**، شامل ۵۰ تست HF/HTTP/TAR/config،
+۱۲ packaging، CUDA و worker/spawn؛ Ruff و whitespace موفق‌اند. dependency نصب نشد؛
+برخلاف snapshotهای قبلی، این بار دادهٔ واقعی دریافت و آماده شد. گام بعد همچنان **P2.1** است.
+
+- `configs/download.yaml` و `src/configs/download.yaml`، با schema مستقل
+  `src/utils/download_config.py` و loader در `src/configs`، source پیش‌فرض Hugging Face،
+  repo/revision/filename/size/SHA-256 را ثبت می‌کنند. دو YAML یکسان و داخل wheel هستند؛
+  config آزمایش/قرارداد checkpoint تغییر نکرده است. `--print-config` URL کامل را نشان می‌دهد.
+- CLI از `--config`، `--source`، `--dest` و override پوشه پشتیبانی می‌کند. Kaggle فقط
+  با انتخاب صریح است؛ برای HF نه SDK/توکن لازم است و نه fallback پنهان وجود دارد.
+- دانلود HTTP فقط پاسخ کامل با اندازه و digest ثابت را extract می‌کند؛ retry موقت محدود
+  و partial فایل همان run از ابتدا نوشته می‌شود. TAR unsafe/link/sparse/special/duplicate
+  و bounds رد می‌شوند؛ memberها در ترتیب offset استخراج می‌شوند تا gzip مکرر rewind نشود.
+  staging، no-overwrite و cleanup فایل متعلق به run از P1.6 حفظ شدند.
+- **آزمایش زندهٔ HF موفق:** revision `e80f21fb21fa3631380c3cb634b79be3ac2f4cba`،
+  ۱۰۶۶۳۴۶۳۱ بایت و digest `2c0655397b498e81b82d685ee74bee8c2e4364a5897caf3afec6ea48929024a7`
+  تطبیق یافتند؛ ۲۳۷۰۵ تصویر با نام معتبر در `dataset/utkcropped` باقی ماند. archive موقت پاک شد.
+- همهٔ مسیرهای تصویر در چهار CSV تاریخی موجودند. protocol واقعی در directory جدید و
+  ignoredِ `dataset/protocol_hf_v1` با seed42، سن<85، decode کامل نامزدهای داخل بازه
+  و hash ساخته شد: ۴۳۶ age exclusion، ۷۵۰ duplicate exclusion در ۳۶۸ گروه؛ ۲۲۵۱۹
+  پذیرفته با **۱۸۰۱۵ train / ۲۲۵۲ val / ۲۲۵۲ test**. loader دوباره تمام hash/partition
+  را تأیید کرد. هیچ مدل ساخته/آموزش داده نشد؛ CSV/وزن تاریخی تغییری نکرد.
+- **F07 اکنون شاهد واقعی دارد:** ۱۷۴ گروه بایتی بین splitهای تاریخی مشترک‌اند؛ ۹۰
+  train/test، ۶۶ train/val و ۱۸ val/test. آنها را برای baseline تازه استفاده نکنید؛
+  protocol جدید اعضای همهٔ گروه‌های تکراری را حذف کرده است. identity/near-duplicate و
+  annotation quality همچنان unknown هستند؛ هیچ MAE یا benchmark تازه تولید نشده است.
+- manifest محلی همین run: `9d2d6f8dfd7b6127124ba88b2da3f5dc5b4183b1c2389ee8887cd25a01d3ce46`.
+  محیط/Git در آن ثبت است؛ داده و خروجی protocol در Git یا distribution قرار نمی‌گیرند.
+  انتخاب دادهٔ آماده در کار بعد: `data.csv_dir=dataset/protocol_hf_v1`؛ root پیش‌فرض تصاویر
+  درست است. تنظیمات منبع هرگز به‌تنهایی provenance یک پوشهٔ cache قدیمی را اثبات نمی‌کنند.
+- مستندات دانلود/README/داده/نصب و [گزارش فاز اول](PHASE_1_IMPLEMENTATION_REPORT.md)
+  (بخش ۹ و فلوچارت) به‌روز شدند. تست پایهٔ CI فقط fixtureهای HTTP/TAR دارد؛ نتیجهٔ
+  ریموت این توسعه پس از push جدا ثبت می‌شود. دانلود زندهٔ Kaggle همچنان تأیید نشده است.
+
+آماده‌بودن داده جای atomic checkpoint/resume را نمی‌گیرد؛ P2.1 پیش از آموزش طولانی
+باقی است. ثبت‌های بعدی snapshot تاریخی‌اند؛ عبارت «دادهٔ واقعی دریافت نشد» در آنها
+به زمان همان مرحله اشاره دارد و با آزمایش واقعی جدید اشتباه نشود.
+
+## ثبت پیشرفت تاریخی — P1.6 و پایان پیاده‌سازی فاز اول
 
 در ۲۰۲۶-۱۱-۰۶، P1.6 با کامیت `31216d5` پیاده‌سازی شد؛ **۲۶۸ تست کامل موفق**، Ruff و
 whitespace موفق‌اند. پس از آخرین اصلاح پیام layout، ۴۴ تست downloader مجدداً موفق شدند.

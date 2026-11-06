@@ -10,7 +10,33 @@
 وضعیت فعلی و شواهد اجرای آن در [ثبت پیشرفت نقشهٔ راه](IMPLEMENTATION_ROADMAP.md)
 آمده است. یافته‌های تاریخی این سند به‌عنوان باگ‌های بازِ نسخهٔ جدید تفسیر نشوند.
 
-## وضعیت جاری پس از P1.6 — ۲۰۲۶-۱۱-۰۶
+## وضعیت جاری — Hugging Face و شواهد دادهٔ واقعی، ۲۰۲۶-۱۱-۰۶
+
+| موضوع | وضعیت جاری | شاهد و مرز نتیجه |
+|---|---|---|
+| منبع بدون Kaggle / F21 | Complete در کد، fixture و integration محلی HF | `configs/download.yaml`، schema مستقل، `download_from_huggingface`، digest/size پیش از TAR، CLI/provider override؛ کامیت `b09a79a`. Kaggle live هنوز unknown است |
+| F07 — نشت بایتی تاریخی | Confirmed؛ برای historical split نیازمند بهبود | از ۳۶۸ گروه تکراری در سن<85، ۱۷۴ گروه بین CSVهای تاریخی مشترک‌اند (train/test90، train/val66، val/test18). نام‌های disjoint، absence of content leakage را ثابت نمی‌کردند |
+| F06/F07 — protocol جدید | Complete برای دادهٔ محلی و byte guard | `dataset/protocol_hf_v1` با ۲۲۵۱۹ نمونه، decode داخل بازه، exclusion تمام اعضای تکرار، manifest و تأیید مجدد loader؛ identity/near-duplicate و صحت annotation unknown هستند |
+| F19 | Partial برای کل پروژه | ۳۱۹ تست کامل موفق، از جمله ۵۰ HF و ۱۲ packaging؛ train/resume و ONNX matrix همچنان بازند |
+
+آزمایش واقعی: دریافت ۱۰۶۶۳۴۶۳۱ بایت از mirror ثابت با SHA-256
+`2c0655397b498e81b82d685ee74bee8c2e4364a5897caf3afec6ea48929024a7` موفق شد؛
+۲۳۷۰۵ تصویر معتبرنام در `dataset/utkcropped` ذخیره شد. همهٔ تصاویر referenced در
+CSVهای قدیمی موجودند. حذف ۴۳۶ مورد به‌علت سن و ۷۵۰ مورد در ۳۶۸ گروه بایتی، ۲۲۵۱۹
+نمونه باقی گذاشت؛ split واقعی ۱۸۰۱۵/۲۲۵۲/۲۲۵۲ با seed42 و سن<85 است. loader hash تمام
+نمونه‌های پذیرفته، hash CSV و اتحاد/label با master را تأیید کرد. فایل‌های تاریخی عیناً
+حفظ شدند؛ baseline تازه باید protocol جدید را انتخاب کند. داده/manifest تولیدی ignored هستند.
+
+Python 3.13.9 / torch 2.9.0+cu128؛ **۳۱۹ تست محلی موفق**، دو CUDA و worker/spawn،
+Ruff/whitespace موفق. هیچ dependency نصب یا مدل آموزش داده نشد؛ آزمون زندهٔ HF جدا از
+تست‌های مصنوعی CI است. نتیجهٔ CI این توسعه پس از push ثبت می‌شود. تنظیمات دانلود
+از training/checkpoint جدا هستند؛ نسخهٔ کامل و digest اجباری و fallback خودکار ممنوع است.
+
+راهنما: [DOWNLOADING.md](../docs/DOWNLOADING.md) و بخش ۹
+[گزارش فاز اول](PHASE_1_IMPLEMENTATION_REPORT.md). atomic save/resume، benchmark و
+نشت هویتی هنوز تأیید نشده‌اند. گام بعد **P2.1** است؛ بخش‌های پایین تاریخی‌اند.
+
+## وضعیت تاریخی پس از P1.6 — ۲۰۲۶-۱۱-۰۶
 
 | یافته | وضعیت جاری | شاهد و مرز تأیید |
 |---|---|---|
