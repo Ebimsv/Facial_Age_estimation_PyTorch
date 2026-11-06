@@ -26,11 +26,10 @@ from sklearn.model_selection import train_test_split
 from src.configs import load_config
 from src.data.validation import (
     COLUMNS,
-    ETHNICITY_MAP,
-    GENDER_MAP,
     PROTOCOL,
     SPLIT_FILES,
     image_path,
+    parse_utkface_name,
     sha256_file,
     validate_partition,
     validate_table,
@@ -108,13 +107,9 @@ def scan_images(dataset_dir: Path, max_age: int, min_age: int = 0, *, check_deco
         except ValueError as exc:
             reason = str(exc)
         if reason is None:
-            parts = entry.name.split("_")
             try:
-                if len(parts) < 4 or not parts[3].split(".")[0]:
-                    raise ValueError
-                age, gender, ethnicity = map(int, parts[:3])
-                if age < 0 or gender not in GENDER_MAP or ethnicity not in ETHNICITY_MAP:
-                    raise ValueError
+                row = parse_utkface_name(entry.name)
+                age = row["age"]
             except ValueError:
                 reason = "invalid_filename_or_labels"
         if reason is None and not min_age <= age < max_age:
@@ -133,8 +128,7 @@ def scan_images(dataset_dir: Path, max_age: int, min_age: int = 0, *, check_deco
         if reason is not None:
             rejected.append({"image_name": entry.name, "reason": reason})
             continue
-        rows.append({"image_name": entry.name, "age": age, "gender": GENDER_MAP[gender],
-                     "ethnicity": ETHNICITY_MAP[ethnicity]})
+        rows.append(row)
     groups = {}
     for name, digest in hashes.items():
         groups.setdefault(digest, []).append(name)

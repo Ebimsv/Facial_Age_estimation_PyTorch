@@ -1,218 +1,267 @@
 #!/usr/bin/env python3
-"""Download the UTKFace dataset from Kaggle.
+"""Download UTKFace into a protected destination, or inspect it without network access.
 
-Usage
------
-  python scripts/download_data.py                      # download to dataset/utkcropped
-  python scripts/download_data.py --dest my/path       # custom destination
-  python scripts/download_data.py --check-only         # just verify existing data
+  python scripts/download_data.py --check-only
+  python scripts/download_data.py --dest dataset --dataset-version 1
+  python scripts/download_data.py --image-subdir UTKFace
 
-Setup (one-time)
-----------------
-1. Create a free Kaggle account at https://www.kaggle.com
-2. Go to https://www.kaggle.com/settings  →  scroll to "API"  →  "Create New Token"
-3. This downloads  kaggle.json  to your Downloads folder
-4. Move it to the correct location:
-
-   Linux / macOS:
-       mkdir -p ~/.kaggle && mv ~/Downloads/kaggle.json ~/.kaggle/
-       chmod 600 ~/.kaggle/kaggle.json
-
-   Windows:
-       Move kaggle.json to  C:\\Users\\<username>\\.kaggle\\kaggle.json
-
-5. Run this script:
-       python scripts/download_data.py
+Install the optional dependency yourself with: python -m pip install ".[data]"
+Authentication is delegated to Kaggle; see https://github.com/Kaggle/kaggle-cli
+The script never installs packages or inspects credential contents.
 """
 
 from __future__ import annotations
 
 import argparse
-import os
+import importlib
+import shutil
+import stat
 import sys
+import tempfile
 import zipfile
-from pathlib import Path
-
-# ── Config ───────────────────────────────────────────────────────────────────
-KAGGLE_DATASET = "jangedoo/utkface-new"
-EXPECTED_SUBFOLDER = "utkcropped"           # the folder we actually use
-MIN_IMAGES = 18_000                          # sanity-check threshold
-IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
+from contextlib import redirect_stderr, redirect_stdout
+from pathlib import Path, PurePosixPath
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from PIL import Image
+
+from src.data.validation import IMAGE_SUFFIXES, image_path, parse_utkface_name
+
+KAGGLE_DATASET = "jangedoo/utkface-new"
+ARCHIVE_NAME = "utkface-new.zip"
+EXPECTED_SUBFOLDER = "utkcropped"
 DEFAULT_DEST = PROJECT_ROOT / "dataset"
+MIN_IMAGES = 18_000
+DECODE_SAMPLE = 5
+MAX_IMAGE_BYTES = 32 * 1024**2
+MAX_ARCHIVE_BYTES = 8 * 1024**3
+MAX_MEMBERS = 200_000
 
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+class DownloadError(RuntimeError):
+    """An actionable error safe to display without SDK exception details."""
 
-def count_images(folder: Path) -> int:
-    return sum(1 for f in folder.iterdir() if f.suffix.lower() in IMAGE_EXTS)
+
+class _DiscardOutput:
+    def write(self, value):
+        return len(value)
+
+    def flush(self):
+        pass
+
+
+def load_kaggle_api():
+    """Import the optional SDK only for a requested download; suppress its auth output."""
+    try:
+        with redirect_stdout(_DiscardOutput()), redirect_stderr(_DiscardOutput()):
+            return importlib.import_module("kaggle").api
+    except ImportError:
+        raise DownloadError('Kaggle is unavailable. Install it explicitly: python -m pip install ".[data]"') from None
+    except Exception:
+        raise DownloadError("Kaggle initialization/authentication failed. Configure credentials using the official "
+                            "Kaggle guide; credential values and SDK details are not displayed.") from None
+
+
+def inspect_images(folder: Path, *, minimum: int | None = None) -> int:
+    """Check valid UTK filenames/paths and decode up to five images; not a full data audit."""
+    minimum = MIN_IMAGES if minimum is None else minimum
+    if not folder.is_dir() or folder.is_symlink():
+        raise DownloadError(f"Dataset image directory is missing or is a symlink: {folder}")
+    valid = []
+    for path in sorted(folder.iterdir()):
+        if path.suffix.lower() not in IMAGE_SUFFIXES:
+            continue
+        try:
+            image_path(folder, path.name)
+            parse_utkface_name(path.name)
+        except ValueError:
+            continue
+        valid.append(path)
+    if len(valid) < minimum:
+        raise DownloadError(f"Dataset is incomplete: {len(valid)} valid image names in {folder}; expected >= {minimum}.")
+    for path in valid[:DECODE_SAMPLE]:
+        try:
+            with Image.open(path) as image:
+                image.convert("RGB").load()
+        except (OSError, ValueError, Image.DecompressionBombError):
+            raise DownloadError(f"Dataset sample could not be decoded: {path.name}") from None
+    return len(valid)
 
 
 def verify_dataset(dest: Path) -> bool:
-    """Return True if a valid UTKFace dataset already exists at dest."""
-    target = dest / EXPECTED_SUBFOLDER
-    if not target.exists():
+    """Read-only compatibility check of dest/utkcropped; never imports Kaggle."""
+    try:
+        count = inspect_images(dest / EXPECTED_SUBFOLDER)
+    except (DownloadError, OSError) as exc:
+        print(f"Dataset check failed: {exc}")
         return False
-    n = count_images(target)
-    if n < MIN_IMAGES:
-        print(f"  ⚠  Found only {n} images in '{target}' (expected ≥ {MIN_IMAGES}).")
-        return False
-    print(f"  ✓  Dataset already present: {n:,} images in '{target}'")
+    print(f"Dataset ready: {count:,} valid image names at {dest / EXPECTED_SUBFOLDER}")
     return True
 
 
-def check_kaggle_credentials() -> bool:
-    """Return True if kaggle.json is present and readable."""
-    cred = Path.home() / ".kaggle" / "kaggle.json"
-    if cred.exists():
-        return True
-    # Also accept KAGGLE_USERNAME + KAGGLE_KEY env vars
-    if os.environ.get("KAGGLE_USERNAME") and os.environ.get("KAGGLE_KEY"):
-        return True
-    return False
+def _relative_subdir(value: str) -> str:
+    if value == ".":
+        return value
+    path = PurePosixPath(value)
+    if not value or "\x00" in value or path.is_absolute() or path.as_posix() != value or any(
+        item in {".", ".."} or ":" in item or "\\" in item for item in path.parts
+    ):
+        raise ValueError("--image-subdir must be a canonical relative archive directory (or .)")
+    return value
 
 
-def print_setup_instructions() -> None:
-    print("""
-╔══════════════════════════════════════════════════════════════════════════╗
-║              Kaggle API credentials not found                           ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║                                                                          ║
-║  One-time setup (takes ~2 minutes):                                      ║
-║                                                                          ║
-║  1. Create a free Kaggle account at  https://www.kaggle.com              ║
-║                                                                          ║
-║  2. Go to  https://www.kaggle.com/settings                               ║
-║     Scroll to the "API" section → click  "Create New API Token"          ║
-║     This downloads  kaggle.json                                           ║
-║                                                                          ║
-║  3. Move it to the right place:                                           ║
-║                                                                          ║
-║     Linux / macOS:                                                        ║
-║       mkdir -p ~/.kaggle                                                  ║
-║       mv ~/Downloads/kaggle.json ~/.kaggle/kaggle.json                   ║
-║       chmod 600 ~/.kaggle/kaggle.json                                    ║
-║                                                                          ║
-║     Windows (PowerShell):                                                 ║
-║       New-Item -ItemType Directory -Force "$HOME\\.kaggle"               ║
-║       Move-Item "$HOME\\Downloads\\kaggle.json" "$HOME\\.kaggle\\"       ║
-║                                                                          ║
-║  4. Run this script again:                                                ║
-║       python scripts/download_data.py                                    ║
-║                                                                          ║
-║  Alternative — set environment variables instead of kaggle.json:         ║
-║     export KAGGLE_USERNAME=your_username                                  ║
-║     export KAGGLE_KEY=your_api_key                                        ║
-║                                                                          ║
-╚══════════════════════════════════════════════════════════════════════════╝
-""")
+def select_archive_images(archive: zipfile.ZipFile, image_subdir: str | None = None) -> list[zipfile.ZipInfo]:
+    """Validate archive paths/types first; select one flat cropped-image directory."""
+    members = archive.infolist()
+    if len(members) > MAX_MEMBERS or sum(info.file_size for info in members) > MAX_ARCHIVE_BYTES:
+        raise DownloadError("Archive exceeds the supported member-count/uncompressed-size limits.")
+    groups, seen = {}, set()
+    for info in members:
+        name = info.orig_filename
+        relative = PurePosixPath(name.rstrip("/"))
+        if (not name or "\x00" in name or "\\" in name or relative.is_absolute()
+                or relative.as_posix() != name.rstrip("/")
+                or any(part in {".", ".."} or ":" in part for part in relative.parts)):
+            raise DownloadError("Archive contains an unsafe or noncanonical path.")
+        mode = stat.S_IFMT(info.external_attr >> 16)
+        if mode not in {0, stat.S_IFREG, stat.S_IFDIR}:
+            raise DownloadError("Archive contains a symlink or unsupported special file.")
+        if relative in seen:
+            raise DownloadError("Archive contains duplicate member paths.")
+        seen.add(relative)
+        if info.is_dir():
+            continue
+        if info.flag_bits & 1:
+            raise DownloadError("Encrypted archives are unsupported.")
+        try:
+            parse_utkface_name(relative.name)
+        except ValueError:
+            continue
+        if info.file_size > MAX_IMAGE_BYTES:
+            raise DownloadError("An image exceeds the supported uncompressed-size limit.")
+        groups.setdefault(relative.parent.as_posix(), []).append(info)
+    if image_subdir is not None:
+        selected = _relative_subdir(image_subdir)
+        if len(groups.get(selected, [])) < MIN_IMAGES:
+            raise DownloadError("Selected --image-subdir does not contain enough valid UTKFace image names.")
+    else:
+        candidates = sorted(parent for parent, items in groups.items() if len(items) >= MIN_IMAGES and
+                            (parent == "." or PurePosixPath(parent).name.lower() in {"utkface", "utkcropped"}))
+        if len(candidates) != 1:
+            choices = [parent for parent, items in sorted(groups.items()) if len(items) >= MIN_IMAGES]
+            raise DownloadError("Cropped-image layout is missing or ambiguous. Inspect the archive layout and pass "
+                                f"--image-subdir explicitly; no directory is guessed. Qualifying directories: {choices[:8]!r}")
+        selected = candidates[0]
+    return sorted(groups[selected], key=lambda info: info.filename)
 
 
-def download_from_kaggle(dest: Path) -> None:
-    """Download and extract the UTKFace dataset using the Kaggle API."""
+def extract_images(archive_path: Path, output: Path, image_subdir: str | None = None) -> None:
+    """Extract only validated selected image members, never arbitrary archive contents."""
     try:
-        import kaggle  # noqa: PLC0415  (imported here to give better error msg)
-    except ImportError:
-        print("  Installing kaggle library...")
-        import subprocess  # noqa: PLC0415
-        subprocess.run([sys.executable, "-m", "pip", "install", "kaggle", "-q"], check=True)
-        import kaggle  # noqa: PLC0415
+        with zipfile.ZipFile(archive_path) as archive:
+            members = select_archive_images(archive, image_subdir)
+            output.mkdir()
+            for info in members:
+                with archive.open(info) as source, (output / PurePosixPath(info.filename).name).open("xb") as target:
+                    shutil.copyfileobj(source, target, length=1024 * 1024)
+    except DownloadError:
+        raise
+    except (OSError, ValueError, RuntimeError, zipfile.BadZipFile, NotImplementedError):
+        raise DownloadError("Archive reading/extraction failed; no dataset was published.") from None
 
+
+def publish_images(source: Path, target: Path) -> None:
+    """Reserve the target exclusively; roll back only files created by this call on failure."""
+    try:
+        target.mkdir()  # A preexisting file, directory or symlink is never replaced.
+    except FileExistsError:
+        raise DownloadError("Destination already exists; it will not be overwritten. Choose a fresh --dest.") from None
+    created = []
+    try:
+        for path in sorted(source.iterdir()):
+            destination = target / path.name
+            with path.open("rb") as stream, destination.open("xb") as output:
+                created.append(destination)
+                shutil.copyfileobj(stream, output, length=1024 * 1024)
+    except BaseException:
+        for path in reversed(created):
+            path.unlink(missing_ok=True)
+        # rmdir never deletes another process's unexpected files.
+        try:
+            target.rmdir()
+        except OSError:
+            pass
+        raise
+
+
+def download_from_kaggle(dest: Path, *, dataset_version: int | None = None,
+                         image_subdir: str | None = None, api=None) -> Path:
+    """Download into this run's staging area, validate, then copy into a reserved new target."""
+    if dataset_version is not None and (type(dataset_version) is not int or dataset_version < 1):
+        raise DownloadError("--dataset-version must be a positive integer")
+    if image_subdir is not None:
+        _relative_subdir(image_subdir)
+    target = dest / EXPECTED_SUBFOLDER
+    if target.exists() or target.is_symlink():
+        raise DownloadError("Destination already exists; it will not be overwritten. Choose a fresh --dest.")
+    api = load_kaggle_api() if api is None else api
+    try:
+        with redirect_stdout(_DiscardOutput()), redirect_stderr(_DiscardOutput()):
+            api.authenticate()
+    except Exception:
+        raise DownloadError("Kaggle authentication failed. Configure the SDK credentials and retry; "
+                            "credential values and SDK details are not displayed.") from None
+    reference = KAGGLE_DATASET + (f"/{dataset_version}" if dataset_version is not None else "")
     dest.mkdir(parents=True, exist_ok=True)
-    zip_path = dest / "utkface-new.zip"
+    with tempfile.TemporaryDirectory(prefix=".utkface-download-", dir=dest) as temporary:
+        staging = Path(temporary)
+        try:
+            with redirect_stdout(_DiscardOutput()), redirect_stderr(_DiscardOutput()):
+                api.dataset_download_files(reference, path=str(staging), unzip=False, quiet=True)
+        except Exception:
+            raise DownloadError("Kaggle download failed. Check network access, authentication and dataset/version "
+                                "availability; SDK exception details are not displayed.") from None
+        archive = staging / ARCHIVE_NAME
+        if not archive.is_file() or archive.is_symlink():
+            raise DownloadError(f"Expected archive {ARCHIVE_NAME} was not produced by Kaggle.")
+        extracted = staging / "validated-images"
+        extract_images(archive, extracted, image_subdir)
+        inspect_images(extracted)
+        try:
+            publish_images(extracted, target)
+        except DownloadError:
+            raise
+        except OSError:
+            raise DownloadError("Publishing the validated dataset failed; existing destination files were preserved.") from None
+    return target
 
-    print(f"\n  Downloading '{KAGGLE_DATASET}' from Kaggle...")
-    print(f"  Destination: {dest}")
-    print("  (This may take a few minutes — the dataset is ~400 MB)\n")
-
-    kaggle.api.authenticate()
-    kaggle.api.dataset_download_files(
-        KAGGLE_DATASET,
-        path=str(dest),
-        unzip=False,
-        quiet=False,
-    )
-
-    # Find the downloaded zip (Kaggle names it after the dataset slug)
-    zips = list(dest.glob("*.zip"))
-    if not zips:
-        raise RuntimeError(f"No zip file found in '{dest}' after download.")
-    zip_path = zips[0]
-
-    print(f"\n  Extracting {zip_path.name}...")
-    with zipfile.ZipFile(zip_path, "r") as zf:
-        members = zf.namelist()
-        total = len(members)
-        for i, member in enumerate(members, 1):
-            zf.extract(member, dest)
-            if i % 2000 == 0 or i == total:
-                print(f"    {i:>6}/{total} files extracted", end="\r")
-    print()
-
-    zip_path.unlink()
-    print("  ✓  Extraction complete. Zip file removed.")
-
-
-# ── Main ─────────────────────────────────────────────────────────────────────
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(
-        description="Download the UTKFace dataset",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__,
-    )
-    p.add_argument(
-        "--dest",
-        type=str,
-        default=str(DEFAULT_DEST),
-        help=f"Download destination (default: {DEFAULT_DEST})",
-    )
-    p.add_argument(
-        "--check-only",
-        action="store_true",
-        help="Only verify that the dataset exists; do not download",
-    )
-    return p.parse_args()
+    parser = argparse.ArgumentParser(description="Download or locally check UTKFace", epilog=__doc__)
+    parser.add_argument("--dest", type=Path, default=DEFAULT_DEST, help="Parent directory; images go into <dest>/utkcropped")
+    parser.add_argument("--check-only", action="store_true", help="Read-only local check; no Kaggle import/auth/download/install")
+    parser.add_argument("--dataset-version", type=int, default=None, help="Optional positive Kaggle version number; omitted means latest")
+    parser.add_argument("--image-subdir", type=_relative_subdir, default=None, help="Explicit relative image folder inside archive, or . for root")
+    return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    dest = Path(args.dest)
-
-    print("\n🔍 Checking for existing dataset...")
-    if verify_dataset(dest):
-        utk_path = dest / EXPECTED_SUBFOLDER
-        n = count_images(utk_path)
-        print(f"\n✅ Dataset ready at: {utk_path}")
-        print(f"   {n:,} images found — no download needed.\n")
-        print("Next step:")
-        print(f"  python scripts/prepare_data.py --dataset-dir {utk_path} --plot\n")
-        return
-
     if args.check_only:
-        print("\n❌ Dataset not found. Run without --check-only to download.\n")
-        sys.exit(1)
-
-    # ── Download ──────────────────────────────────────────────────────────────
-    if not check_kaggle_credentials():
-        print_setup_instructions()
-        sys.exit(1)
-
-    download_from_kaggle(dest)
-
-    # ── Verify ────────────────────────────────────────────────────────────────
-    print("\n🔍 Verifying download...")
-    if not verify_dataset(dest):
-        print("\n❌ Verification failed. The download may be incomplete.")
-        print(f"   Please check the contents of: {dest}")
-        sys.exit(1)
-
-    utk_path = dest / EXPECTED_SUBFOLDER
-    n = count_images(utk_path)
-    print(f"\n✅ UTKFace dataset ready: {n:,} images at '{utk_path}'")
-    print("\nNext step:")
-    print(f"  python scripts/prepare_data.py --dataset-dir {utk_path} --plot\n")
+        if not verify_dataset(args.dest):
+            raise SystemExit(1)
+        return
+    if (args.dest / EXPECTED_SUBFOLDER).exists() and verify_dataset(args.dest):
+        return
+    try:
+        target = download_from_kaggle(args.dest, dataset_version=args.dataset_version, image_subdir=args.image_subdir)
+    except (DownloadError, OSError, ValueError) as exc:
+        print(f"Download failed: {exc}", file=sys.stderr)
+        raise SystemExit(1) from None
+    print(f"Dataset ready at {target}. Run preparation into a fresh CSV directory:")
+    print(f"  python scripts/prepare_data.py --dataset-dir '{target}' --csv-dir csv_dataset/protocol_v2 --check-decode")
 
 
 if __name__ == "__main__":

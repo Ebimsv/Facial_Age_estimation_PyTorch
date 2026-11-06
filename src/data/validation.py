@@ -17,6 +17,20 @@ SPLIT_FILES = {"train": "train_set.csv", "val": "valid_set.csv", "test": "test_s
 PROTOCOL = "utkface_age_stratified_v2"
 
 
+def parse_utkface_name(name: str) -> dict:
+    """Parse a flat UTKFace filename without guessing unknown demographic labels."""
+    parts = name.split("_")
+    try:
+        if Path(name).suffix.lower() not in IMAGE_SUFFIXES or len(parts) < 4 or not parts[3].split(".")[0]:
+            raise ValueError
+        age, gender, ethnicity = map(int, parts[:3])
+        if age < 0 or gender not in GENDER_MAP or ethnicity not in ETHNICITY_MAP:
+            raise ValueError
+    except (ValueError, TypeError):
+        raise ValueError("invalid_filename_or_labels") from None
+    return {"image_name": name, "age": age, "gender": GENDER_MAP[gender], "ethnicity": ETHNICITY_MAP[ethnicity]}
+
+
 def sha256_file(path: str | Path) -> str:
     digest = hashlib.sha256()
     with Path(path).open("rb") as stream:

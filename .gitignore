@@ -67,5 +67,9 @@ htmlcov/
 coverage.xml
 
 # ── Secrets ──────────────────────────────────────────────────────────────────
+kaggle.json
+kaggle*.json
+access_token
+.kaggle/
 .env.local
 secrets.yaml

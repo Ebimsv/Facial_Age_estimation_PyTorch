@@ -54,6 +54,9 @@ def distribution(tmp_path_factory):
         "requirements.txt", "requirements-dev.txt",
     ]:
         shutil.copy2(ROOT / name, source / name)
+    # Synthetic canaries only; never copy or read the user's real credentials.
+    (source / "src/configs/kaggle-backup.json").write_text("DUMMY-NOT-A-CREDENTIAL")
+    (source / "access_token").write_text("DUMMY-NOT-A-CREDENTIAL")
     dist = work / "dist"
     _run(
         [sys.executable, "-m", "build", "--no-isolation", "--sdist", "--wheel",
@@ -119,7 +122,7 @@ def test_artifacts_include_only_runtime_packages_and_resource(distribution):
             roots = {name.split("/")[0] for name in names}
             assert all(root in {"src", "scripts", "demo"} or root.endswith(".dist-info")
                        for root in roots)
-            assert not any(name.endswith((".pt", ".pth", "kaggle.json")) for name in names)
+            assert not any(name.endswith((".pt", ".pth", "kaggle.json", "kaggle-backup.json", "access_token")) for name in names)
             metadata = Parser().parsestr(archive.read(next(
                 name for name in names if name.endswith(".dist-info/METADATA")
             )).decode())
@@ -131,6 +134,13 @@ def test_artifacts_include_only_runtime_packages_and_resource(distribution):
             core = {str(Requirement(line)) for line in metadata.get_all("Requires-Dist")
                     if Requirement(line).marker is None}
             assert core == requirements
+            assert "data" in metadata.get_all("Provides-Extra")
+            optional_kaggle = [Requirement(line) for line in metadata.get_all("Requires-Dist")
+                               if Requirement(line).name == "kaggle"]
+            assert len(optional_kaggle) == 1
+            assert optional_kaggle[0].marker is not None
+            assert optional_kaggle[0].marker.evaluate({"extra": "data"})
+            assert not optional_kaggle[0].marker.evaluate({"extra": ""})
             entries = configparser.ConfigParser()
             entries.read_string(archive.read(next(
                 name for name in names if name.endswith(".dist-info/entry_points.txt")
@@ -141,7 +151,7 @@ def test_artifacts_include_only_runtime_packages_and_resource(distribution):
         assert any(name.endswith("/src/configs/default.yaml") for name in names)
         assert any(name.endswith("/configs/default.yaml") for name in names)
         assert any(name.endswith("/docs/INSTALLATION.md") for name in names)
-        assert not any(name.endswith((".pt", ".pth", "kaggle.json")) for name in names)
+        assert not any(name.endswith((".pt", ".pth", "kaggle.json", "kaggle-backup.json", "access_token")) for name in names)
 
 
 @pytest.mark.parametrize("entrypoint", ["train-age", "eval-age", "export-age"])

@@ -11,4 +11,4 @@ prune pics
 prune figs
 prune img_test
 prune audit
-global-exclude kaggle.json *.pt *.pth *.onnx *.jit *.py[cod]
+global-exclude kaggle*.json access_token *.pt *.pth *.onnx *.jit *.py[cod]
