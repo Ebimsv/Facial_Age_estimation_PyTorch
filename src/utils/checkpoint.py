@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import os
 import pickle
+import tempfile
 import warnings
 from dataclasses import dataclass
 from importlib.resources import files
@@ -16,7 +18,7 @@ from omegaconf import OmegaConf
 from src.data.transforms import get_test_transforms
 from src.models import AgeEstimationModel
 from src.models.legacy import LegacyResNet50
-from src.training.losses import L1AgeLoss, get_loss_fn
+from src.training.losses import L1AgeLoss, get_loss_fn, training_objective_spec
 from src.utils.config import DISTRIBUTION_LOSSES, merge_config, to_plain_config
 
 SCHEMA_VERSION = 1
@@ -50,7 +52,7 @@ def _contract(cfg, architecture: str = "current") -> dict[str, Any]:
 
 
 def create_checkpoint(model, cfg, *, epoch=None, val_mae=None, optimizer_state_dict=None,
-                      training_objective=None, experiment_metadata=None) -> dict:
+                      training_objective=None, experiment_metadata=None, training_state=None) -> dict:
     """Build a plain versioned artifact; training/resume state is optional."""
     cfg = merge_config(cfg)
     architecture = "legacy_resnet50_v1" if isinstance(model, LegacyResNet50) else "current"
@@ -67,6 +69,8 @@ def create_checkpoint(model, cfg, *, epoch=None, val_mae=None, optimizer_state_d
         artifact["training_objective"] = training_objective
     if experiment_metadata is not None:
         artifact["experiment_metadata"] = experiment_metadata
+    if training_state is not None:
+        artifact["training_state"] = training_state
     if optimizer_state_dict is not None:
         artifact["optimizer_state_dict"] = optimizer_state_dict
     return artifact
@@ -99,6 +103,8 @@ def _runtime_config(cfg, config_path, runtime_overrides):
         template = OmegaConf.to_container(patch, resolve=False)
         reference = OmegaConf.to_container(defaults, resolve=False)
         for candidate_template in (template, reference):
+            if isinstance(candidate_template.get("logging"), dict):
+                candidate_template["logging"].setdefault("wandb_mode", "online")
             if isinstance(candidate_template.get("training"), dict):
                 candidate_template["training"].setdefault("deterministic", False)
             if isinstance(candidate_template.get("loss"), dict) and candidate_template["loss"].get("type") in DISTRIBUTION_LOSSES:
@@ -247,3 +253,43 @@ def load_checkpoint_args(args, **kwargs) -> LoadedCheckpoint:
     return load_checkpoint(args.checkpoint, args.config, device=args.device,
                            legacy_resnet50=args.legacy_resnet50,
                            trust_legacy_pickle=args.trust_legacy_pickle, **kwargs)
+
+
+def atomic_save(artifact: dict, path: str | Path) -> None:
+    """Flush a same-directory temporary file, then atomically replace one checkpoint."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "wb") as stream:
+            torch.save(artifact, stream)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
+
+
+def load_training_checkpoint(path: str | Path) -> dict:
+    """Read a restricted, explicitly resumable artifact; legacy inference files are not resumes."""
+    try:
+        artifact = torch.load(path, map_location="cpu", weights_only=True)
+    except pickle.UnpicklingError as exc:
+        raise ValueError("Resume requires a restricted-loadable P2.1 training checkpoint") from exc
+    if not isinstance(artifact, dict) or type(artifact.get("schema_version")) is not int or artifact["schema_version"] != SCHEMA_VERSION:
+        raise ValueError("Resume requires a schema-v1 P2.1 training checkpoint")
+    state = artifact.get("training_state")
+    if not isinstance(state, dict) or type(state.get("version")) is not int or state["version"] != 1:
+        raise ValueError("Checkpoint has no supported complete training state; use it for inference, not --resume")
+    defaults = OmegaConf.create(files("src.configs").joinpath("default.yaml").read_text(encoding="utf-8"))
+    cfg = merge_config(defaults, artifact.get("cfg", {}))
+    for key, expected in _contract(cfg).items():
+        if artifact.get(key) != expected:
+            raise ValueError(f"Resume checkpoint {key} disagrees with its saved config/current architecture")
+    required = {"run_id", "next_epoch", "global_step", "successful_updates", "best_mae", "best_epoch",
+                "scheduler", "scaler", "rng", "loaders", "contract", "loss", "history"}
+    if required - state.keys() or {"optimizer_state_dict", "model_state_dict", "experiment_metadata", "epoch", "val_mae"} - artifact.keys():
+        raise ValueError("Incomplete resume checkpoint training state")
+    if not isinstance(artifact["experiment_metadata"], dict) or artifact.get("training_objective") != training_objective_spec(cfg.loss.type):
+        raise ValueError("Resume objective/experiment metadata is missing or incompatible")
+    return artifact

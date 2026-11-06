@@ -79,6 +79,10 @@ jobs:
       - name: Install test dependencies
         run: pip install pytest pytest-cov build "setuptools>=68" wheel tensorboard --quiet
 
+      - name: Install optional W&B for offline integration on Python 3.11
+        if: matrix.python-version == '3.11'
+        run: pip install wandb --quiet
+
       - name: Print environment info
         run: |
           python -c "
@@ -109,6 +113,12 @@ jobs:
 
       - name: Checkpoint and inference compatibility (offline)
         run: pytest tests/test_checkpoint.py tests/test_inference.py -v --tb=short
+
+      - name: Training, atomic checkpoints and epoch-boundary resume (offline)
+        env:
+          WANDB_MODE: offline
+          WANDB_SILENT: "true"
+        run: pytest tests/test_trainer.py tests/test_resume.py -v --tb=short
 
       - name: Build and test installed distributions (no downloads)
         run: pytest tests/test_packaging.py -v --tb=short

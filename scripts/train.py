@@ -42,7 +42,9 @@ from src.data import (
 from src.models import build_model
 from src.training import Trainer, get_loss_fn
 from src.utils import set_seed
-from src.utils.config import validate_training_steps
+from src.utils.checkpoint import load_training_checkpoint
+from src.utils.config import merge_config, validate_training_steps
+from src.utils.training_state import training_config_signature
 
 
 def parse_args() -> argparse.Namespace:
@@ -60,6 +62,7 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Path to a YAML config file (default: packaged defaults)",
     )
+    p.add_argument("--resume", default=None, help="P2.1 best/last checkpoint; resume from its completed epoch")
     p.add_argument(
         "overrides",
         nargs="*",
@@ -72,7 +75,15 @@ def main() -> None:
     args = parse_args()
 
     # ── Load & merge config ───────────────────────────────────────────────
-    cfg = load_config(args.config, overrides=args.overrides)
+    if args.resume:
+        artifact = load_training_checkpoint(args.resume)
+        cfg = load_config(updates=artifact["cfg"])
+        cfg = merge_config(cfg, OmegaConf.load(args.config) if args.config else {}, overrides=args.overrides)
+        if training_config_signature(cfg) != artifact["training_state"]["contract"]["config"]:
+            raise ValueError("Resume configuration changed; epochs/optimizer/data settings must retain the saved schedule")
+        del artifact
+    else:
+        cfg = load_config(args.config, overrides=args.overrides)
     if args.print_config:
         print(OmegaConf.to_yaml(cfg, resolve=True))
         return
@@ -118,7 +129,7 @@ def main() -> None:
     )
 
     # ── Model ─────────────────────────────────────────────────────────────
-    model = build_model(cfg).to(device)
+    model = build_model(cfg, pretrained=False).to(device) if args.resume else build_model(cfg).to(device)
     print(f"Model: {cfg.model.name}  ({model.num_parameters}M trainable params)")
 
     # ── Loss ──────────────────────────────────────────────────────────────
@@ -127,7 +138,7 @@ def main() -> None:
     # ── Trainer ───────────────────────────────────────────────────────────
     trainer = Trainer(model=model, loss_fn=loss_fn, cfg=cfg, device=device,
                       data_provenance=train_loader.data_provenance)
-    trainer.run(train_loader, val_loader)
+    trainer.run(train_loader, val_loader, resume=args.resume)
 
 
 if __name__ == "__main__":

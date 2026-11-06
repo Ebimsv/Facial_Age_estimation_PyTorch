@@ -112,6 +112,7 @@ def test_explicit_unmodified_default_yaml_does_not_replace_regression_contract(t
     defaults.loss.type = mode
     if old_training_defaults:
         del defaults.training.deterministic
+        del defaults.logging.wandb_mode
     default_yaml.write_text(OmegaConf.to_yaml(defaults), encoding="utf-8")
     bundle = load_checkpoint(path, default_yaml, device="cpu")
     assert bundle.cfg.loss.type == "l1" and bundle.cfg.data.img_size == 64

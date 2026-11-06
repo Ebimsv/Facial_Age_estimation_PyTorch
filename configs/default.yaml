@@ -62,6 +62,7 @@ loss:
 # ── Logging ──────────────────────────────────────────────────
 logging:
   use_wandb:       false
+  wandb_mode:      "online"            # online | offline (no account/network)
   wandb_project:   "facial-age-estimation"
   use_tensorboard: true
   log_dir:         "runs"

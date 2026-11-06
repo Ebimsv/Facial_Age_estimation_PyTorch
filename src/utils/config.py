@@ -74,6 +74,7 @@ class LossConfig:
 class LoggingConfig:
     use_wandb: bool = MISSING
     wandb_project: str = MISSING
+    wandb_mode: str = "online"
     use_tensorboard: bool = MISSING
     log_dir: str = MISSING
     save_dir: str = MISSING
@@ -273,6 +274,8 @@ def _validate_values(cfg: DictConfig) -> None:
         for value in values:
             if not isinstance(value, (int, float)) or not math.isfinite(value) or (name == "std" and value <= 0):
                 raise ValueError(f"data.{name} must contain finite values; std must be > 0")
+    if cfg.logging.wandb_mode not in {"online", "offline"}:
+        raise ValueError("logging.wandb_mode must be online or offline")
     for name, value in {"data.root_dir": cfg.data.root_dir, "data.csv_dir": cfg.data.csv_dir,
                         "logging.log_dir": cfg.logging.log_dir, "logging.save_dir": cfg.logging.save_dir,
                         "logging.wandb_project": cfg.logging.wandb_project}.items():

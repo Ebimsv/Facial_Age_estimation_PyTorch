@@ -135,6 +135,16 @@ class AgeEstimationModel(nn.Module):
             backbone.head = _make_head(in_features, output_dim, dropout)
             self.model = backbone
 
+        self._head_path = {
+            "mobilenet_v3": "classifier.3", "efficientnet_b0": "classifier",
+            "efficientnet_b3": "classifier", "resnet50": "fc", "vit_small": "head",
+        }[model_name]
+
+    @property
+    def head(self) -> nn.Module:
+        """The replaced prediction head; a property avoids duplicate state_dict keys."""
+        return self.model.get_submodule(self._head_path)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass.
 
@@ -155,7 +165,7 @@ class AgeEstimationModel(nn.Module):
         return round(sum(p.numel() for p in self.parameters() if p.requires_grad) / 1e6, 2)
 
 
-def build_model(cfg) -> AgeEstimationModel:
+def build_model(cfg, *, pretrained: bool | None = None) -> AgeEstimationModel:
     """Instantiate an ``AgeEstimationModel`` from an OmegaConf config node.
 
     Args:
@@ -169,7 +179,7 @@ def build_model(cfg) -> AgeEstimationModel:
         validate_mode(cfg.model.output_dim, cfg.loss.type, cfg.loss.start_age, cfg.loss.end_age)
     return AgeEstimationModel(
         model_name=cfg.model.name,
-        pretrained=cfg.model.pretrained,
+        pretrained=cfg.model.pretrained if pretrained is None else pretrained,
         output_dim=cfg.model.output_dim,
         dropout=cfg.model.dropout,
         img_size=cfg.data.img_size if "data" in cfg else 224,
