@@ -6,11 +6,36 @@
 
 مبنای تاریخچه: `a2c3a4e7b57390b12c4b43e9c53b15a10ec557e4`
 
-این سند snapshot ممیزی پیش از پیاده‌سازی است. پس از تأیید کاربر، P1.1 تا P1.5 اجرا شدند؛
+این سند snapshot ممیزی پیش از پیاده‌سازی است. پس از تأیید کاربر، P1.1 تا P1.6 اجرا شدند؛
 وضعیت فعلی و شواهد اجرای آن در [ثبت پیشرفت نقشهٔ راه](IMPLEMENTATION_ROADMAP.md)
 آمده است. یافته‌های تاریخی این سند به‌عنوان باگ‌های بازِ نسخهٔ جدید تفسیر نشوند.
 
-## وضعیت جاری پس از P1.5 — ۲۰۲۶-۱۱-۰۶
+## وضعیت جاری پس از P1.6 — ۲۰۲۶-۱۱-۰۶
+
+| یافته | وضعیت جاری | شاهد و مرز تأیید |
+|---|---|---|
+| F21 | Complete در کد و mock؛ integration زنده unknown | downloader بدون installer، extra اختیاری، staging اختصاصی، archive دقیق، layout discovery/انتخاب صریح، validation و no-overwrite؛ ۴۴ تست fake API/ZIP. metadata زندهٔ Kaggle در دسترس نبود و archive واقعی دریافت نشد |
+| F22 | Complete برای guardrailهای برنامه؛ تاریخچه/سرویس خارجی تأیید نشده | credential استاندارد/backup/token ignore و از بسته exclude می‌شود؛ canary مصنوعی و git check-ignore موفق‌اند. safe checkpoint در P1.3 موجود است؛ هیچ secret واقعی خوانده/rotate نشده و تاریخچهٔ پاک ادعا نمی‌شود |
+| F06/F07 | سازگاری P1.5 حفظ شد | parser نام UTK مشترک شد؛ suite preparation و partition/hash موفق است. sanity check downloader جای full decode، provenance و identity review را نمی‌گیرد |
+| F19 | Partial برای کل پروژه | ۲۶۸ تست کامل موفق و Ruff سبز؛ train/resume/end-to-end کامل و ONNX matrix همچنان باقی‌اند |
+
+کامیت کد P1.6: `31216d5`. **۲۶۸ تست محلی موفق**؛ دو CUDA test روی RTX 5070 Laptop،
+multiprocessing/spawn و ۴۴ دانلود آفلاین. پس از اصلاح نهایی پیام layout، ۴۴ تست downloader
+دوباره موفق شدند. Python 3.13.9 / torch 2.9.0+cu128 در محیط موجود و بدون نصب dependency.
+source Kaggle 2.2.4 فقط خوانده شد، نه import/auth؛ SDK واقعی/شبکه در تست‌ها استفاده نشد.
+نتیجهٔ CI این مرحله پس از push جداگانه ثبت می‌شود.
+
+[گزارش یکپارچهٔ فاز اول](PHASE_1_IMPLEMENTATION_REPORT.md) شش گام، کامیت‌ها، تست‌ها و
+دو فلوچارت را توضیح می‌دهد؛ [راهنمای دانلود](../docs/DOWNLOADING.md) حدود validation،
+حفاظت مقصد و auth را روشن می‌کند. min ۱۸۰۰۰ نام معتبر و decode پنج نمونه، completeness
+یا کیفیت کل دیتاست را تضمین نمی‌کند. publication فایل‌ها atomic نیست و credential ignore
+اثبات نبود افشای گذشته نیست. CSV/وزن تاریخی و credential واقعی دست‌نخورده‌اند.
+
+پیاده‌سازی فاز اول پایان یافت؛ گام بعد **P2.1** است. atomic checkpoint، resume، گروه
+پارامترها، scheduler/AMP skip و lifecycle logging هنوز بازند؛ benchmark جدید نداریم.
+بخش‌های پایین snapshot تاریخی‌اند.
+
+## وضعیت تاریخی پس از P1.5 — ۲۰۲۶-۱۱-۰۶
 
 | یافته | وضعیت جاری | شاهد و کار باقی‌مانده |
 |---|---|---|

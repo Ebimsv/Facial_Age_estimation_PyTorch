@@ -6,7 +6,50 @@
 
 وضعیت: برنامهٔ مبنای ممیزی؛ پیشرفت اجرایی پس از تأیید کاربر در بخش زیر ثبت می‌شود.
 
-## ثبت پیشرفت جاری — P1.5
+## ثبت پیشرفت جاری — P1.6 و پایان پیاده‌سازی فاز اول
+
+در ۲۰۲۶-۱۱-۰۶، P1.6 با کامیت `31216d5` پیاده‌سازی شد؛ **۲۶۸ تست کامل موفق**، Ruff و
+whitespace موفق‌اند. پس از آخرین اصلاح پیام layout، ۴۴ تست downloader مجدداً موفق شدند.
+همان محیط Conda موجود با Python 3.13.9 / torch 2.9.0+cu128؛ شامل دو تست AMP واقعی
+روی RTX 5070 Laptop و multiprocessing/spawn. dependency، وزن یا تصاویر نصب/دانلود نشدند.
+گام بعدی **P2.1** است؛ فاز دوم خودکار شروع نشده است.
+
+- `scripts/download_data.py` نصب خودکار pip ندارد؛ Kaggle فقط extra اختیاری `data`
+  است. missing SDK پیام نصب صریح دارد؛ `--check-only` read-only و بدون SDK/auth/network/write است.
+- SDK در normal download احراز هویت را انجام می‌دهد؛ project credential را parse/چاپ نمی‌کند.
+  stdout/stderr و exception detail مربوط به SDK در import/auth/download نمایش داده نمی‌شوند.
+  بررسی source نصب‌شدهٔ Kaggle 2.2.4 بدون import/auth انجام شد؛ matrix واقعی SDK بررسی نشد.
+- دانلود در `.utkface-download-*` اختصاصی انجام می‌شود؛ فقط `utkface-new.zip` همان staging
+  انتخاب می‌شود، نه اولین ZIP مقصد. فایل نامرتبط مقصد باقی می‌ماند و cleanup فقط متعلق به run است.
+- archive از نظر traversal/path، symlink/special file، duplicate member، encryption و اندازه
+  بررسی می‌شود؛ فقط فایل‌های image با label/name معتبر از یک پوشه انتخاب و extract می‌شوند.
+  parser UTK برای downloader و preparation در `src/data/validation.py` مشترک شد.
+- layout root یا UTKFace/utkcropped تو‌در‌تو در صورت یکتا تشخیص داده می‌شود؛ ambiguity
+  با فهرست مسیرهای واجد حداقل و راهنمای `--image-subdir` رد می‌شود. version مثبت اختیاری
+  است؛ حذف version یعنی latest و pinned نیست. metadata عمومی زنده در دسترس نبود؛ layout
+  فعلی Kaggle و دانلود واقعی **unknown** ماندند و در مستندات ادعای مشاهدهٔ آنها نشده است.
+- حداقل ۱۸۰۰۰ نام معتبر و decode حداکثر پنج نمونه sanity check است؛ full decode و
+  بررسی محتوا/duplicate همچنان preparation جداگانه است. مقصد با ایجاد exclusive رزرو می‌شود؛
+  target قدیمی/هم‌زمان overwrite نمی‌شود. publication failure فقط فایل ساخته‌شدهٔ خود را
+  حذف می‌کند و فایل غیرمنتظرهٔ دیگر را حفظ می‌کند؛ انتشار پوشه transactional/atomic نیست.
+- `.gitignore` نام استاندارد/backup credential، token و `.kaggle/` را پوشش می‌دهد؛
+  `git check-ignore` تأیید شد. `MANIFEST.in` و canary مصنوعی packaging خروج credential
+  از distribution را می‌سنجند. credential واقعی خوانده/تغییر/stage نشد؛ rotation یا پاک‌سازی
+  تاریخچه‌ای بدون شاهد انجام نشد. ignore برای فایل untracked است، نه تضمین پاکی تاریخچه.
+- `tests/test_download_data.py` با ۴۴ حالت fake API/ZIP و CI جدید، missing dependency،
+  network/auth failure، malformed/unsafe ZIP، nested/ambiguous layout، دادهٔ ناقص، write
+  failure و حفظ فایل کاربر را بررسی می‌کند. هیچ تماس واقعی Kaggle در تست پایه وجود ندارد.
+  packaging extra اختیاری را در METADATA نیز بررسی می‌کند؛ نتیجهٔ CI پس از push جدا ثبت می‌شود.
+- راهنمای [DOWNLOADING.md](../docs/DOWNLOADING.md)، README و راهنمای نصب/داده به‌روز شدند.
+  گزارش یکپارچهٔ درخواستی کاربر: [PHASE_1_IMPLEMENTATION_REPORT.md](PHASE_1_IMPLEMENTATION_REPORT.md)
+  با توضیح P1.1–P1.6، فایل/کامیت/تست، hash CSVهای حفظ‌شده، دو فلوچارت Mermaid و محدودیت‌ها.
+
+فاز اول از نظر پیاده‌سازی و تست‌های قرارداد/مصنوعی تکمیل است؛ integration زندهٔ Kaggle،
+داده/هویت واقعی و minimum dependency runtime هنوز تأیید کامل ندارند. پیش از آموزش
+طولانی، P2.1 باید حذف best پیش از ذخیرهٔ موفق را رفع و atomic save/resume را اضافه کند.
+در این مرحله هیچ CSV تاریخی، وزن یا نتیجهٔ MAE جدیدی تغییر/تولید نشد. ثبت‌های پایین تاریخی‌اند.
+
+## ثبت پیشرفت تاریخی — P1.5
 
 در ۲۰۲۶-۱۱-۰۶، P1.5 پیاده‌سازی شد؛ **۲۲۴ تست کامل موفق**، Ruff و whitespace
 موفق‌اند. Python 3.13.9 / torch 2.9.0+cu128 در همان محیط Conda موجود؛ dependency،
@@ -312,6 +355,8 @@ P1.1 → P1.2 → P1.3 → P1.4 → P1.5 → P1.6
 
 ### P1.6 — guardrail داده و دریافت قابل پیش‌بینی
 
+**وضعیت اجرا: انجام‌شده در ۲۰۲۶-۱۱-۰۶؛ محدودیت integration زنده و شواهد در ثبت P1.6.**
+
 - **هدف:** دانلود محیط را پنهان تغییر ندهد و credential/فایل نامرتبط وارد workflow نشود.
 - **یافته‌ها / اولویت / اندازه:** F21، F22؛ High برای credential، Medium برای downloader؛ Small.
 - **تغییر:** `.gitignore`، `scripts/download_data.py`، `pyproject.toml` و بخش دانلود `Readme.md`.
@@ -516,5 +561,5 @@ P1.1 → P1.2 → P1.3 → P1.4 → P1.5 → P1.6
 
 برای بستن هر گام، PR باید مشکل و رفتار جدید، تست‌های واقعاً اجراشده و نتیجه، محدودیت‌های باقی‌مانده و artifact/تغییر قرارداد را ذکر کند. اگر تست اجرا نشد، علت صریح ثبت شود؛ «تست نوشته شد» به معنی «تست سبز است» نیست. هیچ MAE بهتر، latency کمتر یا star بیشتری معیار تضمین‌شدهٔ تکمیل مهندسی نیست.
 
-**گام اجرایی بعدی: P1.6**؛ پیش از ویرایش، وضعیت working tree بررسی و تغییرات کاربر حفظ شود.
-P1.1 تا P1.5 را صرفاً به‌علت وجود شرح برنامه در این سند دوباره از ابتدا اجرا نکنید.
+**گام اجرایی بعدی: P2.1**؛ پیش از ویرایش، وضعیت working tree بررسی و تغییرات کاربر حفظ شود.
+P1.1 تا P1.6 را صرفاً به‌علت وجود شرح برنامه در این سند دوباره از ابتدا اجرا نکنید.

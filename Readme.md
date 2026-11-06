@@ -48,7 +48,7 @@ Train, evaluate, and deploy in minutes — on CPU or GPU.
 - 📊 **Bias analysis** — per-epoch breakdown of MAE by age group, gender, and ethnicity
 - 🖥️ **Gradio demo** — upload a photo → see predicted age + full probability distribution
 - 📤 **Export ready** — TorchScript (trace) and ONNX with dynamic batch support
-- ✅ **224 tests** + GitHub Actions CI (GPU/demo checks are conditional)
+- ✅ **268 tests** + GitHub Actions CI (GPU/demo checks are conditional)
 
 ---
 
@@ -169,7 +169,7 @@ Facial_Age_estimation_PyTorch/
 │   └── export_model.py       # TorchScript & ONNX export
 ├── demo/
 │   └── app.py                # Gradio web demo
-├── tests/                    # 224 tests (pytest)
+├── tests/                    # 268 tests (pytest)
 ├── notebooks/                # EDA notebooks (coming soon)
 ├── pics/                     # Images used in README
 ├── checkpoints/              # Saved model weights (git-ignored)
@@ -230,6 +230,8 @@ the project also provides `train-age`, `eval-age`, and `export-age`. The install
 package includes its default YAML configuration and works outside the checkout.
 See [installation and verified environments](docs/INSTALLATION.md) for Conda usage,
 configuration paths, and the distinction between API minimums and tested versions.
+For the completed P1.1–P1.6 work, evidence and two workflow diagrams, see the
+[Phase 1 implementation report (Persian)](audit/PHASE_1_IMPLEMENTATION_REPORT.md).
 
 **Step 4 — Verify**
 ```bash
@@ -251,6 +253,23 @@ This project uses the **UTKFace** dataset — 20,000+ face images labelled with 
 | [FG-NET](https://yanweifu.github.io/FG_NET_data/) | 1,002 | 0 – 69 | Age |
 
 > **Download:** Get the **cropped** UTKFace version from [Kaggle](https://www.kaggle.com/datasets/jangedoo/utkface-new) (`utkcropped` folder).
+
+### Optional Managed Download
+
+```bash
+# Read-only local check; no API authentication/download/install
+python scripts/download_data.py --check-only
+
+# Opt in to the optional SDK, then download only if the target is absent
+python -m pip install ".[data]"
+python scripts/download_data.py --dest dataset
+```
+
+Existing targets and unrelated ZIPs are preserved. Downloads use private staging,
+validate the archive/layout, and normalize selected crops to `dataset/utkcropped`.
+`--dataset-version` pins a verified version; `--image-subdir` resolves ambiguous
+layouts. Live Kaggle download/layout has not been verified in this audit. See
+[download setup, credential handling and validation limits](docs/DOWNLOADING.md).
 
 ### Dataset Preparation
 
@@ -469,7 +488,7 @@ python scripts/export_model.py --checkpoint checkpoints/best_*.pt --format onnx
 - [x] **L1 + central variance** — explicit variant, float32 moments, raw regression gradients and bounded modern inference
 - [x] **Modern training pipeline** — AMP, AdamW with differential LRs, OneCycleLR, gradient clipping
 - [x] **Stratified data splits** — stratified train/val/test CSV generation
-- [x] **224 tests** — including data manifests, worker repeatability, regression gradients, checkpoint contracts, and installed packaging
+- [x] **268 tests** — including data manifests, worker repeatability, regression gradients, checkpoint contracts, and installed packaging
 - [x] **GitHub Actions CI** — automated lint + test on every push
 - [x] **Gradio demo** — with age probability distribution visualisation
 - [x] **TorchScript + ONNX export**

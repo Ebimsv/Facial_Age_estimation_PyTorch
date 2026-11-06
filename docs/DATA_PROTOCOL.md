@@ -2,6 +2,10 @@
 
 ## Prepare a new protocol
 
+For an optional managed download or a read-only local dataset check, see
+[DOWNLOADING.md](DOWNLOADING.md). That check is a sanity check, separate from this
+preparation/split protocol; it does not regenerate CSVs.
+
 Keep the committed `csv_dataset/*.csv` as the historical split. Their sizes are
 15,822 train / 2,793 validation / 4,654 test, with 23,269 master rows. The default
 80/10/10 settings do not describe that historical protocol. Preparing new data

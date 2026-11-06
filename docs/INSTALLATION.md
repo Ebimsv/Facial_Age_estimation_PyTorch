@@ -12,6 +12,7 @@ python -m pip install .
 
 # Optional components:
 python -m pip install ".[dev]"          # pytest, build, linting tools
+python -m pip install ".[data]"         # optional Kaggle SDK; never installed by downloader
 python -m pip install ".[demo,wandb]"   # Gradio and W&B
 ```
 
@@ -31,7 +32,8 @@ eval-age --help
 export-age --help
 ```
 
-Installing the core package does not require Gradio or W&B. Dataset downloading
+Installing the core package does not require Kaggle, Gradio or W&B. See
+[download guardrails](DOWNLOADING.md) for read-only checks and optional SDK setup. Dataset downloading
 and training are separate operations; installation does not fetch datasets or
 model weights. See [checkpoint loading and legacy profiles](CHECKPOINTS.md) for
 the shared loader, restricted deserialization and explicit historical weight support.
@@ -93,7 +95,10 @@ GeForce RTX 5070 Laptop GPU, plus multiworker/spawn data tests. This required ac
 to system shared memory/device resources outside the restricted sandbox; earlier
 restricted runs could not see CUDA and skipped those tests. A test-only controlled
 initial scale avoids confusing FP16 startup overflow with objective instability.
-This is not an accuracy benchmark or full GPU training/repeatability experiment. The exact PyTorch 2.3 minimum
+This is not an accuracy benchmark or full GPU training/repeatability experiment.
+P1.6 expanded the suite to **268 passing tests**, including 44 fake-API/ZIP download
+cases and distribution credential canaries; no real Kaggle download/authentication
+was used. See the [Phase 1 report](../audit/PHASE_1_IMPLEMENTATION_REPORT.md). The exact PyTorch 2.3 minimum
 was verified against the upstream API source, but not executed locally: no existing
 2.3 environment was found. A minimum-version runtime CI job remains P3.2 work.
 The current CI matrix covers Python 3.10, 3.11, and 3.12; its remote result must be
@@ -133,5 +138,5 @@ be included. Distribution tests check metadata alignment with `requirements.txt`
 This packaging step does not report model accuracy, throughput, or GPU training
 results. Verification consists of the existing unit suite plus packaging regression
 tests, metadata validation, artifact content inspection, and Ruff. See the P1.1
-through P1.5 completion notes in [the implementation roadmap](../audit/IMPLEMENTATION_ROADMAP.md)
+through P1.6 completion notes in [the implementation roadmap](../audit/IMPLEMENTATION_ROADMAP.md)
 for historical and current test counts and remaining scope.

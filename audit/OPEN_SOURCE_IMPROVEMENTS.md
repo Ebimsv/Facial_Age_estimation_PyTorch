@@ -6,7 +6,29 @@
 
 ترتیب اجرا: [نقشهٔ راه](IMPLEMENTATION_ROADMAP.md)
 
-## پیشرفت جاری پس از P1.5 — ۲۰۲۶-۱۱-۰۶
+## پیشرفت جاری پس از P1.6 — ۲۰۲۶-۱۱-۰۶
+
+فاز اول اکنون [گزارش یکپارچه با دو فلوچارت](PHASE_1_IMPLEMENTATION_REPORT.md) دارد:
+مسئله/رفتار نهایی هر گام، فایل و کامیت، تست واقعی، hash CSV حفظ‌شده و محدودیت‌ها یکجا
+قابل بررسی‌اند. این گزارش برای contributor ورودی روشن به کار بعدی فراهم می‌کند؛
+snapshotهای قبلی audit به‌اشتباه فهرست باگ‌های باز نسخهٔ فعلی تلقی نمی‌شوند.
+
+مسیر دریافت داده دیگر pip خودکار، انتخاب ZIP نامرتبط یا overwrite مقصد ندارد.
+`.[data]` اختیاری و `--check-only` read-only است؛ [راهنمای دانلود](../docs/DOWNLOADING.md)
+version/layout، credential، staging و تفاوت sanity check با full preparation را توضیح
+می‌دهد. source SDK موجود بدون auth بررسی شد، ولی layout و دانلود زندهٔ Kaggle تأیید نشد؛
+دستورها به‌عنوان benchmark یا integration موفق واقعی معرفی نشده‌اند.
+
+**۲۶۸ تست محلی موفق**، شامل ۴۴ دانلود با API/ZIP مصنوعی، packaging canary، دو CUDA
+loss test و worker/spawn؛ Ruff موفق. CI پس از push جدا بررسی می‌شود. credentialهای
+استاندارد ignore/exclude شدند؛ فایل واقعی خوانده، stage یا rotate نشد و پاکی تاریخچه
+ادعا نمی‌شود. هیچ داده، وزن آموزش‌دیده، MAE یا latency تازه ساخته نشده است.
+
+ارزش عمومی بعدی از **P2.1** می‌آید: atomic checkpoint و resume قابل اعتماد، سپس
+ارزیابی مستقل و baseline قابل‌بازتولید. صرف پایان فاز اول دلیل انتشار وزن/بنچمارک یا
+تضمین افزایش star نیست. ثبت‌های بعدی مربوط به مقاطع تاریخی‌اند.
+
+## پیشرفت تاریخی پس از P1.5 — ۲۰۲۶-۱۱-۰۶
 
 مسیر «آماده‌سازی → آموزش» اکنون protocol قابل‌بررسی دارد: directory تازه، CSV/hash
 ثابت، source/version اعلام‌شده، rejection و duplicate report، محیط/Git و بررسی تغییر
