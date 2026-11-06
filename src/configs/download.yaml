@@ -1,0 +1,21 @@
+# Download-only settings; not part of model/training checkpoint configuration.
+# Canonical packaged copy: src/configs/download.yaml (tests enforce equality).
+source: huggingface                  # huggingface | kaggle (explicit opt-in)
+dest: dataset                        # parent; images are published in <dest>/utkcropped
+timeout_seconds: 30.0                 # socket timeout, not a whole-transfer deadline
+max_retries: 2                       # network retries restart this run's partial file
+
+huggingface:
+  # Public mirror; no Hugging Face SDK, account or token is needed.
+  # Resolved from these fields (shown by --print-config):
+  # https://huggingface.co/datasets/py97/UTKFace-Cropped/resolve/e80f21fb21fa3631380c3cb634b79be3ac2f4cba/UTKFace.tar.gz
+  repo_id: py97/UTKFace-Cropped
+  revision: e80f21fb21fa3631380c3cb634b79be3ac2f4cba
+  filename: UTKFace.tar.gz
+  sha256: 2c0655397b498e81b82d685ee74bee8c2e4364a5897caf3afec6ea48929024a7
+  size_bytes: 106634631
+  image_subdir: UTKFace
+
+kaggle:
+  dataset_version: null               # null means latest, not a pinned version
+  image_subdir: null                  # discover an unambiguous UTKFace/utkcropped folder

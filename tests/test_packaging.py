@@ -96,6 +96,7 @@ def test_default_config_compatibility_copy():
         ROOT / "src/configs/default.yaml"
     ).read_bytes()
     assert load_config().model.name == "efficientnet_b3"
+    assert (ROOT / "configs/download.yaml").read_bytes() == (ROOT / "src/configs/download.yaml").read_bytes()
 
 
 def test_explicit_config_is_loaded(tmp_path):
@@ -118,6 +119,7 @@ def test_artifacts_include_only_runtime_packages_and_resource(distribution):
         with zipfile.ZipFile(artifact) as archive:
             names = set(archive.namelist())
             assert "src/configs/default.yaml" in names
+            assert "src/configs/download.yaml" in names
             assert {"scripts/__init__.py", "scripts/train.py", "demo/__init__.py"} <= names
             roots = {name.split("/")[0] for name in names}
             assert all(root in {"src", "scripts", "demo"} or root.endswith(".dist-info")
@@ -150,6 +152,7 @@ def test_artifacts_include_only_runtime_packages_and_resource(distribution):
         names = archive.getnames()
         assert any(name.endswith("/src/configs/default.yaml") for name in names)
         assert any(name.endswith("/configs/default.yaml") for name in names)
+        assert any(name.endswith("/configs/download.yaml") for name in names)
         assert any(name.endswith("/docs/INSTALLATION.md") for name in names)
         assert not any(name.endswith((".pt", ".pth", "kaggle.json", "kaggle-backup.json", "access_token")) for name in names)
 
@@ -235,3 +238,12 @@ print(json.dumps({'size': p.checkpoint.cfg.data.img_size,
     result = json.loads(_run([str(python), "-c", code], outside))
     assert result["size"] == 64 and result["mean"] == [.1, .2, .3]
     assert 0 <= result["age"] <= 100 and result["probabilities"] is None
+
+
+def test_installed_downloader_has_pinned_settings_without_network(installed):
+    python, _, outside = installed
+    result = _run([str(python), "-m", "scripts.download_data", "--print-config"], outside)
+    assert "source: huggingface" in result
+    assert "e80f21fb21fa3631380c3cb634b79be3ac2f4cba" in result
+    assert "2c0655397b498e81b82d685ee74bee8c2e4364a5897caf3afec6ea48929024a7" in result
+    assert not (outside / "dataset").exists()

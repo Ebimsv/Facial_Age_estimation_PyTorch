@@ -1,6 +1,7 @@
 include CONTRIBUTING.md
 include requirements.txt requirements-dev.txt
 include configs/default.yaml
+include configs/download.yaml
 recursive-include docs *.md
 prune checkpoints
 prune runs

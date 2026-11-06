@@ -53,7 +53,7 @@ include   = ["src", "src.*", "scripts", "demo"]
 namespaces = false
 
 [tool.setuptools.package-data]
-"src.configs" = ["default.yaml"]
+"src.configs" = ["default.yaml", "download.yaml"]
 
 # ── Ruff (linting + formatting) ──────────────────────────────────────────────
 [tool.ruff]

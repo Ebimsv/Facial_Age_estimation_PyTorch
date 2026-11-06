@@ -8,6 +8,7 @@ from pathlib import Path
 from omegaconf import DictConfig, OmegaConf
 
 from src.utils.config import merge_config
+from src.utils.download_config import merge_download_config
 
 
 def load_config(
@@ -38,6 +39,15 @@ def _checkout_root() -> Path | None:
     if (checkout / "pyproject.toml").is_file() and (checkout / "scripts" / "train.py").is_file():
         return checkout
     return None
+
+
+def load_download_config(path: str | Path | None = None, *, updates: dict | None = None) -> DictConfig:
+    """Load separate packaged download settings; explicit CLI values override partial YAML."""
+    defaults = OmegaConf.create(files(__package__).joinpath("download.yaml").read_text(encoding="utf-8"))
+    checkout = _checkout_root()
+    if path is None and checkout is not None and (checkout / "configs/download.yaml").is_file():
+        path = checkout / "configs/download.yaml"
+    return merge_download_config(defaults, OmegaConf.load(path) if path is not None else {}, updates or {})
 
 
 def get_runtime_root() -> Path:
