@@ -199,3 +199,29 @@ def test_installed_train_rejects_invalid_mode_before_data_io(installed):
                             cwd=outside, env=env, capture_output=True, text=True, timeout=60)
     assert result.returncode != 0 and "model.output_dim must be 101" in result.stderr
     assert "Using device" not in result.stdout
+
+
+def test_installed_checkpoint_restores_inference_contract(installed):
+    import torch
+
+    from src.models import build_model
+    from src.utils.checkpoint import create_checkpoint
+
+    python, _, outside = installed
+    cfg = load_config(overrides=["model.name=mobilenet_v3", "model.pretrained=false", "data.img_size=64",
+                                 "model.output_dim=1", "loss.type=l1", "data.mean=[0.1,0.2,0.3]"])
+    path = outside / "inference.pt"
+    torch.save(create_checkpoint(build_model(cfg).eval(), cfg), path)
+    code = """
+import json
+from PIL import Image
+from src.inference import AgePredictor
+p = AgePredictor.from_checkpoint('inference.pt', device='cpu')
+result = p.predict(Image.new('RGB', (90, 80)))
+print(json.dumps({'size': p.checkpoint.cfg.data.img_size,
+                  'mean': list(p.checkpoint.cfg.data.mean),
+                  'age': result.age, 'probabilities': result.probabilities}))
+"""
+    result = json.loads(_run([str(python), "-c", code], outside))
+    assert result["size"] == 64 and result["mean"] == [.1, .2, .3]
+    assert 0 <= result["age"] <= 100 and result["probabilities"] is None

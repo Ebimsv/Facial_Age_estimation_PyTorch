@@ -23,6 +23,7 @@ from torch.amp import GradScaler, autocast
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from src.utils.checkpoint import create_checkpoint
 from src.utils.config import to_plain_config
 from src.utils.metrics import AverageMeter, compute_cumulative_score, compute_mae
 
@@ -294,15 +295,8 @@ class Trainer:
 
         fname = self.save_dir / f"best_{self.cfg.model.name}_epoch{epoch:03d}_mae{val_mae:.3f}.pt"
         torch.save(
-            {
-                "epoch": epoch,
-                "model_name": self.cfg.model.name,
-                "output_dim": self.cfg.model.output_dim,
-                "val_mae": val_mae,
-                "model_state_dict": self.model.state_dict(),
-                "optimizer_state_dict": self.optimizer.state_dict(),
-                "cfg": to_plain_config(self.cfg),
-            },
+            create_checkpoint(self.model, self.cfg, epoch=epoch, val_mae=val_mae,
+                              optimizer_state_dict=self.optimizer.state_dict()),
             fname,
         )
         self.best_ckpt_path = fname

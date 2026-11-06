@@ -107,5 +107,8 @@ jobs:
       - name: Validate configuration and preparation contracts (offline)
         run: pytest tests/test_config.py -v --tb=short
 
+      - name: Checkpoint and inference compatibility (offline)
+        run: pytest tests/test_checkpoint.py tests/test_inference.py -v --tb=short
+
       - name: Build and test installed distributions (no downloads)
         run: pytest tests/test_packaging.py -v --tb=short

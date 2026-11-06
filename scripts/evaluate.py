@@ -26,27 +26,20 @@ import pandas as pd
 import torch
 from tqdm import tqdm
 
-from src.configs import get_runtime_root, load_config
-from src.data import (
-    build_dataloaders,
-    get_test_transforms,
-    get_train_transforms,
-    get_val_transforms,
-)
+from src.configs import get_runtime_root
+from src.data import build_dataloaders
 from src.models import AgeEstimationModel
-from src.training import get_loss_fn
 from src.utils import compute_cumulative_score, compute_mae, set_seed
-from src.utils.config import merge_config, validate_mode
+from src.utils.checkpoint import add_checkpoint_arguments, load_checkpoint_args
 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Evaluate a trained age estimation model")
-    p.add_argument("--checkpoint", type=str, required=True, help="Path to .pt checkpoint")
-    p.add_argument(
-        "--config",
-        type=str,
-        default=None,
-    )
+    add_checkpoint_arguments(p)
+    p.add_argument("--root-dir", default=None, help="Runtime image root override")
+    p.add_argument("--csv-dir", default=None, help="Runtime split CSV root override")
+    p.add_argument("--num-workers", type=int, default=None)
+    p.add_argument("--eval-batch-size", type=int, default=None)
     p.add_argument("--split", choices=["train", "val", "test"], default="test")
     p.add_argument("--bias", action="store_true", help="Print demographic bias breakdown")
     p.add_argument("--save-csv", type=str, default=None, help="Path to save prediction CSV")
@@ -84,52 +77,26 @@ def run_evaluation(
 
 def main() -> None:
     args = parse_args()
-    cfg = load_config(args.config)
-    ckpt_path = Path(args.checkpoint)
-    if not ckpt_path.exists():
-        raise FileNotFoundError(f"Checkpoint not found: {ckpt_path}")
-
-    # ── Load checkpoint ───────────────────────────────────────────────────
-    ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
-    print(f"Loaded checkpoint: {ckpt_path.name}")
-    print(f"  Trained for: {ckpt.get('epoch', '?')} epochs")
-    print(f"  Best val MAE: {ckpt.get('val_mae', '?'):.3f}y")
-
-    # ── Config ────────────────────────────────────────────────────────────
-    # Restore model settings from checkpoint if available
-    if "cfg" in ckpt:
-        cfg = merge_config(cfg, ckpt["cfg"])
-    validate_mode(ckpt.get("output_dim", cfg.model.output_dim), cfg.loss.type,
-                  cfg.loss.start_age, cfg.loss.end_age)
-
-    set_seed(cfg.training.seed)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    overrides = {}
+    for flag, key in [("root_dir", "data.root_dir"), ("csv_dir", "data.csv_dir"),
+                      ("num_workers", "data.num_workers"), ("eval_batch_size", "training.eval_batch_size")]:
+        if getattr(args, flag) is not None:
+            overrides[key] = getattr(args, flag)
+    bundle = load_checkpoint_args(args, runtime_overrides=overrides)
+    cfg, model, loss_fn, device = bundle.cfg, bundle.model, bundle.loss_fn, bundle.device
     use_amp = cfg.training.use_amp and device.type == "cuda"
-
-    # ── Model ─────────────────────────────────────────────────────────────
-    model = AgeEstimationModel(
-        model_name=ckpt.get("model_name", cfg.model.name),
-        pretrained=False,
-        output_dim=ckpt.get("output_dim", cfg.model.output_dim),
-        dropout=0.0,  # disable dropout at test time
-        img_size=cfg.data.img_size,
-    ).to(device)
-    model.load_state_dict(ckpt["model_state_dict"])
-    print(f"Model: {model.model_name}  (output_dim={model.output_dim})")
-
-    # ── Loss / predictor ──────────────────────────────────────────────────
-    loss_fn = get_loss_fn(cfg).to(device)
+    print(f"Loaded checkpoint: {Path(args.checkpoint).name}")
+    print(f"  Epoch index: {bundle.metadata.get('epoch', 'unknown')}")
+    print(f"  Validation MAE: {bundle.metadata.get('val_mae', 'unknown')}")
+    set_seed(cfg.training.seed)
 
     # ── Data ──────────────────────────────────────────────────────────────
-    mean, std = list(cfg.data.mean), list(cfg.data.std)
-    img_size = cfg.data.img_size
-
     train_loader, val_loader, test_loader = build_dataloaders(
         root_dir=get_runtime_root() / cfg.data.root_dir,
         csv_dir=get_runtime_root() / cfg.data.csv_dir,
-        train_transform=get_train_transforms(img_size, mean, std),
-        val_transform=get_val_transforms(img_size, mean, std),
-        test_transform=get_test_transforms(img_size, mean, std),
+        train_transform=bundle.transform,
+        val_transform=bundle.transform,
+        test_transform=bundle.transform,
         batch_size=cfg.training.batch_size,
         eval_batch_size=cfg.training.eval_batch_size,
         num_workers=cfg.data.num_workers,

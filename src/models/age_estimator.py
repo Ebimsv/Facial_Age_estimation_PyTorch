@@ -91,6 +91,8 @@ class AgeEstimationModel(nn.Module):
 
         self.model_name = model_name
         self.output_dim = output_dim
+        self.img_size = img_size
+        self.dropout = dropout
         in_features = _BACKBONE_DIMS[model_name]
 
         # ── Build backbone ────────────────────────────────────────────────

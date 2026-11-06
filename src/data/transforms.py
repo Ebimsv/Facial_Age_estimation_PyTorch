@@ -51,7 +51,7 @@ def get_val_transforms(
 
     return T.Compose(
         [
-            T.Resize((img_size, img_size)),
+            T.Resize((img_size, img_size), interpolation=T.InterpolationMode.BILINEAR, antialias=True),
             T.ToTensor(),
             T.Normalize(mean=mean, std=std),
         ]

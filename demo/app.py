@@ -9,10 +9,10 @@ Launch
   python demo/app.py --checkpoint checkpoints/best_*.pt --share
 
 The demo:
-  1. Accepts a face photo (upload or webcam).
+  1. Accepts a cropped face photo.
   2. Runs the age estimator.
   3. Displays the predicted age AND a bar-chart probability distribution
-     over all 101 age classes — so users can see model confidence visually.
+     over the checkpoint's age support. The distribution is not calibrated confidence.
 """
 
 from __future__ import annotations
@@ -27,111 +27,41 @@ sys.path.insert(0, str(PROJECT_ROOT))
 import gradio as gr
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
-import torch
-import torchvision.transforms as T
 from PIL import Image
 
-from src.configs import load_config
-from src.models import AgeEstimationModel
-from src.training import get_loss_fn
-from src.utils.config import validate_mode
+from src.inference import AgePredictor
+from src.utils.checkpoint import add_checkpoint_arguments
 
 matplotlib.use("Agg")  # non-interactive backend — needed for Gradio
 
-# ── Global state (loaded once at startup) ────────────────────────────────────
-_model: AgeEstimationModel | None = None
-_loss_fn = None
-_transform = None
-_device: torch.device | None = None
+_predictor: AgePredictor | None = None
 
 
-def load_model(checkpoint_path: str, config_path: str | None = None) -> None:
-    """Load model and loss function into global state."""
-    global _model, _loss_fn, _transform, _device
-
-    cfg = load_config(config_path)
-    _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
-    model_name = ckpt.get("model_name", cfg.model.name)
-    output_dim = ckpt.get("output_dim", cfg.model.output_dim)
-    validate_mode(output_dim, cfg.loss.type, cfg.loss.start_age, cfg.loss.end_age)
-
-    _model = AgeEstimationModel(
-        model_name=model_name,
-        pretrained=False,
-        output_dim=output_dim,
-        dropout=0.0,
-        img_size=cfg.data.img_size,
-    ).to(_device)
-    _model.load_state_dict(ckpt["model_state_dict"])
-    _model.eval()
-
-    _loss_fn = get_loss_fn(cfg).to(_device)
-
-    img_size = cfg.data.img_size
-    mean = list(cfg.data.mean)
-    std = list(cfg.data.std)
-    _transform = T.Compose(
-        [
-            T.Resize((img_size, img_size)),
-            T.ToTensor(),
-            T.Normalize(mean=mean, std=std),
-        ]
-    )
-
-    print(
-        f"✓ Model loaded: {model_name} "
-        f"(output_dim={output_dim}, device={_device})"
-    )
+def load_model(checkpoint_path: str, config_path: str | None = None, **kwargs) -> None:
+    """Load the same artifact-backed pipeline used by CLI inference."""
+    global _predictor
+    _predictor = AgePredictor.from_checkpoint(checkpoint_path, config_path, **kwargs)
 
 
-@torch.no_grad()
 def predict(image: Image.Image) -> tuple[str, plt.Figure]:
-    """Run inference and return (age_text, probability_plot).
-
-    Args:
-        image: PIL image from the Gradio UI.
-
-    Returns:
-        Tuple of (formatted string with age, matplotlib Figure with distribution).
-    """
-    if _model is None:
-        return "⚠️ Model not loaded.", plt.figure()
-
-    # Preprocess
-    tensor = _transform(image.convert("RGB")).unsqueeze(0).to(_device)
-
-    # Forward
-    logits = _model(tensor)
-    pred_age = _loss_fn.predict_age(logits).item()
-    pred_age_int = round(pred_age)
-
-    result_text = f"🎂 Estimated Age: **{pred_age:.1f} years** (~{pred_age_int})"
-
-    # ── Build probability distribution plot ──────────────────────────────
-    if _model.output_dim == 101:
-        probs = torch.softmax(logits, dim=1).squeeze().cpu().numpy()
-        ages = np.arange(0, 101)
-
-        fig, ax = plt.subplots(figsize=(10, 3))
-        ax.bar(ages, probs * 100, color="#4C72B0", alpha=0.85, width=0.9)
-        ax.axvline(x=pred_age, color="#DD4444", linewidth=2.5, linestyle="--",
-                   label=f"Predicted: {pred_age:.1f}y")
-        ax.set_xlabel("Age", fontsize=11)
-        ax.set_ylabel("Probability (%)", fontsize=11)
-        ax.set_title("Model Age Probability Distribution", fontsize=12, fontweight="bold")
-        ax.set_xlim(-1, 101)
-        ax.legend(fontsize=10)
-        ax.grid(axis="y", alpha=0.3)
-        plt.tight_layout()
+    if _predictor is None or image is None:
+        return "Upload a cropped face image first.", plt.figure()
+    prediction = _predictor.predict(image)
+    result = f"🎂 Estimated Age: **{prediction.age:.1f} years**"
+    fig, ax = plt.subplots(figsize=(10, 3))
+    if prediction.probabilities is not None:
+        ages = prediction.ages.numpy()
+        ax.bar(ages, prediction.probabilities.numpy() * 100, color="#4C72B0")
+        ax.axvline(prediction.age, color="#DD4444", linestyle="--", label=f"Predicted: {prediction.age:.1f}y")
+        ax.set_xlabel("Age")
+        ax.set_ylabel("Probability (%)")
+        ax.set_xlim(float(ages[0]) - 1, float(ages[-1]) + 1)
+        ax.legend()
     else:
-        fig, ax = plt.subplots(figsize=(4, 2))
-        ax.text(0.5, 0.5, f"Age: {pred_age:.1f}", ha="center", va="center", fontsize=20)
+        ax.text(0.5, 0.5, f"Age: {prediction.age:.1f}", ha="center", va="center", fontsize=20)
         ax.axis("off")
-
-    return result_text, fig
+    fig.tight_layout()
+    return result, fig
 
 
 # ── Gradio Interface ──────────────────────────────────────────────────────────
@@ -139,12 +69,13 @@ def predict(image: Image.Image) -> tuple[str, plt.Figure]:
 def build_interface() -> gr.Blocks:
     with gr.Blocks(title="Facial Age Estimator", theme=gr.themes.Soft()) as demo:
         gr.Markdown(
-            """
+            f"""
             # 🎂 Facial Age Estimator
             Upload a face photo to estimate the person's age using a deep learning model
             trained on the UTKFace dataset.
 
-            **Model:** EfficientNet-B3 with Mean-Variance Loss | **Dataset:** UTKFace (~20k images)
+            **Model:** {_predictor.checkpoint.cfg.model.name if _predictor else 'not loaded'}
+            | The distribution is not calibrated confidence.
             """
         )
 
@@ -195,12 +126,7 @@ def build_interface() -> gr.Blocks:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Launch the Gradio age estimation demo")
-    p.add_argument("--checkpoint", type=str, required=True, help="Path to model checkpoint")
-    p.add_argument(
-        "--config",
-        type=str,
-        default=None,
-    )
+    add_checkpoint_arguments(p)
     p.add_argument("--share", action="store_true", help="Create a public Gradio link")
     p.add_argument("--port", type=int, default=7860)
     return p.parse_args()
@@ -208,6 +134,7 @@ def parse_args() -> argparse.Namespace:
 
 if __name__ == "__main__":
     args = parse_args()
-    load_model(args.checkpoint, args.config)
+    load_model(args.checkpoint, args.config, device=args.device,
+               legacy_resnet50=args.legacy_resnet50, trust_legacy_pickle=args.trust_legacy_pickle)
     demo = build_interface()
     demo.launch(share=args.share, server_port=args.port)

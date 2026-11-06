@@ -24,58 +24,26 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 import torch
-import torchvision.transforms as T
 from PIL import Image, ImageDraw
 
-from src.configs import load_config
-from src.models import AgeEstimationModel
-from src.training import get_loss_fn
-from src.utils.config import validate_mode
+from src.inference import predict_image
+from src.utils.checkpoint import add_checkpoint_arguments, load_checkpoint, load_checkpoint_args
 
 SUPPORTED_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 
-def load_model_and_pipeline(checkpoint_path: str, config_path: str | None = None):
-    """Load model, loss function, and preprocessing transform from a checkpoint."""
-    cfg = load_config(config_path)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
-
-    model_name = ckpt.get("model_name", cfg.model.name)
-    output_dim = ckpt.get("output_dim", cfg.model.output_dim)
-    validate_mode(output_dim, cfg.loss.type, cfg.loss.start_age, cfg.loss.end_age)
-
-    model = AgeEstimationModel(
-        model_name=model_name,
-        pretrained=False,
-        output_dim=output_dim,
-        dropout=0.0,
-        img_size=cfg.data.img_size,
-    ).to(device)
-    model.load_state_dict(ckpt["model_state_dict"])
-    model.eval()
-
-    loss_fn = get_loss_fn(cfg).to(device)
-
-    img_size = cfg.data.img_size
-    transform = T.Compose(
-        [
-            T.Resize((img_size, img_size)),
-            T.ToTensor(),
-            T.Normalize(mean=list(cfg.data.mean), std=list(cfg.data.std)),
-        ]
-    )
-
-    return model, loss_fn, transform, device
+def load_model_and_pipeline(checkpoint_path: str, config_path: str | None = None, **kwargs):
+    """Return the historical tuple API using the shared artifact loader."""
+    bundle = load_checkpoint(checkpoint_path, config_path, **kwargs)
+    return bundle.model, bundle.loss_fn, bundle.transform, bundle.device
 
 
 @torch.no_grad()
 def predict_age(model, loss_fn, transform, device, image_path: Path) -> float:
     """Return the predicted age for a single image."""
-    image = Image.open(image_path).convert("RGB")
-    tensor = transform(image).unsqueeze(0).to(device)
-    logits = model(tensor)
-    return loss_fn.predict_age(logits).item()
+    with Image.open(image_path) as image:
+        ages, _ = predict_image(model, loss_fn, transform, device, image)
+    return ages.item()
 
 
 def annotate_image(image_path: Path, age: float, output_path: Path) -> None:
@@ -92,12 +60,7 @@ def annotate_image(image_path: Path, age: float, output_path: Path) -> None:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Run age estimation inference")
-    p.add_argument("--checkpoint", type=str, required=True, help="Path to .pt checkpoint")
-    p.add_argument(
-        "--config",
-        type=str,
-        default=None,
-    )
+    add_checkpoint_arguments(p)
 
     group = p.add_mutually_exclusive_group(required=True)
     group.add_argument("--image", type=str, help="Path to a single image")
@@ -114,9 +77,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    model, loss_fn, transform, device = load_model_and_pipeline(
-        args.checkpoint, args.config
-    )
+    bundle = load_checkpoint_args(args)
+    model, loss_fn, transform, device = bundle.model, bundle.loss_fn, bundle.transform, bundle.device
     print(f"Model loaded on {device}")
 
     if args.image:

@@ -22,21 +22,16 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+import json
+
 import torch
 
-from src.configs import load_config
-from src.models import AgeEstimationModel
-from src.utils.config import validate_mode
+from src.utils.checkpoint import add_checkpoint_arguments, load_checkpoint_args
 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Export age estimation model to TorchScript or ONNX")
-    p.add_argument("--checkpoint", type=str, required=True, help="Path to .pt checkpoint")
-    p.add_argument(
-        "--config",
-        type=str,
-        default=None,
-    )
+    add_checkpoint_arguments(p)
     p.add_argument(
         "--format",
         choices=["torchscript", "onnx"],
@@ -51,31 +46,19 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     ckpt_path = Path(args.checkpoint)
-    if not ckpt_path.exists():
-        raise FileNotFoundError(f"Checkpoint not found: {ckpt_path}")
-
-    cfg = load_config(args.config)
-    ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
-
-    model_name = ckpt.get("model_name", cfg.model.name)
-    output_dim = ckpt.get("output_dim", cfg.model.output_dim)
-    validate_mode(output_dim, cfg.loss.type, cfg.loss.start_age, cfg.loss.end_age)
-    img_size = args.img_size if args.img_size is not None else cfg.data.img_size
-
-    model = AgeEstimationModel(
-        model_name=model_name,
-        pretrained=False,
-        output_dim=output_dim,
-        dropout=0.0,
-        img_size=img_size,
-    )
-    model.load_state_dict(ckpt["model_state_dict"])
-    model.eval()
+    if args.device not in (None, "cpu"):
+        raise ValueError("Export currently runs on CPU; use --device cpu")
+    bundle = load_checkpoint_args(args, runtime_overrides={"device": "cpu"})
+    model = bundle.model
+    img_size = bundle.cfg.data.img_size
+    if args.img_size is not None and args.img_size != img_size:
+        raise ValueError("--img-size cannot change the checkpoint preprocessing contract")
 
     dummy = torch.zeros(1, 3, img_size, img_size)
 
     if args.format == "torchscript":
         out_path = args.output or str(ckpt_path.with_suffix(".jit"))
+        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
         # Use torch.jit.trace (faster than script for CNNs)
         with torch.no_grad():
             traced = torch.jit.trace(model, dummy)
@@ -84,6 +67,7 @@ def main() -> None:
 
     elif args.format == "onnx":
         out_path = args.output or str(ckpt_path.with_suffix(".onnx"))
+        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
         torch.onnx.export(
             model,
             dummy,
@@ -96,6 +80,11 @@ def main() -> None:
         )
         print(f"✓ ONNX model saved → {out_path}")
         print("  Verify with: python -c \"import onnx; onnx.checker.check_model('" + out_path + "')\"")
+
+    metadata = {key: bundle.metadata[key] for key in
+                ["schema_version", "model_spec", "preprocessing", "predictor"]}
+    metadata["output"] = "logits"
+    Path(str(out_path) + ".json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
 
 if __name__ == "__main__":
