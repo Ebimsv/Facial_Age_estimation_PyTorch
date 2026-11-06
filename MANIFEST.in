@@ -1,0 +1,14 @@
+include CONTRIBUTING.md
+include requirements.txt requirements-dev.txt
+include configs/default.yaml
+recursive-include docs *.md
+prune checkpoints
+prune runs
+prune csv_dataset
+prune dataset
+prune papers
+prune pics
+prune figs
+prune img_test
+prune audit
+global-exclude kaggle.json *.pt *.pth *.onnx *.jit *.py[cod]

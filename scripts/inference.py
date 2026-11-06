@@ -25,19 +25,19 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 import torch
 import torchvision.transforms as T
-from omegaconf import OmegaConf
 from PIL import Image, ImageDraw
 
+from src.configs import load_config
 from src.models import AgeEstimationModel
 from src.training import get_loss_fn
 
 SUPPORTED_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 
-def load_model_and_pipeline(checkpoint_path: str, config_path: str):
+def load_model_and_pipeline(checkpoint_path: str, config_path: str | None = None):
     """Load model, loss function, and preprocessing transform from a checkpoint."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    cfg = OmegaConf.load(config_path)
+    cfg = load_config(config_path)
     ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
 
     model_name = ckpt.get("model_name", cfg.model.name)
@@ -93,7 +93,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--config",
         type=str,
-        default=str(PROJECT_ROOT / "configs" / "default.yaml"),
+        default=None,
     )
 
     group = p.add_mutually_exclusive_group(required=True)

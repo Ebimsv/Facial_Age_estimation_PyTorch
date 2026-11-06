@@ -1,6 +1,7 @@
 # ─────────────────────────────────────────────────────────────
 #  Facial Age Estimation — Default Configuration
-#  Load with: from omegaconf import OmegaConf; cfg = OmegaConf.load("configs/default.yaml")
+#  Canonical packaged defaults. Load with: from src.configs import load_config; cfg = load_config()
+#  configs/default.yaml is a compatibility copy; tests enforce identical content.
 #  Override from CLI: python scripts/train.py training.epochs=50 model.name=efficientnet_b3
 # ─────────────────────────────────────────────────────────────
 

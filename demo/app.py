@@ -30,9 +30,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torchvision.transforms as T
-from omegaconf import OmegaConf
 from PIL import Image
 
+from src.configs import load_config
 from src.models import AgeEstimationModel
 from src.training import get_loss_fn
 
@@ -45,12 +45,12 @@ _transform = None
 _device: torch.device | None = None
 
 
-def load_model(checkpoint_path: str, config_path: str) -> None:
+def load_model(checkpoint_path: str, config_path: str | None = None) -> None:
     """Load model and loss function into global state."""
     global _model, _loss_fn, _transform, _device
 
     _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    cfg = OmegaConf.load(config_path)
+    cfg = load_config(config_path)
 
     ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     model_name = ckpt.get("model_name", cfg.model.name)
@@ -196,7 +196,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--config",
         type=str,
-        default=str(PROJECT_ROOT / "configs" / "default.yaml"),
+        default=None,
     )
     p.add_argument("--share", action="store_true", help="Create a public Gradio link")
     p.add_argument("--port", type=int, default=7860)

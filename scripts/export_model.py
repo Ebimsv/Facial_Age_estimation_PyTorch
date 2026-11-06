@@ -23,8 +23,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 import torch
-from omegaconf import OmegaConf
 
+from src.configs import load_config
 from src.models import AgeEstimationModel
 
 
@@ -34,7 +34,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--config",
         type=str,
-        default=str(PROJECT_ROOT / "configs" / "default.yaml"),
+        default=None,
     )
     p.add_argument(
         "--format",
@@ -53,7 +53,7 @@ def main() -> None:
     if not ckpt_path.exists():
         raise FileNotFoundError(f"Checkpoint not found: {ckpt_path}")
 
-    cfg = OmegaConf.load(args.config)
+    cfg = load_config(args.config)
     ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
 
     model_name = ckpt.get("model_name", cfg.model.name)

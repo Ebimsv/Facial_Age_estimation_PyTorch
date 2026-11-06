@@ -27,6 +27,7 @@ import torch
 from omegaconf import OmegaConf
 from tqdm import tqdm
 
+from src.configs import get_runtime_root, load_config
 from src.data import (
     build_dataloaders,
     get_test_transforms,
@@ -44,7 +45,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--config",
         type=str,
-        default=str(PROJECT_ROOT / "configs" / "default.yaml"),
+        default=None,
     )
     p.add_argument("--split", choices=["train", "val", "test"], default="test")
     p.add_argument("--bias", action="store_true", help="Print demographic bias breakdown")
@@ -94,7 +95,7 @@ def main() -> None:
     print(f"  Best val MAE: {ckpt.get('val_mae', '?'):.3f}y")
 
     # ── Config ────────────────────────────────────────────────────────────
-    cfg = OmegaConf.load(args.config)
+    cfg = load_config(args.config)
     # Restore model settings from checkpoint if available
     if "cfg" in ckpt:
         saved_cfg = OmegaConf.create(ckpt["cfg"])
@@ -122,8 +123,8 @@ def main() -> None:
     img_size = cfg.data.img_size
 
     train_loader, val_loader, test_loader = build_dataloaders(
-        root_dir=PROJECT_ROOT / cfg.data.root_dir,
-        csv_dir=PROJECT_ROOT / cfg.data.csv_dir,
+        root_dir=get_runtime_root() / cfg.data.root_dir,
+        csv_dir=get_runtime_root() / cfg.data.csv_dir,
         train_transform=get_train_transforms(img_size, mean, std),
         val_transform=get_val_transforms(img_size, mean, std),
         test_transform=get_test_transforms(img_size, mean, std),

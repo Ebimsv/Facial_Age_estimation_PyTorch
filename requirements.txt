@@ -1,8 +1,9 @@
 # ── Core runtime dependencies ─────────────────────────────────────────────────
 # Install CUDA-enabled PyTorch separately from https://pytorch.org/get-started/
 # e.g. pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
-torch>=2.0.0
-torchvision>=0.15.0
+# torch.amp.GradScaler("cuda", ...) requires PyTorch 2.3 or newer.
+torch>=2.3.0
+torchvision>=0.18.0
 
 # ── Model backbone ────────────────────────────────────────────────────────────
 timm>=0.9.0                  # ViT-Small / DINOv2 backbone

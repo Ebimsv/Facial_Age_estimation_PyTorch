@@ -1,19 +1,19 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "facial-age-estimation"
 version = "0.2.0"
 description = "Facial age estimation using deep learning — EfficientNet-B3, ResNet-50, ViT-S/DINOv2 on UTKFace"
-readme = "README.md"
+readme = "Readme.md"
 license = { file = "LICENSE" }
-authors = [{ name = "Ebi Mousavi", email = "" }]
+authors = [{ name = "Ebi Mousavi", email = "ebimsv0501@gmail.com" }]
 requires-python = ">=3.10"
 
 dependencies = [
-    "torch>=2.0.0",
-    "torchvision>=0.15.0",
+    "torch>=2.3.0",
+    "torchvision>=0.18.0",
     "timm>=0.9.0",
     "Pillow>=9.0.0",
     "pandas>=1.5.0",
@@ -34,6 +34,7 @@ dev = [
     "pytest-cov>=4.0.0",
     "ruff>=0.1.0",
     "pre-commit>=3.0.0",
+    "build>=1.0.0",
 ]
 
 [project.urls]
@@ -47,8 +48,11 @@ export-age = "scripts.export_model:main"
 
 [tool.setuptools.packages.find]
 where     = ["."]
-include   = ["src*", "scripts*", "demo*"]
-namespace = false
+include   = ["src", "src.*", "scripts", "demo"]
+namespaces = false
+
+[tool.setuptools.package-data]
+"src.configs" = ["default.yaml"]
 
 # ── Ruff (linting + formatting) ──────────────────────────────────────────────
 [tool.ruff]

@@ -77,7 +77,7 @@ jobs:
             --quiet
 
       - name: Install test dependencies
-        run: pip install pytest pytest-cov --quiet
+        run: pip install pytest pytest-cov build "setuptools>=68" wheel tensorboard --quiet
 
       - name: Print environment info
         run: |
@@ -103,3 +103,6 @@ jobs:
       - name: Run dataset tests (synthetic data — no real dataset needed)
         run: |
           pytest tests/test_dataset.py -v --tb=short
+
+      - name: Build and test installed distributions (no downloads)
+        run: pytest tests/test_packaging.py -v --tb=short

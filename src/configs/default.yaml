@@ -1,0 +1,77 @@
+# ─────────────────────────────────────────────────────────────
+#  Facial Age Estimation — Default Configuration
+#  Canonical packaged defaults. Load with: from src.configs import load_config; cfg = load_config()
+#  configs/default.yaml is a compatibility copy; tests enforce identical content.
+#  Override from CLI: python scripts/train.py training.epochs=50 model.name=efficientnet_b3
+# ─────────────────────────────────────────────────────────────
+
+# ── Model ────────────────────────────────────────────────────
+model:
+  # Options: mobilenet_v3 | efficientnet_b0 | efficientnet_b3 | resnet50 | vit_small
+  name: "efficientnet_b3"
+  pretrained: true
+  # 101 → Mean-Variance Loss over ages [0-100]
+  # 1   → plain L1 regression (for fine-tuning from old checkpoints)
+  output_dim: 101
+  dropout: 0.3
+
+# ── Data ─────────────────────────────────────────────────────
+data:
+  # Set this to your local UTKFace cropped folder
+  root_dir: "dataset/utkcropped"
+  csv_dir: "csv_dataset"
+  img_size: 224                       # upgraded from 128
+  num_workers: 4
+  mean: [0.485, 0.456, 0.406]
+  std:  [0.229, 0.224, 0.225]
+  max_age: 85                         # filter images with age >= max_age
+  train_ratio: 0.80
+  val_ratio:   0.10
+  # test_ratio is implicit: 1 - train_ratio - val_ratio = 0.10
+
+# ── Training ─────────────────────────────────────────────────
+training:
+  epochs: 100
+  batch_size: 96                      # EfficientNet-B3 @ 224 with AMP on 8GB VRAM
+  eval_batch_size: 128
+  seed: 42
+  use_amp: true                       # mixed-precision (float16 forward, float32 grad)
+  grad_clip: 1.0                      # max gradient norm
+
+# ── Optimizer (AdamW with differential LRs) ──────────────────
+optimizer:
+  backbone_lr: 1.0e-4                 # lower LR for pretrained backbone
+  head_lr:     5.0e-4                 # higher LR for new regression head
+  weight_decay: 1.0e-2
+
+# ── Scheduler (OneCycleLR) ───────────────────────────────────
+scheduler:
+  pct_start: 0.05                     # warmup fraction (5 epochs out of 100)
+
+# ── Loss ─────────────────────────────────────────────────────
+loss:
+  # Options: mean_variance | l1
+  type: "mean_variance"
+  lambda_mean:     0.2                # weight for E[age] - true_age term
+  lambda_variance: 0.05               # weight for variance penalty term
+  start_age: 0
+  end_age: 100
+
+# ── Logging ──────────────────────────────────────────────────
+logging:
+  use_wandb:       false
+  wandb_project:   "facial-age-estimation"
+  use_tensorboard: true
+  log_dir:         "runs"
+  save_dir:        "checkpoints"
+  save_best_only:  true
+  log_every_n_steps: 50
+
+# ── Inference ────────────────────────────────────────────────
+inference:
+  checkpoint_path: null               # path to .pt checkpoint
+  image_path:      null
+  output_path:     null
+
+# ── System ───────────────────────────────────────────────────
+device: null                          # null → auto-detect (cuda if available, else cpu)

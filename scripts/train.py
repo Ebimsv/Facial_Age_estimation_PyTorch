@@ -32,6 +32,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 import torch
 from omegaconf import OmegaConf
 
+from src.configs import get_runtime_root, load_config
 from src.data import (
     build_dataloaders,
     get_test_transforms,
@@ -52,8 +53,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--config",
         type=str,
-        default=str(PROJECT_ROOT / "configs" / "default.yaml"),
-        help="Path to the YAML config file",
+        default=None,
+        help="Path to a YAML config file (default: packaged defaults)",
     )
     p.add_argument(
         "overrides",
@@ -67,7 +68,7 @@ def main() -> None:
     args = parse_args()
 
     # ── Load & merge config ───────────────────────────────────────────────
-    cfg = OmegaConf.load(args.config)
+    cfg = load_config(args.config)
     if args.overrides:
         cfg = OmegaConf.merge(cfg, OmegaConf.from_dotlist(args.overrides))
 
@@ -89,8 +90,8 @@ def main() -> None:
     img_size = cfg.data.img_size
 
     train_loader, val_loader, _ = build_dataloaders(
-        root_dir=PROJECT_ROOT / cfg.data.root_dir,
-        csv_dir=PROJECT_ROOT / cfg.data.csv_dir,
+        root_dir=get_runtime_root() / cfg.data.root_dir,
+        csv_dir=get_runtime_root() / cfg.data.csv_dir,
         train_transform=get_train_transforms(img_size, mean, std),
         val_transform=get_val_transforms(img_size, mean, std),
         test_transform=get_test_transforms(img_size, mean, std),

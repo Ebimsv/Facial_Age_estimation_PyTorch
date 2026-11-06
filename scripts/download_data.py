@@ -151,7 +151,7 @@ def download_from_kaggle(dest: Path) -> None:
     print()
 
     zip_path.unlink()
-    print(f"  ✓  Extraction complete. Zip file removed.")
+    print("  ✓  Extraction complete. Zip file removed.")
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
