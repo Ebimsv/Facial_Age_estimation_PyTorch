@@ -144,12 +144,12 @@ for decode/hashing options, training verification and unknown identity leakage.
 `training.deterministic=false` is the default. Setting it true requests strict
 PyTorch algorithms; loader/worker seeds and environment metadata are recorded.
 This is a fixed-environment reproducibility policy, not a cross-device guarantee;
-RNG state restoration for resume remains P2.1.
+P2.1 now restores RNG/loader states at completed epoch boundaries; see [TRAINING.md](TRAINING.md).
 
 ## Migration of previously ignored settings
 
 - `logging.save_best_only=true` is removed with a visible FutureWarning because
-  current training always saves only the best validation model. Setting it false
+  best-validation saving is always enabled (P2.1 also writes a resumable last artifact). Setting it false
   is rejected; saving every epoch is not implemented by this change.
 - A legacy `inference` block containing only the known null defaults is removed
   with a FutureWarning. Non-null values or unknown keys are rejected. Use the
@@ -159,3 +159,13 @@ Legacy weights require the historical head/profile, now supported explicitly by
 `--legacy-resnet50`; changing output_dim alone is insufficient. See
 [checkpoint migration](CHECKPOINTS.md), [the audit](../audit/REPOSITORY_AUDIT.md)
 and [the roadmap](../audit/IMPLEMENTATION_ROADMAP.md).
+
+
+## P2.1 training/logging configuration
+
+`logging.wandb_mode` accepts `online` (default) or `offline`; W&B is still disabled
+unless `logging.use_wandb=true`. Save/log paths are roots for unique fresh run IDs.
+`--resume` restores saved config and accepts logging/data-location overrides only
+when the training/loader/provenance contracts still agree. The epoch horizon is
+fixed: `training.epochs` cannot be extended on resume. No persistent resume path is
+inserted into the experiment YAML. Full details: [TRAINING.md](TRAINING.md).

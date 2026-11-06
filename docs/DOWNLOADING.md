@@ -142,8 +142,8 @@ in [DATA_PROTOCOL.md](DATA_PROTOCOL.md). A cached folder without verified proven
 must not automatically be labeled as the configured mirror revision.
 
 Training will use `data.root_dir` and `data.csv_dir`; source/version options belong
-to download/preparation, not the model. Atomic checkpoint/resume is still P2.1 and
-should be addressed before a long new training run. This download addition neither
+to download/preparation, not the model. Atomic checkpoint and completed-epoch resume are implemented in P2.1;
+see [TRAINING.md](TRAINING.md) before starting or continuing a run. This download addition neither
 trains a model nor creates an accuracy benchmark.
 
 Basic CI uses synthetic HTTP/TAR/ZIP fixtures only, including partial transfers,

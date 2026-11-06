@@ -142,7 +142,7 @@ starting Python; runtime assignment cannot change its existing hash seed.
 
 These settings aim for repeatability within a fixed runtime, hardware, worker count
 and execution sequence; they do not promise identical results across devices or
-versions. Generator/RNG checkpoint restore and exact resume remain P2.1. See
+versions. P2.1 restores generator/RNG checkpoints at completed epoch boundaries; exact mid-epoch resume remains unsupported. See
 [PyTorch reproducibility guidance](https://docs.pytorch.org/docs/stable/notes/randomness.html)
 and [scikit-learn split API](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html).
 

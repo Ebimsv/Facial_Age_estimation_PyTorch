@@ -6,11 +6,41 @@
 
 مبنای تاریخچه: `a2c3a4e7b57390b12c4b43e9c53b15a10ec557e4`
 
-این سند snapshot ممیزی پیش از پیاده‌سازی است. پس از تأیید کاربر، P1.1 تا P1.6 اجرا شدند؛
+این سند snapshot ممیزی پیش از پیاده‌سازی است. پس از تأیید کاربر، P1.1 تا P1.6 و P2.1 اجرا شدند؛
 وضعیت فعلی و شواهد اجرای آن در [ثبت پیشرفت نقشهٔ راه](IMPLEMENTATION_ROADMAP.md)
 آمده است. یافته‌های تاریخی این سند به‌عنوان باگ‌های بازِ نسخهٔ جدید تفسیر نشوند.
 
-## وضعیت جاری — Hugging Face و شواهد دادهٔ واقعی، ۲۰۲۶-۱۱-۰۶
+## وضعیت جاری پس از P2.1 — ۲۰۲۶-۱۱-۰۶
+
+| یافته | وضعیت جاری | شواهد و محدودیت |
+|---|---|---|
+| F10 | Complete در قرارداد head/پارامتر | `AgeEstimationModel.head` و `_split_param_groups` بر اساس identity؛ پنج backbone، ViT fc1/fc2، projection MobileNet و frozen coverage تست شدند؛ state_dict تغییری نکرد |
+| F11 | Complete برای ذخیرهٔ اتمیک هر فایل و retention run | `atomic_save` temp/flush/fsync/replace؛ best قبلی قبل از موفقیت حذف نمی‌شود. unique run-id، best/last و lock دارند؛ pair transaction/power-loss guarantee نیست |
+| F12 | Complete برای update-based scheduling | optimizer post-step hook و counter؛ AMP skip scheduler را جلو نمی‌برد. horizon ثابت و تغییر epochs در resume رد می‌شود |
+| F14 | Partial برای reproducibility عمومی؛ epoch resume پیاده شد | RNG Python/NumPy/torch/CUDA، loader/sampler generators و contract restore؛ exact CPU در محیط ثابت با صفر/دو worker تأیید شد. cross-hardware/runtime، custom RNG و exact mid-epoch تأیید نشده‌اند |
+| F20 | Complete در logging فعلی | lazy init، finally cleanup، run directories، global batch axis، TensorBoard purge و W&B session/group/custom-axis/offline؛ تست واقعی TB/W&B و failure injection |
+| F19 | Partial برای کل پروژه | ۳۷۶ تست کامل موفق، شامل ۵۷ trainer/resume؛ GPU، CLI، package و inference سازگار. evaluation مستقل و ONNX runtime matrix هنوز بازند |
+
+کد: `1f55a38`؛ **۳۷۶ تست محلی موفق** و Ruff/whitespace موفق. Python 3.13.9 /
+torch 2.9.0+cu128 در Conda موجود، RTX 5070 Laptop، CUBLAS_WORKSPACE_CONFIG پیش از
+شروع suite تعیین شد. چهار CUDA test در suite، Adam/scaler/RNG restore و skip واقعی
+را پوشش دادند؛ این benchmark یا تضمین تکرارپذیری GPU روی هر سخت‌افزار نیست.
+W&B 0.23.1 آفلاین و TensorBoard واقعی اجرا شدند. وابستگی/وزن جدید نصب/دانلود نشد؛
+CI جدید extra W&B را فقط روی runner Python 3.11 برای integration آفلاین نصب می‌کند.
+نتیجهٔ ریموت P2.1 پس از push باید جدا ثبت شود.
+
+`training_state.version=1` به artifact inference schema v1 افزوده شد؛ load محدود
+همچنان برقرار است. raw/legacy/inference-only به resume جعلی تبدیل نمی‌شوند. best/last
+باید matching و همراه باشند؛ write failure پس از best موفق با تشخیص mismatch و ادامه
+از best کامل مدیریت می‌شود. lock stale بعد از kill خودکار حذف نمی‌شود. قرارداد داده،
+loader، hyperparameter، ordered parameter groups و state scheduler پیش از ادامه بررسی می‌شوند.
+
+[TRAINING.md](../docs/TRAINING.md) scope و بازیابی را توضیح می‌دهد. دادهٔ HF/protocol و
+CSVهای تاریخی/وزن‌ها unchanged؛ آموزش واقعی طولانی/MAE تازه انجام نشده است. گام بعد
+**P2.2** است. بخش‌های پایین snapshotهای تاریخی‌اند، از جمله اخطار قدیمی best deletion
+که اکنون در کد جدید رفع شده است.
+
+## وضعیت تاریخی — Hugging Face و شواهد دادهٔ واقعی، ۲۰۲۶-۱۱-۰۶
 
 | موضوع | وضعیت جاری | شاهد و مرز نتیجه |
 |---|---|---|

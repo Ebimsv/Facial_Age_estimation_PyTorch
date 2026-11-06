@@ -6,7 +6,60 @@
 
 وضعیت: برنامهٔ مبنای ممیزی؛ پیشرفت اجرایی پس از تأیید کاربر در بخش زیر ثبت می‌شود.
 
-## ثبت پیشرفت جاری — تکمیل P1.6 با Hugging Face و دادهٔ واقعی
+## ثبت پیشرفت جاری — P2.1: آموزش قابل ادامه و checkpoint امن
+
+در ۲۰۲۶-۱۱-۰۶، P2.1 با کامیت کد `1f55a38` پیاده‌سازی شد. **۳۷۶ تست کامل محلی موفق**،
+Ruff و whitespace موفق‌اند؛ شامل ۵۷ تست Trainer/resume، چهار CUDA test در کل suite،
+worker/spawn، TensorBoard واقعی و W&B 0.23.1 آفلاین. همان Conda موجود با Python 3.13.9 /
+torch 2.9.0+cu128 و RTX 5070 Laptop؛ هیچ dependency/وزن/داده نصب یا دانلود نشد.
+گام بعدی **P2.2** است؛ آموزش واقعی طولانی یا benchmark جدید آغاز نشد.
+
+- `AgeEstimationModel.head` property صریح است و module را دوباره register نمی‌کند؛
+  `Trainer._split_param_groups` از identity پارامترها استفاده می‌کند. هر پارامتر فعال
+  دقیقاً یک گروه دارد، frozen حذف می‌شود و ViT fc1/fc2 و projection اصلی MobileNet
+  backbone می‌مانند. state_dict قدیمی و همهٔ پنج backbone در تست سازگارند.
+- `atomic_save` در `src/utils/checkpoint.py` با tempfile همان پوشه، flush/fsync و
+  `os.replace`، یک فایل را اتمیک جایگزین می‌کند. `best.pt` و `last.pt` در run-id یکتا
+  نوشته می‌شوند؛ دیگر best قبل از ذخیرهٔ موفق حذف نمی‌شود و retention محدود به دو فایل است.
+  runها تداخل ندارند؛ `.training.lock` با ایجاد exclusive مانع دو writer همان directory است.
+- `training_state.version=1` در artifact inference schema v1، next_epoch، global_step،
+  successful_updates، best metric/epoch، scheduler/scaler، state loss، Python/NumPy/torch/
+  CUDA RNG، generatorهای loader/sampler، قرارداد و history را نگه می‌دارد؛ optimizer
+  در سطح قبلی هم حفظ شده است. NumPy keys tensor هستند و restricted loading کار می‌کند.
+- CLI `--resume` config ذخیره‌شده را مبنا می‌گیرد؛ backbone بدون pretrained download
+  ساخته می‌شود. تغییر epoch horizon/optimizer/seed/model/داده ناسازگار رد می‌شود؛ مکان داده
+  و logging در صورت تطبیق قرارداد مجازند. output resume کنار همان artifact است.
+  نسخه‌های قدیمی inference-only، raw state_dict و pickle قدیمی resume حدسی نمی‌گیرند.
+- restore مدل/optimizer/scheduler/scaler و سپس، پس از logger initialization، RNG و
+  generatorها انجام می‌شود. ادامه از پایان epoch است؛ قطع وسط epoch باعث replay آن
+  epoch از checkpoint قبلی می‌شود، نه exact mid-epoch resume. sampler استاندارد، batching
+  معمول و persistent_workers=False بررسی می‌شوند؛ RNG مستقل library/transform سفارشی خارج scope است.
+- optimizer post-step hook فقط update واقعاً اجراشده را می‌شمارد؛ AMP skip، scheduler
+  یا successful_updates را جلو نمی‌برد. global_step تمام batchهای تلاش‌شده است؛ schedule
+  ثابت ممکن است به‌علت skip پیش از LR نهایی متوقف شود؛ epoch اضافه یا step ساختگی وجود ندارد.
+- loggerها فقط داخل run باز می‌شوند و finally هر دو cleanup را تلاش و lock/hook را آزاد
+  می‌کند. TensorBoard محور global batch و purge پس از مرز resume دارد. W&B هر invocation
+  session جدا، group=run-id و محور custom `trainer/global_step` دارد؛ `logging.wandb_mode`
+  online/offline اضافه شد. CI روی Python 3.11 extra W&B را برای تست آفلاین نصب می‌کند؛
+  محیط Conda کاربر تغییر نکرد. API hook در source رسمی torch 2.3 نیز بررسی شد، runtime minimum هنوز P3.2 است.
+- best و last تراکنش مشترک نیستند. اگر best جدید ذخیره و last ناموفق شود، checkpoint
+  قدیمی و sibling best ناسازگار تشخیص داده می‌شوند؛ best کامل جدید یا pair matching مسیر
+  بازیابی است. power-loss guarantee، distributed sampler، persistent worker و mid-epoch
+  restore ادعا نشده‌اند؛ lock باقی‌مانده پس از kill نیاز به بررسی owner و حذف دستی دارد.
+- تست‌ها: برابری دقیق CPU پیوسته و interrupted/restarted، هم از boundary هم از وسط epoch،
+  با صفر/دو worker؛ وزن/optimizer/LR/scaler/history و RNG بعدی برابرند. failure injection
+  save/fsync/replace، حفظ best/last، run isolation، contract rejection، CLI بدون pretrained،
+  logger cleanup، رویداد واقعی TensorBoard، offline W&B، AMP skip CUDA و restore CUDA
+  Adam/scaler/RNG آزموده شدند. تولید checkpoint واقعی CNN و inference مشترک نیز پاس شد.
+- [docs/TRAINING.md](../docs/TRAINING.md) دستورها، scope و فلوچارت بازیابی دارد؛ README،
+  راهنمای checkpoint/config/data/download/install به‌روز شدند. CI این کامیت پس از push
+  جداگانه بررسی می‌شود؛ نتیجهٔ محلی جای شاهد ریموت نیست.
+
+F10/F11/F12/F20 در دامنهٔ پیاده‌سازی این گام رفع شدند؛ F14 از نظر epoch-boundary
+پیشرفت کرده و cross-runtime/hardware یا state سفارشی همچنان محدود است. CSV تاریخی،
+پروتکل واقعی HF، وزن legacy و credential تغییری نکردند. ثبت‌های بعدی تاریخی‌اند.
+
+## ثبت پیشرفت تاریخی — تکمیل P1.6 با Hugging Face و دادهٔ واقعی
 
 در ۲۰۲۶-۱۱-۰۶، به درخواست کاربر و پیش از ورود به فاز دوم، کامیت `b09a79a` دانلود
 بدون Kaggle را اضافه کرد. **۳۱۹ تست کامل محلی موفق**، شامل ۵۰ تست HF/HTTP/TAR/config،
@@ -415,6 +468,8 @@ P1.1 → P1.2 → P1.3 → P1.4 → P1.5 → P1.6
 
 ### P2.1 — آموزش قابل ادامه، ذخیرهٔ امن و logging مستقل
 
+**وضعیت اجرا: انجام‌شده در ۲۰۲۶-۱۱-۰۶؛ شاهد و scope در ثبت پیشرفت P2.1.**
+
 - **هدف:** قطع اجرا و restart، state آموزش و بهترین وزن را حفظ کند.
 - **یافته‌ها / اولویت / اندازه:** F10، F11، F12، F14، F20؛ High؛ Medium.
 - **تغییر:** `src/training/trainer.py`، `src/models/age_estimator.py`، `scripts/train.py` و config؛ utilityهای checkpoint/seed.
@@ -603,5 +658,5 @@ P1.1 → P1.2 → P1.3 → P1.4 → P1.5 → P1.6
 
 برای بستن هر گام، PR باید مشکل و رفتار جدید، تست‌های واقعاً اجراشده و نتیجه، محدودیت‌های باقی‌مانده و artifact/تغییر قرارداد را ذکر کند. اگر تست اجرا نشد، علت صریح ثبت شود؛ «تست نوشته شد» به معنی «تست سبز است» نیست. هیچ MAE بهتر، latency کمتر یا star بیشتری معیار تضمین‌شدهٔ تکمیل مهندسی نیست.
 
-**گام اجرایی بعدی: P2.1**؛ پیش از ویرایش، وضعیت working tree بررسی و تغییرات کاربر حفظ شود.
-P1.1 تا P1.6 را صرفاً به‌علت وجود شرح برنامه در این سند دوباره از ابتدا اجرا نکنید.
+**گام اجرایی بعدی: P2.2**؛ پیش از ویرایش، وضعیت working tree بررسی و تغییرات کاربر حفظ شود.
+P1.1 تا P1.6 و P2.1 را صرفاً به‌علت وجود شرح برنامه در این سند دوباره از ابتدا اجرا نکنید.

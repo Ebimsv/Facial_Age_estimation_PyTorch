@@ -42,13 +42,13 @@ Train, evaluate, and deploy in minutes — on CPU or GPU.
 
 - 🔥 **5 Backbones** — MobileNetV3-Large, EfficientNet-B0/B3, ResNet-50, ViT-S/14 DINOv2
 - 📐 **L1 + variance objective** — models age as a distribution; a documented variant inspired by mean-variance methods, with float32 central moments
-- ⚡ **AMP + AdamW** — mixed-precision training with differential learning rates and OneCycleLR warmup
+- ⚡ **AMP + AdamW** — mixed-precision training with differential learning rates and OneCycleLR warmup; atomic best/last checkpoints and epoch-boundary resume
 - 🗂️ **Clean package layout** — `src/`, `scripts/`, `demo/`, `tests/`, `configs/` following standard PyTorch practices
 - 🎛️ **OmegaConf config** — change any hyperparameter from the CLI without editing code
 - 📊 **Bias analysis** — per-epoch breakdown of MAE by age group, gender, and ethnicity
 - 🖥️ **Gradio demo** — upload a photo → see predicted age + full probability distribution
 - 📤 **Export ready** — TorchScript (trace) and ONNX with dynamic batch support
-- ✅ **319 tests** + GitHub Actions CI (GPU/demo checks are conditional)
+- ✅ **376 tests** + GitHub Actions CI (GPU/demo checks are conditional)
 
 ---
 
@@ -72,7 +72,7 @@ python scripts/prepare_data.py --dataset-dir dataset/utkcropped \
 python scripts/train.py data.csv_dir=csv_dataset/protocol_v2
 
 # 5. Run the Gradio demo
-python demo/app.py --checkpoint checkpoints/best_efficientnet_b3_*.pt
+python demo/app.py --checkpoint checkpoints/RUN_ID/best.pt  # replace RUN_ID with the printed run folder
 ```
 
 > 💡 **No GPU?** The pipeline runs on CPU too — just set `training.use_amp=false` in `configs/default.yaml`.
@@ -175,7 +175,7 @@ Facial_Age_estimation_PyTorch/
 │   └── export_model.py       # TorchScript & ONNX export
 ├── demo/
 │   └── app.py                # Gradio web demo
-├── tests/                    # 319 tests (pytest)
+├── tests/                    # 376 tests (pytest)
 ├── notebooks/                # EDA notebooks (coming soon)
 ├── pics/                     # Images used in README
 ├── checkpoints/              # Saved model weights (git-ignored)
@@ -350,6 +350,23 @@ python scripts/train.py training.batch_size=48 data.img_size=192
 python scripts/train.py model.name=mobilenet_v3 training.batch_size=128
 ```
 
+### Resume and Checkpoint Safety
+
+Fresh runs write `checkpoints/RUN_ID/{best,last}.pt` and isolate logs under the run ID.
+Use the actual path printed by training:
+
+```bash
+train-age --resume checkpoints/RUN_ID/last.pt
+# Optional local tracking without upload:
+train-age --resume checkpoints/RUN_ID/last.pt logging.use_wandb=true logging.wandb_mode=offline
+```
+
+Resume keeps the saved epoch budget/OneCycle schedule, checks data/loader/config
+contracts, and restores optimizer/scaler/RNG at an epoch boundary. A partial epoch
+is replayed. Older inference-only artifacts cannot be resumed. See
+[training, atomic-write recovery and logging](docs/TRAINING.md) for the supported
+scope, best/last pairing and concurrency lock.
+
 ### Key Config Options (`configs/default.yaml`)
 
 ```yaml
@@ -384,13 +401,13 @@ tensorboard --logdir runs/
 
 ```bash
 # Standard evaluation on the test split
-python scripts/evaluate.py --checkpoint checkpoints/best_efficientnet_b3_*.pt
+python scripts/evaluate.py --checkpoint checkpoints/RUN_ID/best.pt
 
 # Demographic bias breakdown (age group, gender, ethnicity)
-python scripts/evaluate.py --checkpoint checkpoints/best_efficientnet_b3_*.pt --bias
+python scripts/evaluate.py --checkpoint checkpoints/RUN_ID/best.pt --bias
 
 # Save per-image predictions to CSV
-python scripts/evaluate.py --checkpoint checkpoints/best_*.pt \
+python scripts/evaluate.py --checkpoint checkpoints/RUN_ID/best.pt \
     --bias --save-csv results/predictions.csv
 ```
 
@@ -418,7 +435,7 @@ White     4.02
 
 ```bash
 python scripts/inference.py \
-    --checkpoint checkpoints/best_*.pt \
+    --checkpoint checkpoints/RUN_ID/best.pt \
     --image img_test/30_1_2.jpg \
     --output img_test/output.jpg
 ```
@@ -429,10 +446,10 @@ python scripts/inference.py \
 
 ```bash
 # Local demo
-python demo/app.py --checkpoint checkpoints/best_*.pt
+python demo/app.py --checkpoint checkpoints/RUN_ID/best.pt
 
 # Share publicly via Gradio tunnel
-python demo/app.py --checkpoint checkpoints/best_*.pt --share
+python demo/app.py --checkpoint checkpoints/RUN_ID/best.pt --share
 ```
 
 The demo shows the **predicted age** and the distribution over the checkpoint's age support. This distribution is not calibrated confidence; regression displays a scalar age.
@@ -445,10 +462,10 @@ The demo shows the **predicted age** and the distribution over the checkpoint's 
 
 ```bash
 # TorchScript (fastest for deployment — uses torch.jit.trace)
-python scripts/export_model.py --checkpoint checkpoints/best_*.pt
+python scripts/export_model.py --checkpoint checkpoints/RUN_ID/best.pt
 
 # ONNX (for ONNX Runtime, TensorRT, OpenVINO, etc.)
-python scripts/export_model.py --checkpoint checkpoints/best_*.pt --format onnx
+python scripts/export_model.py --checkpoint checkpoints/RUN_ID/best.pt --format onnx
 ```
 
 ---
@@ -495,7 +512,7 @@ python scripts/export_model.py --checkpoint checkpoints/best_*.pt --format onnx
 - [x] **L1 + central variance** — explicit variant, float32 moments, raw regression gradients and bounded modern inference
 - [x] **Modern training pipeline** — AMP, AdamW with differential LRs, OneCycleLR, gradient clipping
 - [x] **Stratified data splits** — stratified train/val/test CSV generation
-- [x] **319 tests** — including data manifests, worker repeatability, regression gradients, checkpoint contracts, and installed packaging
+- [x] **376 tests** — including data manifests, worker repeatability, regression gradients, checkpoint contracts, and installed packaging
 - [x] **GitHub Actions CI** — automated lint + test on every push
 - [x] **Gradio demo** — with age probability distribution visualisation
 - [x] **TorchScript + ONNX export**

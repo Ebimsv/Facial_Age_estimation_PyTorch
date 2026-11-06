@@ -6,7 +6,31 @@
 
 ترتیب اجرا: [نقشهٔ راه](IMPLEMENTATION_ROADMAP.md)
 
-## پیشرفت جاری — دریافت بدون Kaggle و دادهٔ آمادهٔ محلی
+## پیشرفت جاری پس از P2.1 — اجرای قابل ادامه و قابل بررسی
+
+مسیر train اکنون checkpointهای best/last اتمیک در run-id یکتا و resume کامل از مرز
+پایان epoch دارد. [راهنمای آموزش](../docs/TRAINING.md) دستورهای source/installed،
+immutable schedule، config/data/loader validation، recovery از last-write failure،
+lock و محدودیت‌های mid-epoch را توضیح می‌دهد؛ README به فایل‌های جدید اشاره می‌کند.
+این امکانات، استفادهٔ واقعی از دادهٔ آمادهٔ HF را عملی‌تر می‌کنند؛ مدل تازه یا benchmark
+تولید نشده است و splitهای تاریخی با duplicate leakage همچنان برای baseline تازه مناسب نیستند.
+
+head گروه‌بندی‌شده با identity، scheduler وابسته به optimizer update واقعی و state
+RNG/generator، correctness اصلی این گام‌اند. loggerها مستقل و اختیاری، با finally cleanup
+و مسیر run-id هستند؛ W&B mode آفلاین و محور custom global step و TensorBoard purge
+رفتار resume را روشن می‌کنند. minimum torch API از source 2.3 بررسی شد؛ matrix دقیق
+minimum هنوز اجرا نشده و reproducibility بین نسخه‌ها/سخت‌افزارها تضمین نشده است.
+
+**۳۷۶ تست محلی موفق**، شامل ۵۷ Trainer/resume، قطع وسط epoch، برابری دقیق CPU با
+صفر/دو worker، چهار CUDA test در کل suite و TB/W&B واقعی آفلاین. CI پس از push جدا
+بررسی می‌شود؛ job Python 3.11 فقط برای integration آفلاین extra W&B را نصب می‌کند.
+محیط کاربر و داده/وزن‌هایش تغییر نکردند. وضعیت unsafe fallback و credential guard حفظ شد.
+
+ارزش فنی بعدی **P2.2** است: ارزیابی مستقل و کامل split انتخابی و خروجی قابل پیگیری؛
+سپس inference/export و baseline واقعی. پایان P2.1، وعدهٔ MAE بهتر، upload خودکار یا
+تضمین star نیست. ثبت‌های بعدی مربوط به مقاطع قبلی‌اند.
+
+## پیشرفت تاریخی — دریافت بدون Kaggle و دادهٔ آمادهٔ محلی
 
 منبع عمومی `py97/UTKFace-Cropped` اکنون default دانلود است؛ repo، revision کامل، size
 و SHA-256 در `configs/download.yaml` ثبت می‌شوند و داخل wheel هم حاضرند. کاربر بدون

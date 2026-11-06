@@ -155,3 +155,14 @@ valid-name images; fresh preparation and loader verification also succeeded loca
 See [DOWNLOADING.md](DOWNLOADING.md) for the exact source, local protocol and limits.
 Kaggle remains explicitly selectable with `--source kaggle` and the optional `data`
 extra. No dependency install or model training occurred in this extension.
+
+
+## P2.1 training state
+
+The trainer now uses the public optimizer post-step hook, also present in the
+PyTorch 2.3 source, for AMP-aware scheduler progression. Local runtime testing
+still uses the existing environment; a full minimum-version matrix remains P3.2.
+W&B offline mode and real TensorBoard events are tested without changing the
+user's Conda environment. See [TRAINING.md](TRAINING.md) for full-state checkpoint
+compatibility and the resume command. CI installs the optional W&B dependency on
+its Python 3.11 runner only for the offline integration test.

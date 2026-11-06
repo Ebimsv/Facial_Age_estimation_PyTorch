@@ -19,14 +19,17 @@ New Trainer checkpoints are created through `create_checkpoint`:
 | `cfg` | Recursively resolved plain config; no nested OmegaConf nodes |
 | `model_state_dict` | Weights matching the declared architecture exactly |
 | `epoch`, `val_mae` | Optional training metadata; not inferred from filenames |
-| `optimizer_state_dict` | Optional training state, retained when Trainer saves |
+| `optimizer_state_dict` | Optional AdamW state; restored only with complete P2.1 training state |
+| `training_state` | Optional training-state version 1: boundary counters, scheduler/scaler/RNG/loaders/contract/history; required for resume |
 | `experiment_metadata` | Optional data/manifest hashes, source declarations, runtime/Git/device and randomness policy from new Trainer runs; old conversion leaves provenance unknown |
 | `training_objective` | Optional declared objective name/revision/dtype, recorded by new Trainer runs; absent metadata is unknown |
 
 The explicit contract must agree with the saved config. Missing inference metadata,
 unsupported architecture/version, or incompatible state shapes fail clearly.
-Restoring the optimizer, scheduler, scaler and RNG for resume remains P2.1 work;
-this schema alone is not a promise of resumable training.
+P2.1 Trainer outputs also contain a versioned `training_state` with complete
+optimizer/scheduler/scaler/RNG/loader state. Earlier schema-v1 inference artifacts
+remain valid for inference but are not automatically resumable. See
+[TRAINING.md](TRAINING.md) for validation, best/last pairing and epoch-boundary scope.
 
 ## Override precedence
 
@@ -177,5 +180,15 @@ The training entry point verifies split CSVs and a v2 data manifest before model
 construction, then passes provenance to Trainer. `experiment_metadata` is optional
 training metadata and does not alter the schema-v1 inference contract. Loading or
 converting old checkpoints does not infer source/version, split seed or image hashes.
-Reproducing the exact RNG/generator position on resume remains P2.1 work. See
+P2.1 now restores completed-epoch RNG/generator positions; older artifacts retain unknown resume state. See
 [DATA_PROTOCOL.md](DATA_PROTOCOL.md) for the recorded fields and verification scope.
+
+
+## P2.1 training artifacts
+
+Fresh Trainer runs write individually atomic `best.pt` and `last.pt` under a
+unique run directory. They preserve the schema-v1 inference contract and are still
+restricted-loadable by the common prediction/evaluation/export pipeline. Training
+resume uses a separate strict reader; it does not change inference runtime override
+policy. NumPy RNG keys are stored as tensors, not pickled NumPy objects. Copy both
+best and last to relocate a resumable run. See [TRAINING.md](TRAINING.md).
